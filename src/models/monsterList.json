@@ -1,0 +1,464 @@
+{
+  "types": [
+    "Air",
+    "Ancient",
+    "Beast",
+    "Dragon",
+    "Earth",
+    "Elemental",
+    "Fire",
+    "Humanoid",
+    "Undead",
+    "Water"
+  ],
+  "monsters": [
+    {
+      "element": [
+        "Air",
+        "Elemental"
+      ],
+      "name": "Air Elemental"
+    },
+    {
+      "element": [
+        "Cave",
+        "Beast"
+      ],
+      "name": "Anaconda"
+    },
+    {
+      "element": [
+        "Cave",
+        "Beast"
+      ],
+      "name": "Basilisk"
+    },
+    {
+      "element": [
+        "Mountain",
+        "Dragon"
+      ],
+      "name": "Black Dragon"
+    },
+    {
+      "element": [
+        "Cave",
+        "Humanoid"
+      ],
+      "name": "Black Goblin"
+    },
+    {
+      "element": [
+        "Dark",
+        "Humanoid"
+      ],
+      "name": "Black Knight"
+    },
+    {
+      "element": [
+        "Dark",
+        "Beast"
+      ],
+      "name": "Black Widow"
+    },
+    {
+      "element": [
+        "Dragon",
+        "Mountain"
+      ],
+      "name": "Blue Dragon"
+    },
+    {
+      "element": [
+        "Humanoid",
+        "Water"
+      ],
+      "name": "Buccaneer"
+    },
+    {
+      "element": [
+        "Beast",
+        "Mythical"
+      ],
+      "name": "Chimera"
+    },
+    {
+      "element": [
+        "Beast",
+        "Mythical"
+      ],
+      "name": "Cockatrice"
+    },
+    {
+      "element": [
+        "Beast",
+        "Water"
+      ],
+      "name": "Crocodile"
+    },
+    {
+      "element": [
+        "Dark",
+        "Elemental"
+      ],
+      "name": "Dark Elemental"
+    },
+    {
+      "element": [
+        "Dark",
+        "Humanoid"
+      ],
+      "name": "Dark Wizard"
+    },
+    {
+      "element": [
+        "Dark",
+        "Humanoid"
+      ],
+      "name": "Death Knight"
+    },
+    {
+      "element": [
+        "Dark",
+        "Beast"
+      ],
+      "name": "Dark Hound"
+    },
+    {
+      "element": [
+        "Undead",
+        "Dragon"
+      ],
+      "name": "Dragon Zombie"
+    },
+    {
+      "element": [
+        "Earth",
+        "Elemental"
+      ],
+      "name": "Earth Elemental"
+    },
+    {
+      "element": [
+        "Fire",
+        "Elemental"
+      ],
+      "name": "Fire Elemental"
+    },
+    {
+      "element": [
+        "Fire",
+        "Mythical"
+      ],
+      "name": "Fire Hydra"
+    },
+    {
+      "element": [
+        "Fire",
+        "Beast"
+      ],
+      "name": "Fire Lizard"
+    },
+    {
+      "element": [
+        "Earth",
+        "Ancient"
+      ],
+      "name": "Gargoyle"
+    },
+    {
+      "element": [
+        "Undead",
+        "Dark"
+      ],
+      "name": "Ghast"
+    },
+    {
+      "element": [
+        "Undead",
+        "Dark"
+      ],
+      "name": "Ghost"
+    },
+    {
+      "element": [
+        "Undead",
+        "Dark"
+      ],
+      "name": "Ghoul"
+    },
+    {
+      "element": [
+        "Earth",
+        "Humanoid"
+      ],
+      "name": "Goblin"
+    },
+    {
+      "element": [
+        "Dragon",
+        "Mountain"
+      ],
+      "name": "Green Dragon"
+    },
+    {
+      "element": [
+        "Beast",
+        "Dark"
+      ],
+      "name": "Hellhound"
+    },
+    {
+      "element": [
+        "Light",
+        "Dragon"
+      ],
+      "name": "Holy Dragon"
+    },
+    {
+      "element": [
+        "Water",
+        "Dragon"
+      ],
+      "name": "Hydra"
+    },
+    {
+      "element": [
+        "Metal",
+        "Mythical"
+      ],
+      "name": "Iron Golem"
+    },
+    {
+      "element": [
+        "Beast",
+        "Water"
+      ],
+      "name": "Killer Shark"
+    },
+    {
+      "element": [
+        "Undead",
+        "Dark"
+      ],
+      "name": "King Mummy"
+    },
+    {
+      "element": [
+        "Beast",
+        "Earth"
+      ],
+      "name": "Lizard"
+    },
+    {
+      "element": [
+        "Beast",
+        "Mythical"
+      ],
+      "name": "Manticore"
+    },
+    {
+      "element": [
+        "Humanoid",
+        "Mythical"
+      ],
+      "name": "Medusa"
+    },
+    {
+      "element": [
+        "Beast",
+        "Mythical"
+      ],
+      "name": "Minotaur"
+    },
+    {
+      "element": [
+        "Undead",
+        "Dark"
+      ],
+      "name": "Mummy"
+    },
+    {
+      "element": [
+        "Humanoid",
+        "Mythical"
+      ],
+      "name": "Ogre"
+    },
+    {
+      "element": [
+        "Humanoid",
+        "Undead"
+      ],
+      "name": "Pharaoh"
+    },
+    {
+      "element": [
+        "Beast",
+        "Water"
+      ],
+      "name": "Piranha"
+    },
+    {
+      "element": [
+        "Humanoid",
+        "Water"
+      ],
+      "name": "Pirate"
+    },
+    {
+      "element": [
+        "Beast",
+        "Earth"
+      ],
+      "name": "Python"
+    },
+    {
+      "element": [
+        "Humanoid",
+        "Dark"
+      ],
+      "name": "Reaper"
+    },
+    {
+      "element": [
+        "Dragon",
+        "Mountain"
+      ],
+      "name": "Red Dragon"
+    },
+    {
+      "element": [
+        "Beast",
+        "Earth"
+      ],
+      "name": "Scorpion"
+    },
+    {
+      "element": [
+        "Humanoid",
+        "Undead"
+      ],
+      "name": "Skeleton"
+    },
+    {
+      "element": [
+        "Beast",
+        "Water"
+      ],
+      "name": "Shark"
+    },
+    {
+      "element": [
+        "Dragon",
+        "Mountain"
+      ],
+      "name": "Silver Dragon"
+    },
+    {
+      "element": [
+        "Earth",
+        "Humanoid"
+      ],
+      "name": "Stone Golem"
+    },
+    {
+      "element": [
+        "Undead",
+        "Humanoid"
+      ],
+      "name": "Specter"
+    },
+    {
+      "element": [
+        "Earth",
+        "Beast"
+      ],
+      "name": "Tarantula"
+    },
+    {
+      "element": [
+        "Humanoid",
+        "Mythical"
+      ],
+      "name": "Troll"
+    },
+    {
+      "element": [
+        "Ancient",
+        "Beast"
+      ],
+      "name": "T-Rex"
+    },
+    {
+      "element": [
+        "Mythical",
+        "Beast"
+      ],
+      "name": "Unicorm"
+    },
+    {
+      "element": [
+        "Undead",
+        "Humanoid"
+      ],
+      "name": "Vampire"
+    },
+    {
+      "element": [
+        "Beast",
+        "Earth"
+      ],
+      "name": "Warg Wolf"
+    },
+    {
+      "element": [
+        "Elemental",
+        "Water"
+      ],
+      "name": "Water Elemental"
+    },
+    {
+      "element": [
+        "Mythical",
+        "Beast"
+      ],
+      "name": "Werewolf"
+    },
+    {
+      "element": [
+        "Mythical",
+        "Beast"
+      ],
+      "name": "Wyrm"
+    },
+    {
+      "element": [
+        "Mythical",
+        "Beast"
+      ],
+      "name": "Wyvern"
+    },
+    {
+      "element": [
+        "Mythical",
+        "Beast"
+      ],
+      "name": "Ent"
+    },
+    {
+      "element": [
+        "Ancient",
+        "Beast"
+      ],
+      "name": "Raptor"
+    },
+    {
+      "element": [
+        "Earth",
+        "Beast"
+      ],
+      "name": "Giant Slug"
+    }
+  ]
+}
