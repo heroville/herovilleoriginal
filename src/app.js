@@ -1,4 +1,5 @@
-﻿
+﻿import angular from 'angular';
+
 var app = angular.module('Incremental', ['ui.bootstrap']);
 
 app.directive('ngSlider', function () {
@@ -77,6 +78,7 @@ app.filter('heroAdventure', function () {
 app.controller("MainController", function ($scope, $interval, $timeout, $http, $compile) {
     require('./styles/newStyle.scss');
     require('./styles/jquery-ui-1.10.0.custom.scss');
+    require('./filters/heroBattleFilter.js');
     $scope.dark=false;
     //DEBUG
     $scope.debugging = false;
@@ -108,7 +110,7 @@ app.controller("MainController", function ($scope, $interval, $timeout, $http, $
     $scope.goldMulti = 1;
 
     //Display Variables
-    $scope.version = '1.3';
+    $scope.version = '1.4';
     $scope.optionsSuccess = [1, 2, 3, 4, 5, 6, 7, 8, 9];
     $scope.optionsLoss = [1, 2, 3, 4];
     $scope.sorting = {

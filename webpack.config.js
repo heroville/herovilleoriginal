@@ -1,4 +1,5 @@
 const path = require('path');
+const webpack = require('webpack');
 const HtmlWebpackPlugin = require('html-webpack-plugin');
 const MiniCssExtractPlugin = require('mini-css-extract-plugin');
 
@@ -9,11 +10,17 @@ const htmlPlugin = new HtmlWebpackPlugin({
   
   const miniCssExtractPlugin = new MiniCssExtractPlugin();
 
+  const jQuery = new webpack.ProvidePlugin({
+    $: 'jquery',
+    jQuery: 'jquery',
+  });
+
 module.exports = {
-    entry: './src/app.js',
+    entry: './src/index.js',
     plugins: [
         htmlPlugin,
-        miniCssExtractPlugin
+        miniCssExtractPlugin,
+        jQuery
     ],
     devtool: 'source-map',
     output: {
