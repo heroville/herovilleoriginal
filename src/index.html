@@ -7,7 +7,7 @@
 </head>
 <body>
     <link rel="shortcut icon" href="favicon.ico" type="image/x-icon" />
-    <div ng-app="Incremental" id="wrap" ng-controller="MainController" class="page-wrap">
+    <div ng-app="Incremental" id="wrap" ng-controller="MainController as mainCtrl" class="page-wrap">
         <div class="row">
             <div class="col-lg-4">
                 <div class="panel panel-default">
@@ -112,7 +112,8 @@
                 </section>
             </uib-tab>
             <uib-tab heading="Hero" id="hero" disabled="heroEnabled">
-                <section id="container">
+                <hero-list></hero-list>
+                <!-- <section id="container">
                     <div class="col-lg-7">
                         <div class="btn-group" dropdown is-open="status.isopen" id="heroFilter">
                             <button type="button" class="dropdown-toggle" id="sortButton">
@@ -312,7 +313,7 @@
                             </tr>
                         </table>
                     </div>
-                </section>
+                </section> -->
             </uib-tab>
             <uib-tab heading="Production" disabled="prodEnabled">
                 <section id="containter">

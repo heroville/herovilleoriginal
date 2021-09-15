@@ -1,0 +1,201 @@
+<section id="container">
+    <div class="col-lg-7">
+        <div class="btn-group" dropdown is-open="status.isopen" id="heroFilter">
+            <button type="button" class="dropdown-toggle" id="sortButton">
+                Sort <span class="caret down"></span>
+            </button>
+            <ul class="dropdown-menu" role="menu">
+                <li><a href="" ng-click="sorting.heroTable = 'name'; reverse=!reverse"><u>Name</u></a>
+                </li>
+                <li><a href=""
+                        ng-click="sorting.heroTable = ['level','experience']; reverse=!reverse"><u>Level</u></a>
+                </li>
+                <li><a href=""
+                        ng-click="sorting.heroTable = 'equip.gold'; reverse=!reverse"><u>Gold</u></a>
+                </li>
+                <li><a href=""
+                        ng-click="sorting.heroTable = 'equip.scrap'; reverse=!reverse"><u>Resources</u></a>
+                </li>
+                <li><a href=""
+                        ng-click="sorting.heroTable = 'equip.weapon.id'; reverse=!reverse"><u>Weapon</u></a>
+                </li>
+                <li><a href=""
+                        ng-click="sorting.heroTable = 'equip.accessory.length'; reverse=!reverse"><u>Accessory</u></a>
+                </li>
+                <li><a href=""
+                        ng-click="sorting.heroTable = 'currHealth'; reverse=!reverse"><u>Health</u></a>
+                </li>
+                <li><a href=""
+                        ng-click="sorting.heroTable = 'experience'; reverse=!reverse"><u>Experience</u></a>
+                </li>
+                <li><a href=""
+                        ng-click="sorting.heroTable = 'dungeon'; reverse=!reverse"><u>Location</u></a>
+                </li>
+            </ul>
+        </div>
+        <input ng-model="hFilterString.name">
+        <ul id="heroList"
+            ng-repeat="hero in filteredheroList = ($parent.heroList | heroAdventure | orderBy:sorting.heroTable:reverse | filter:hFilterString)"
+            ng-hide="showHeroTable.enabled">
+            <li>
+                <table class="table table-bordered" id="heroTable">
+                    <tr>
+                        <td>
+                            Lvl. {{hero.level}} {{hero.name}}
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>
+                            Class: {{hero.academy.name}}
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>
+                            HP: <progressbar value="hero.currHealth/hero.health*100" type="danger"
+                                style="width:220px;"><i>{{hero.currHealth | number}}/{{hero.health |
+                                    number}}</i></progressbar>
+                            XP: <progressbar value="hero.experience/hero.next*100" type="warning"
+                                style="width:220px;"><i>{{hero.experience | number}}/{{hero.next |
+                                    number}}</i></progressbar>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>
+                            <table id="lootTable">
+                                <tr>
+                                    <td>
+                                        Loot:
+                                    </td>
+                                    <td>
+                                        Equip:
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td style="width:50%;">
+                                        {{hero.equip.gold}} <img src="../../images/I_GoldBar.png" />
+                                    </td>
+                                    <td>
+                                        <a href="" popover-template="showEquip.html"
+                                            popover-placement="right" popover-trigger="mouseenter"><img
+                                                ng-src="{{hero.equip.weapon.image}}" />
+                                            ({{hero.equip.weapon.minDamage}}-{{hero.equip.weapon.maxDamage}})
+                                            Durability: {{hero.equip.weapon.durability}}</a>
+                                        <script id="showEquip.html" type="text/ng-template">
+                                                <img ng-src="images/{{hero.equip.weapon.image}}" />
+                                                {{hero.equip.weapon.name}} ({{hero.equip.weapon.minDamage}}-{{hero.equip.weapon.maxDamage}}) {{hero.equip.weapon.durability}}
+                                                <div ng-repeat="accessory in hero.equip.accessory"><img ng-src="images/{{accessory.image}}" />{{accessory.name}} | {{accessory.durability}}</div>
+                                                <div ng-repeat="pot in hero.equip.potions"><img ng-src="images/{{pot.image}}" />{{pot.name}} | {{pot.count}}</div>
+                                            </script>
+                                    </td>
+                                </tr>
+                            </table>
+
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>
+                            Location: {{hero.location}}
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>
+                            <a href="" popover-template="showBattle.html" popover-placement="right"
+                                popover-trigger="mouseenter">
+                                <div ng-model="progress">{{hero.progress}}</div>
+                            </a>
+                            <script id="showBattle.html" type="text/ng-template">
+                                    <table class="table table-bordered" ng-hide="!filteredBattle.length">
+                                        <tr ng-repeat="battle in filteredBattle = (battles | heroBattle:hero)">
+                                            <td>
+                                                <div ng-repeat="monster in battle.copyMonsters" id="monsterList">
+                                                    {{monster.name}} ({{monster.minDamage}} - {{monster.maxDamage}}) <progressbar max="monster.maxHealth" value="monster.health" type="danger" style="width:200px"><i>{{monster.health}}/{{monster.maxHealth}}</i></progressbar>
+                                                </div>
+                                            </td>
+                                        </tr>
+                                    </table>
+                                    <div ng-show="!filteredBattle.length">Not in Battle</div>
+                                </script>
+                        </td>
+                    </tr>
+
+                </table>
+            </li>
+        </ul>
+        <table id="oldheroTable" class="table table-bordered" ng-show="showHeroTable.enabled">
+
+            <tr>
+                <td><u><b>Heroes</b></u></td>
+            </tr>
+            <tr>
+                <td><u>Name</u></td>
+                <td><u>Level</u></td>
+                <td><u>Loot</u></td>
+                <td><u>Damage</u></td>
+                <td><u>Health</u></td>
+                <td><u>Experience</u></td>
+                <td><u>Location</u></td>
+                <td><u>Progress</u></td>
+            </tr>
+            <tr
+                ng-repeat="hero in filteredheroList = ($parent.heroList | orderBy:sorting.heroTable:reverse | filter:hFilterString | filter:!party)">
+                <td>
+                    {{hero.name}}
+                </td>
+                <td>
+                    {{hero.level}}
+                </td>
+                <td>
+                    {{hero.equip.scrap}} <img src="../../images/I_Chest01.png" /> {{hero.equip.gold}} <img
+                        src="../../images/I_GoldBar.png" />
+                </td>
+                <td>
+                    <a href="" popover-template="showEquip.html" popover-placement="right"
+                        popover-trigger="mouseenter">DMG:
+                        ({{hero.equip.weapon.minDamage}}-{{hero.equip.weapon.maxDamage}}) DUR:
+                        {{hero.equip.weapon.durability}}</a>
+                </td>
+                <td>
+                    {{hero.currHealth | number}}/{{hero.health | number}}
+                </td>
+                <td>
+                    {{hero.experience | number}}/{{hero.next}}
+                </td>
+                <td>
+                    {{hero.location}}
+                </td>
+                <td>
+                    <a href="" popover-template="showBattle.html" popover-placement="right"
+                        popover-trigger="mouseenter">{{hero.progress}}</a>
+                </td>
+            </tr>
+
+        </table>
+    </div>
+    <div class="col-lg-5">
+
+        <table class="table table-bordered" ng-hide="!filteredWorkheroList.length">
+            <tr>
+                <td><u><b>Workers</b></u></td>
+            </tr>
+            <tr>
+                <td><u>Name</u></td>
+                <td><u>Level</u></td>
+                <td><u>Location</u></td>
+                <td><u>Progress</u></td>
+                <td><u>Job</u></td>
+            </tr>
+            <tr
+                ng-repeat="heroWork in filteredWorkheroList = ($parent.heroList | heroWorker | orderBy:sorting.heroWork:reverse)">
+                <td>{{heroWork.name}}</td>
+                <td>{{heroWork.level}} ({{heroWork.experience}}/{{heroWork.next}})</td>
+                <td>{{heroWork.location}} - {{heroWork.job.name}}</td>
+                <td>{{heroWork.progress}}</td>
+                <td><select class="span17" ng-init="selectedJob = jobs[1]" ng-model='selectedJob'
+                        ng-options="job.name for job in jobs | filter:{enabled:true}"></select></td>
+                <td>
+                    <button ng-click="heroProfession(selectedJob.id, heroWork.id)">Change</button>
+                </td>
+            </tr>
+        </table>
+    </div>
+</section>

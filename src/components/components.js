@@ -1,0 +1,1 @@
+import './heroList/heroList.component';
