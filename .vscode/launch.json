@@ -2,22 +2,13 @@
     "version": "0.2.0",
     "configurations": [
         {
-            "name": "Launch Chrome against localhost, with sourcemaps",
             "type": "chrome",
             "request": "launch",
-            "url": "hero.localtest.me",
-            "sourceMaps": true,
-            "webRoot": "${workspaceRoot}",
-            "userDataDir": "${workspaceRoot}/.vscode/chrome"
-        },
-        {
-            "name": "Attach to Chrome, with sourcemaps",
-            "type": "chrome",
-            "request": "attach",
-            "port": 9222,
-            "sourceMaps": true,
-            "webRoot": "${workspaceRoot}",
-            "userDataDir": "${workspaceRoot}/.vscode/chrome"
+            "name": "Launch Chrome",
+            "url": "http://localhost:8080",
+            "webRoot": "${workspaceFolder}",
+            "preLaunchTask": "debug",
+            "postDebugTask": "enddebug"
         }
     ]
 }
