@@ -2,7 +2,6 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
 <head>
     <title>HeroVille Incremental Game</title>
-    <link href="../node_modules/bootstrap/dist/css/bootstrap.min.css" rel="stylesheet" />
     <link href='http://fonts.googleapis.com/css?family=Droid+Sans' rel='stylesheet' type='text/css'>
 </head>
 <body>
@@ -524,23 +523,7 @@
             </uib-tab>
         </uib-tabset>
         <div id="randomTrigger"></div>
-
-        <div class="footer navbar-fixed-bottom">
-            <div class="container" id="support">
-                <a href="" ng-click="showVersion()">Version {{version}}</a>
-                Meredori &copy; 2017
-                <a id="paypal" href="https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=KWC55P8UFP3AN"
-                    target="_blank">
-                    <img src="images/paypal.png" style="width:35px" />
-                </a>
-                <a id="reddit" href="http://www.reddit.com/r/heroville/" target="_blank">
-                    <img src="images/reddit.png" style="width:35px" />
-                </a>
-                <a id="patreon" href="http://www.patreon.com/meredori" target="_blank">
-                    <img src="images/patreon.png" style="width:35px" />
-                </a>
-            </div>
-        </div>
+        <page-footer></page-footer>>
     </div>
 
 
@@ -552,15 +535,7 @@
     <div id="dialog2" title="New Worker">
         <div id="error"></div>Enter a name for the worker. <input type="text" name="name2" id="name2" />
     </div>
-    <div id="version" title="Version Information">Current Version: 1.3.2 - 2 Oct 2017 <br />
-        <div id="confirm" title="Confirmation Required">
-            This change is permenant, are you sure this is what you want to do?
-        </div>
-        <ul>
-            <li>Fix issue with new potions not giving gold</li>
-            <li>Added Dark Theme</li>
-        </ul>
-    </div>
+    
     <div id="loading" title="Old Version">You are loading from an old version, there may be errors. If the game does not
         load correctly try starting a new game by refreshing the page and canceling this dialog. Do you want to load the
         old save?</div>

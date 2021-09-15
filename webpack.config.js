@@ -45,7 +45,7 @@ module.exports = {
                 }                
               },              {
                 test: /\.css$/i,
-                type: 'asset/resource',
+                use: [MiniCssExtractPlugin.loader, 'css-loader'],
                 generator: {
                   filename: 'styles/[name][ext][query]'
                 }             

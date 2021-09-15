@@ -2483,7 +2483,7 @@ app.controller(
     // Production/ --------------------------------------------------------------------------------------------------------------------------------------------------//
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-    $scope.createPotion = function (button, start, heroID) {
+    $scope.createPotion = function create(button, start, heroID) {
       if (heroID != 0) {
         heroID = heroID || -1;
       }
@@ -2498,9 +2498,8 @@ app.controller(
             .toString()
             .toHHMMSS();
         }
-        var caller = arguments.callee;
         setTimeout(function () {
-          caller(button, start + 1, heroID);
+            create(button, start + 1, heroID);
         }, $scope.gameLoop);
       } else {
         $scope.potion.working--;
@@ -2514,7 +2513,7 @@ app.controller(
       }
     };
 
-    $scope.createPotions = function (potionID, button, start, heroID) {
+    $scope.createPotions = function potion(potionID, button, start, heroID) {
       if (heroID != 0) {
         heroID = heroID || -1;
       }
@@ -2527,9 +2526,8 @@ app.controller(
             .toString()
             .toHHMMSS();
         }
-        var caller = arguments.callee;
         setTimeout(function () {
-          caller(potionID, button, start + 1, heroID);
+            potion(potionID, button, start + 1, heroID);
         }, $scope.gameLoop);
       } else {
         acc.count++;
@@ -2543,7 +2541,7 @@ app.controller(
       }
     };
 
-    $scope.buyWeapon = function (weaponID, button, start, heroID) {
+    $scope.buyWeapon = function weapon(weaponID, button, start, heroID) {
       if (heroID != 0) {
         heroID = heroID || -1;
       }
@@ -2561,9 +2559,8 @@ app.controller(
             .toString()
             .toHHMMSS();
         }
-        var caller = arguments.callee;
         setTimeout(function () {
-          caller(weaponID, button, start + 1, heroID);
+            weapon(weaponID, button, start + 1, heroID);
         }, $scope.gameLoop);
       } else {
         $scope.weapons[weaponID].count++;
