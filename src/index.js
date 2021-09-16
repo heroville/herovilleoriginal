@@ -13,4 +13,5 @@ import './filters/filters';
 import './directives/directives';
 import './controllers/controllers';
 import './components/components';
+import './values/values';
 
