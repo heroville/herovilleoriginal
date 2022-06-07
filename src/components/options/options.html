@@ -1,0 +1,68 @@
+<div class="col-lg-6" id="optionTab">
+    <h3>Options</h3>
+    <button id="save" ng-click="$parent.save()">Save</button>
+    <button id="load" ng-click="$parent.load()">Load</button>
+    <button id="reset" ng-click="$parent.reset()">Reset</button>
+    <div id="optionMenu">
+      <accordion close-others="true">
+        <accordion-group>
+          <accordion-heading>
+            <div class="noTextSelect">Hero Options</div>
+          </accordion-heading>
+          <div>
+            Successes before moving up dungeon
+            <select
+              id="dungeonCount"
+              ng-model="successCount.amount"
+              ng-options="opt for opt in $parent.optionsSuccess"
+            ></select>
+          </div>
+          <div>
+            Dungeons moved down on loss
+            <select
+              id="dungeonCount"
+              ng-model="lossCount.amount"
+              ng-options="opt for opt in $parent.optionsLoss"
+            ></select>
+          </div>
+        </accordion-group>
+      </accordion>
+    </div>
+    <button id="skip" ng-click="$parent.skipTut()">Skip Tutorial</button>
+  </div>
+  <div class="col-lg-6">
+    <h3>Quick Guide</h3>
+    <div id="tips">
+      <ul>
+        <li>Upgrade the Tent to attract new Heroes.</li>
+        <li>
+          Hero will adventure and earn gold and resources from defeating
+          monsters.
+        </li>
+        <li>
+          Gold will be used by the hero to purchase items from your
+          town. That gold will then be transfered to the towns gold.
+        </li>
+        <li>
+          A Heroes level will increase their effectiveness while
+          working.
+        </li>
+      </ul>
+      <ul>
+        <li>Total Battles: {{$parent.gameStats.wins + $parent.gameStats.losses}}</li>
+        <li>Wins: {{$parent.gameStats.wins}}</li>
+        <li>Losses: {{$parent.gameStats.losses}}</li>
+        <li>
+          Production (Manual)
+          <ul>
+            <li
+              ng-repeat="weapon in $parent.gameStats.weaponsManual track by $index"
+              ng-if="$index > 0"
+            >
+              {{weapons[$index].name}} - {{weapon}}
+            </li>
+          </ul>
+        </li>
+      </ul>
+    </div>
+  </div>
