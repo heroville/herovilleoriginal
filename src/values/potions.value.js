@@ -22,7 +22,7 @@ app.value('potions',[
     {
       id: 1,
       name: "Power",
-      image: require("../images/P_ORange02.png"),
+      image: require("../images/P_Orange02.png"),
       description: "Multiplies damage by 1.5 for one fight",
       prodTime: 5,
       progress: "Create Power Potion",
