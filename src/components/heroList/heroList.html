@@ -121,55 +121,6 @@
                 </table>
             </li>
         </ul>
-        <table id="oldheroTable" class="table table-bordered" ng-show="showHeroTable.enabled">
-
-            <tr>
-                <td><u><b>Heroes</b></u></td>
-            </tr>
-            <tr>
-                <td><u>Name</u></td>
-                <td><u>Level</u></td>
-                <td><u>Loot</u></td>
-                <td><u>Damage</u></td>
-                <td><u>Health</u></td>
-                <td><u>Experience</u></td>
-                <td><u>Location</u></td>
-                <td><u>Progress</u></td>
-            </tr>
-            <tr
-                ng-repeat="hero in filteredheroList = ($parent.heroList | orderBy:sorting.heroTable:reverse | filter:hFilterString | filter:!party)">
-                <td>
-                    {{hero.name}}
-                </td>
-                <td>
-                    {{hero.level}}
-                </td>
-                <td>
-                    {{hero.equip.scrap}} <img src="../../images/I_Chest01.png" /> {{hero.equip.gold}} <img
-                        src="../../images/I_GoldBar.png" />
-                </td>
-                <td>
-                    <a href="" popover-template="showEquip.html" popover-placement="right"
-                        popover-trigger="mouseenter">DMG:
-                        ({{hero.equip.weapon.minDamage}}-{{hero.equip.weapon.maxDamage}}) DUR:
-                        {{hero.equip.weapon.durability}}</a>
-                </td>
-                <td>
-                    {{hero.currHealth | number}}/{{hero.health | number}}
-                </td>
-                <td>
-                    {{hero.experience | number}}/{{hero.next}}
-                </td>
-                <td>
-                    {{hero.location}}
-                </td>
-                <td>
-                    <a href="" popover-template="showBattle.html" popover-placement="right"
-                        popover-trigger="mouseenter">{{hero.progress}}</a>
-                </td>
-            </tr>
-
-        </table>
     </div>
     <div class="col-lg-5">
 

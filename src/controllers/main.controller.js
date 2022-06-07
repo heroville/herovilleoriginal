@@ -47,7 +47,6 @@ function MainController($scope, $interval, $timeout, $http, $compile, buildings,
   };
   $scope.predicate = "name";
   $scope.bestiary = false;
-  $scope.heroTable = false;
   $scope.showHeroTable = {};
   $scope.selectedDungeon = 0;
   $scope.heroEnabled = true;
