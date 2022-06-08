@@ -1,10 +1,8 @@
 import app from "../app";
 
-app.controller("MainController", MainController);
-
 function MainController($scope, $interval, $timeout, $http, $compile, buildings,blueprints,jobs,weapons,upgrades,potions) {
   //DEBUG
-  $scope.debugging = true;
+  $scope.debugging = false;
   $scope.forceReset = true;
 
   //Initial Variables
@@ -2143,3 +2141,5 @@ function MainController($scope, $interval, $timeout, $http, $compile, buildings,
     return result;
   };
 }
+
+app.controller("MainController", MainController);
