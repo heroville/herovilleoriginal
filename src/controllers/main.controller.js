@@ -1176,7 +1176,7 @@ function MainController($scope, $interval, $timeout, $http, $compile, buildings,
       },
     },
   });
-  $(document).ready(function () {
+  $(function () {
     $("#paypal").click(function () {
       ga("send", "event", "Clicks", "Paypal");
     });
