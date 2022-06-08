@@ -129,6 +129,9 @@ function MainController($scope, $interval, $timeout, $http, $compile, buildings,
     },
   ];
 
+  $scope.imageLogo = require("../images/heroville-logo.png")
+  $scope.imageChestClosed = require("../images/I_Chest01.png")
+
   $scope.heroName = require("../models/heroName.json");
   $scope.monsterList = require("../models/monsterList.json");
   $scope.dungeonNames = require("../models/dungeons.json");
