@@ -1,0 +1,22 @@
+<table class="table table-bordered">
+  <tr>
+    <td>
+      <b><u>Buildings</u></b>
+    </td>
+  </tr>
+  <tr>
+    <th><u>Name</u></th>
+    <th><u>Level</u></th>
+    <th><u>Cost</u></th>
+  </tr>
+  <tr ng-repeat="building in $ctrl.buildings" ng-show="building.enabled == true">
+      <td ng-attr-title="{{building.description}}">{{building.name}}</td>
+      <td>{{building.count | number}}</td>
+      <td>{{building.cost | number}}</td>
+      <td>
+        <button ng-click="$ctrl.incrBuilding(building)" tooltip-placement="right" tooltip="{{building.description}}">
+          Improve {{building.name}}
+        </button>
+      </td>
+  </tr>
+</table>

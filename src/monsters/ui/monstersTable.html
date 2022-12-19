@@ -1,0 +1,29 @@
+<table class="table table-bordered">
+    <tr>
+      <td>
+        <u><b>Monsters</b></u>
+      </td>
+    </tr>
+    <tr>
+      <td>
+        <b><u>Name</u></b>
+      </td>
+      <td>
+        <b><u>Level</u></b>
+      </td>
+      <td>
+        <b><u>Damage</u></b>
+      </td>
+      <td>
+        <b><u>Health</u></b>
+      </td>
+    </tr>
+    <tr
+      ng-repeat="monsterL in $ctrl.monsters | orderBy:sorting.monList:reverse"
+    >
+      <td>{{monsterL.name}}</td>
+      <td>{{monsterL.value}}</td>
+      <td>{{monsterL.minDamage}}-{{monsterL.maxDamage}}</td>
+      <td>{{monsterL.health}}</td>
+    </tr>
+  </table>

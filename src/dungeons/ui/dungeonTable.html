@@ -1,0 +1,26 @@
+<table
+class="table table-bordered"
+ng-hide="!filteredDungeons.length"
+>
+<tr>
+  <td>
+    <u><b>Dungeons</b></u>
+  </td>
+</tr>
+<tr>
+  <td><u>Name</u></td>
+  <td><u>Level</u></td>
+  <td><u>Boss</u></td>
+  <td><u>Length</u></td>
+  <td><u>Encounter Rate</u></td>
+</tr>
+<tr
+  ng-repeat="dungeon in filteredDungeons = ($ctrl.dungeons | filter:{enabled:true})"
+>
+  <td>{{dungeon.name}}</td>
+  <td>{{dungeon.level}}</td>
+  <td>{{bosses[dungeon.bossID].name}}</td>
+  <td>{{dungeon.steps}}</td>
+  <td>{{dungeon.encounterRate}}%</td>
+</tr>
+</table>

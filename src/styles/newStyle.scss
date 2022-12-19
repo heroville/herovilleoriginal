@@ -1,4 +1,6 @@
-﻿body {
+﻿@import '../../node_modules/angular-material/angular-material.css';
+
+body {
     font-family: 'Droid Sans', sans-serif;
     text-align:center
 }
@@ -219,12 +221,3 @@ hr{
     padding: 0px;
     margin: 0px;    
   }
-
-/*
-     FILE ARCHIVED ON 03:38:31 Oct 27, 2016 AND RETRIEVED FROM THE
-     INTERNET ARCHIVE ON 02:38:45 Jun 27, 2017.
-     JAVASCRIPT APPENDED BY WAYBACK MACHINE, COPYRIGHT INTERNET ARCHIVE.
-
-     ALL OTHER CONTENT MAY ALSO BE PROTECTED BY COPYRIGHT (17 U.S.C.
-     SECTION 108(a)(3)).
-*/

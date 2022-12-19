@@ -1,0 +1,35 @@
+<table class="table table-bordered">
+    <tr>
+      <td>
+        <u><b>Bosses</b></u>
+      </td>
+    </tr>
+    <tr>
+      <td>
+        <b><u>Name</u></b>
+      </td>
+      <td>
+        <b><u>Location</u></b>
+      </td>
+      <td>
+        <b><u>Damage</u></b>
+      </td>
+      <td>
+        <b><u>Health</u></b>
+      </td>
+    </tr>
+    <tr
+      ng-repeat="monsterB in $ctrl.bosses | orderBy:sortingbossList:reverse"
+    >
+      <td>{{monsterB.name}}</td>
+      <td>
+        <div
+          ng-repeat="dungeona in $ctrl.dungeons | filter:{bossID:monsterB.id}"
+        >
+          {{dungeona.name}}
+        </div>
+      </td>
+      <td>{{monsterB.minDamage}}-{{monsterB.maxDamage}}</td>
+      <td>{{monsterB.health}}</td>
+    </tr>
+  </table>

@@ -1,0 +1,26 @@
+<div class="panel panel-default">
+    <div class="panel-body">
+      <ul id="panelList">
+        <li>
+          <b>{{$parentpanel[0]}}</b>
+          <hr />
+        </li>
+        <li
+          ng-repeat="lines in $parent.panel track by $index"
+          ng-if="$parent.panel.indexOf(lines) > 0"
+        >
+          {{lines}}
+        </li>
+      </ul>
+      <br />
+      <div id="infoButtonDiv">
+        <div
+          id="infobutton"
+          ng-click="$parent.nextTutorial()"
+          ng-show="$panel.showTutorial"
+        >
+          Next
+        </div>
+      </div>
+    </div>
+  </div>

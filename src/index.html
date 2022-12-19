@@ -18,149 +18,29 @@
     >
       <div class="row">
         <div class="col-lg-4">
-          <div class="panel panel-default">
-            <div class="panel-body">
-              <ul id="panelList">
-                <li>
-                  <b>{{panel[0]}}</b>
-                  <hr />
-                </li>
-                <li
-                  ng-repeat="lines in panel track by $index"
-                  ng-if="panel.indexOf(lines) > 0"
-                >
-                  {{lines}}
-                </li>
-              </ul>
-              <br />
-              <div id="infoButtonDiv">
-                <div
-                  id="infobutton"
-                  ng-click="nextTutorial()"
-                  ng-show="showTutorial"
-                >
-                  Next
-                </div>
-              </div>
-            </div>
-          </div>
+            <info-panel></info-panel>
         </div>
         <div class="col-lg-4">
           <img src="images/heroville-logo.png" width="100%" />
         </div>
         <div class="col-lg-4">
-          <div class="panel panel-default">
-            <div class="panel-heading">Upgrades</div>
-            <div class="panel-body">
-              <ul
-                id="upgradeList"
-                ng-repeat="upgrade in filteredUpgrades = (upgrades | filter:{enabled:true})"
-              >
-                <li>
-                  <button ng-click="buyUpgrade(upgrade.id)">
-                    {{upgrade.name}} <br />
-                    Cost(g): {{upgrade.price}} <br />
-                  </button>
-                </li>
-              </ul>
-            </div>
-          </div>
+<upgrade-panel></upgrade-panel>
         </div>
       </div>
       <div class="row">
-        <div id="resources">
-          {{resources | number}}/{{maxResources | number}}
-          <img src="images/I_Chest01.png" />
-          {{gold | number}}/{{maxGold | number}}
-          <img src="images/I_GoldBar.png" />
-          <img
-            ng-hide="gameLoop == 1000"
-            ng-src="images/S_Buff11.png"
-            tooltip="Doubles the game speed"
-            tooltip-placement="bottom"
-          />
-          <img
-            ng-hide="damageMulti == 1"
-            ng-src="images/S_Shadow07.png"
-            tooltip="Doubles your heroes damage"
-            tooltip-placement="bottom"
-          />
-          <img
-            ng-hide="goldMulti == 1"
-            src="images/E_Gold02.png"
-            tooltip="Doubles the gold gained from sales"
-            tooltip-placement="bottom"
-          />
-        </div>
-        <div id="gatherButton" ng-click="incrRes(incr)">Gather</div>
-        <div id="gatherButton" ng-click="testing2()" ng-show="debugging">
-          Button
-        </div>
-        <div id="errorDialog" title="Error"><br /></div>
+        <resources-panel></resources-panel>
+        <game-message></game-message>
       </div>
       <uib-tabset id="gameTabs">
         <uib-tab heading="Town" id="town">
           <section id="container">
             <div class="col-lg-6">
-              <table class="table table-bordered">
-                <tr>
-                  <td>
-                    <b><u>Buildings</u></b>
-                  </td>
-                </tr>
-                <tr>
-                  <th><u>Name</u></th>
-                  <th><u>Level</u></th>
-                  <th><u>Cost</u></th>
-                </tr>
-                <tr
-                  ng-repeat="building in buildings"
-                  ng-show="building.enabled == true"
-                >
-                  <td ng-attr-title="{{building.description}}">
-                    {{building.name}}
-                  </td>
-                  <td>{{building.count | number}}</td>
-                  <td>{{building.cost | number}}</td>
-                  <td>
-                    <button
-                      ng-click="incrBuilding(building)"
-                      tooltip-placement="right"
-                      tooltip="{{building.description}}"
-                    >
-                      Improve {{building.name}}
-                    </button>
-                  </td>
-                </tr>
-              </table>
+              <buildings-table>
+              </buildings-table>
             </div>
             <div class="col-lg-6">
-              <table
-                class="table table-bordered"
-                ng-hide="!filteredDungeons.length"
-              >
-                <tr>
-                  <td>
-                    <u><b>Dungeons</b></u>
-                  </td>
-                </tr>
-                <tr>
-                  <td><u>Name</u></td>
-                  <td><u>Level</u></td>
-                  <td><u>Boss</u></td>
-                  <td><u>Length</u></td>
-                  <td><u>Encounter Rate</u></td>
-                </tr>
-                <tr
-                  ng-repeat="dungeon in filteredDungeons = (dungeons | filter:{enabled:true})"
-                >
-                  <td>{{dungeon.name}}</td>
-                  <td>{{dungeon.level}}</td>
-                  <td>{{bosses[dungeon.bossID].name}}</td>
-                  <td>{{dungeon.steps}}</td>
-                  <td>{{dungeon.encounterRate}}%</td>
-                </tr>
-              </table>
+              <dungeon-table>
+              </dungeon-table>
             </div>
           </section>
         </uib-tab>
@@ -532,72 +412,12 @@
         <uib-tab heading="Bestiary" disabled="beastEnabled">
           <section id="container">
             <div class="col-lg-6">
-              <table class="table table-bordered">
-                <tr>
-                  <td>
-                    <u><b>Monsters</b></u>
-                  </td>
-                </tr>
-                <tr>
-                  <td>
-                    <b><u>Name</u></b>
-                  </td>
-                  <td>
-                    <b><u>Level</u></b>
-                  </td>
-                  <td>
-                    <b><u>Damage</u></b>
-                  </td>
-                  <td>
-                    <b><u>Health</u></b>
-                  </td>
-                </tr>
-                <tr
-                  ng-repeat="monsterL in monsters | orderBy:sorting.monList:reverse"
-                >
-                  <td>{{monsterL.name}}</td>
-                  <td>{{monsterL.value}}</td>
-                  <td>{{monsterL.minDamage}}-{{monsterL.maxDamage}}</td>
-                  <td>{{monsterL.health}}</td>
-                </tr>
-              </table>
+<monsters-table>
+</monsters-table>
             </div>
             <div class="col-lg-6">
-              <table class="table table-bordered">
-                <tr>
-                  <td>
-                    <u><b>Bosses</b></u>
-                  </td>
-                </tr>
-                <tr>
-                  <td>
-                    <b><u>Name</u></b>
-                  </td>
-                  <td>
-                    <b><u>Location</u></b>
-                  </td>
-                  <td>
-                    <b><u>Damage</u></b>
-                  </td>
-                  <td>
-                    <b><u>Health</u></b>
-                  </td>
-                </tr>
-                <tr
-                  ng-repeat="monsterB in bosses | orderBy:sortingbossList:reverse"
-                >
-                  <td>{{monsterB.name}}</td>
-                  <td>
-                    <div
-                      ng-repeat="dungeona in dungeons | filter:{bossID:monsterB.id}"
-                    >
-                      {{dungeona.name}}
-                    </div>
-                  </td>
-                  <td>{{monsterB.minDamage}}-{{monsterB.maxDamage}}</td>
-                  <td>{{monsterB.health}}</td>
-                </tr>
-              </table>
+<bosses-table>
+</bosses-table>
             </div>
           </section>
         </uib-tab>
@@ -682,14 +502,10 @@
         </uib-tab>
       </uib-tabset>
       <div id="randomTrigger"></div>
-      <page-footer></page-footer>>
+      <page-footer></page-footer>
     </div>
 
     <!--Extra Stuff-->
-    <div id="dialog" title="New Hero">
-      <div id="error"></div>
-      Enter a name for the hero. <input type="text" name="name" id="name" />
-    </div>
     <div id="dialog2" title="New Worker">
       <div id="error"></div>
       Enter a name for the worker. <input type="text" name="name2" id="name2" />

@@ -1,0 +1,16 @@
+<div class="panel panel-default">
+    <div class="panel-heading">Upgrades</div>
+    <div class="panel-body">
+      <ul
+        id="upgradeList"
+        ng-repeat="upgrade in filteredUpgrades = (upgrades | filter:{enabled:true})"
+      >
+        <li>
+          <button ng-click="$parent.buyUpgrade(upgrade.id)">
+            {{upgrade.name}} <br />
+            Cost(g): {{upgrade.price}} <br />
+          </button>
+        </li>
+      </ul>
+    </div>
+  </div>

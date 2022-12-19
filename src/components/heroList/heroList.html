@@ -35,7 +35,7 @@
         </div>
         <input ng-model="hFilterString.name">
         <ul id="heroList"
-            ng-repeat="hero in filteredheroList = ($parent.heroList | heroAdventure | orderBy:sorting.heroTable:reverse | filter:hFilterString)"
+            ng-repeat="hero in filteredheroList = ($ctrl.heroList | heroAdventure | orderBy:sorting.heroTable:reverse | filter:hFilterString)"
             ng-hide="showHeroTable.enabled">
             <li>
                 <table class="table table-bordered" id="heroTable">
@@ -137,7 +137,7 @@
                 <td><u>Progress</u></td>
             </tr>
             <tr
-                ng-repeat="hero in filteredheroList = ($parent.heroList | orderBy:sorting.heroTable:reverse | filter:hFilterString | filter:!party)">
+                ng-repeat="hero in filteredheroList = ($ctrl.heroList | orderBy:sorting.heroTable:reverse | filter:hFilterString | filter:!party)">
                 <td>
                     {{hero.name}}
                 </td>
@@ -185,7 +185,7 @@
                 <td><u>Job</u></td>
             </tr>
             <tr
-                ng-repeat="heroWork in filteredWorkheroList = ($parent.heroList | heroWorker | orderBy:sorting.heroWork:reverse)">
+                ng-repeat="heroWork in filteredWorkheroList = ($ctrl.heroList | heroWorker | orderBy:sorting.heroWork:reverse)">
                 <td>{{heroWork.name}}</td>
                 <td>{{heroWork.level}} ({{heroWork.experience}}/{{heroWork.next}})</td>
                 <td>{{heroWork.location}} - {{heroWork.job.name}}</td>

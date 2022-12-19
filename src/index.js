@@ -2,6 +2,8 @@ import 'angular';
 import 'jquery-ui-bundle';
 import 'bootstrap';
 import 'angular-ui-bootstrap';
+import 'angular-material';
+import 'angular-messages';
 
 import 'bootstrap/dist/css/bootstrap.min.css';
 import './styles/newStyle.scss';
@@ -14,4 +16,12 @@ import './directives/directives';
 import './controllers/controllers';
 import './components/components';
 import './values/values';
+
+
+import './game/game';
+import './resources/resources';
+import './buildings/buildings';
+import './dungeons/dungeons';
+import './monsters/monsters';
+import './heroes/heroes';
 
