@@ -2,7 +2,7 @@ import app from "../app";
 
 app.controller("MainController", MainController);
 
-function MainController($scope, $interval, $timeout, $http, $compile, buildings,blueprints,jobs,weapons,upgrades,potions,resources,gold, goldService, resourcesService, monstersService) {
+function MainController($scope, $interval, $timeout, $http, $compile, buildings,blueprints,jobs,weapons,upgrades,potions,resources,gold, goldService, resourcesService, monstersService, gameLoopService) {
   //DEBUG
   $scope.debugging = true;
   $scope.forceReset = true;
@@ -1579,6 +1579,7 @@ function MainController($scope, $interval, $timeout, $http, $compile, buildings,
   //New code
   $scope.init = function(){
     monstersService.init();
+    gameLoopService.init();
   }
   $scope.init();
 }
