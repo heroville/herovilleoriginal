@@ -1,4 +1,4 @@
-<md-dialog aria-label="Enter a name for the hero">
+<md-dialog aria-label="Enter a name for the hero" md-escape-to-close="$ctrl.cancel()">
     <form name="heroNameForm">
       <md-toolbar>
         <div class="md-toolbar-tools">
@@ -16,6 +16,9 @@
             <input ng-model="$ctrl.heroName" name="heroName" required>
             <div ng-messages="heroNameForm.heroName.$error" role="alert">
               <div ng-message="required">A name is required.</div>
+            </div>
+            <div ng-messages="heroNameForm.$error" role="alert">
+              <div ng-show="heroNameForm.$error.invalid">A unique name is required.</div>
             </div>
           </md-input-container>
         </div>
