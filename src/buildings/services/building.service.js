@@ -1,6 +1,6 @@
 import app from "../../app";
 
-app.service("buildingsService", function BuildingsService(buildings,resourcesService,resources,dungeonService,monstersService, messageService,heroesService) {
+app.service("buildingsService", function BuildingsService(buildings,resourcesService,resources,gold,dungeonService,monstersService, messageService,heroesService) {
     this.incrBuilding = function (building) {
         if (resourcesService.decResources(building.cost, true)) {
           building.count++;
@@ -11,7 +11,6 @@ app.service("buildingsService", function BuildingsService(buildings,resourcesSer
             buildings[1].enabled = true;
             buildings[6].enabled = true;
             dungeonService.activateDungeon();
-            monstersService.createMonster(1);
           }
           switch (building.id) {
             //Building Tent
@@ -24,14 +23,12 @@ app.service("buildingsService", function BuildingsService(buildings,resourcesSer
             }
             // Building Stockpile
             case 1: {
-              resources.maxResources =
+              resources.max =
                 building.cost + Math.floor(building.cost / 10);
-              $scope.maxGold = Math.floor(building.cost / 10);
+              gold.max = Math.floor(building.cost / 10);
               if (buildings[2].count == 0) {
                 buildings[2].enabled = true;
-                $scope.prodEnabled = false;
-                $scope.jobs[1].enabled = true;
-              } else if ($scope.buildings[4].count == 0) {
+              } else if (buildings[4].count == 0) {
                 $scope.activateBlueprint(2);
               }
               break;

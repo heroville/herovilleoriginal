@@ -8,6 +8,7 @@ app.service("monstersService", function (monsters,monsterList) {
     };
 
     this.createMonster = function (level) {
+        console.log("Creating Monster");
         var monstersList = monsterList.monsters;
         for (var i = 0; i < monsters.length; i++) {
           for (var j = 0; j < monstersList.length; j++) {

@@ -1,12 +1,9 @@
 import app from "../../app";
+import heroNameList from "../data/heroName.json";
 
 app.service("heroesService", function HeroesService($mdDialog, heroList, weapons, jobs, heroClass, messageService) {
 
   var $srvc = this;
-
-  this.newHeroName = function () {
-    return "Random";
-  };
 
   this.validHeroName = function (hName) {
     if (hName == "" || hName == null) {
@@ -89,6 +86,21 @@ app.service("heroesService", function HeroesService($mdDialog, heroList, weapons
       $mdDialog.cancel();
     }
     );
+  };
+
+  this.newHeroName = function () {
+    var randFirst = Math.floor(Math.random() * heroNameList.first.length);
+    var newName = heroNameList.first[randFirst];
+    newName += " ";
+    var randTitle = Math.floor(Math.random() * heroNameList.title.length);
+    newName += heroNameList.title[randTitle];
+    if ($srvc.validHeroName(newName)) {
+      return newName;
+    }
+    else{
+      return $srvc.newHeroName();
+    }
+    
   };
 
 
