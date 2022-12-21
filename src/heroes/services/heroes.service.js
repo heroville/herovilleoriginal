@@ -84,6 +84,7 @@ app.service("heroesService", function HeroesService($mdDialog, heroList, weapons
       messageService.showMessage("New hero created.")
       $srvc.addHero(result);
     }, function () {
+      messageService.showMessage("New random hero created.")
       $srvc.addHero($srvc.newHeroName());
       $mdDialog.cancel();
     }
