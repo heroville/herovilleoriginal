@@ -1,7 +1,7 @@
 import app from "../../app";
 import dungeonNames from "../data/dungeons.json";
 
-app.service("dungeonService", function DungeonService(dungeons,bossesService,monstersService,gameLoop) {
+app.service("dungeonService", function DungeonService(dungeons,bossesService,monstersService,combatService,gameLoop) {
   var $srvc = this;
   this.dungeonName = function () {
     var dList = dungeonNames.dungeons.slice();
@@ -47,21 +47,34 @@ app.service("dungeonService", function DungeonService(dungeons,bossesService,mon
         }, gameLoop.loopTime);
       };
 
-      this.travel = function (journey) {    
+      this.travel = function (journey) {
+        for (var i = 0; i < journey.hero.length; i++) {
+          if (journey.hero[i].inCombat){
+            setTimeout(function () {
+              $srvc.travel(journey);
+            }, gameLoop.loopTime);
+            return;
+        }
+        }    
         if (journey.steps == journey.dungeon.steps) {
           for (var i = 0; i < journey.hero.length; i++) {
             journey.hero[i].progress = "Fighting Boss!";
           }
-          $scope.bossFight(journey);
+          combatService.bossFight(journey);
         } else {
           // Roll/ for encounter
           var roll = Math.floor(Math.random() * 100 + 1);
           console.log(roll + " " + journey.dungeon.encounterRate);
-          if (roll < journey.dungeon.encounterRate) {;    
-            $scope.monsterFight(journey);
+          if (roll < journey.dungeon.encounterRate) {
+             
+            combatService.monsterFight(journey);
             for (var i = 0; i < journey.hero.length; i++) {
+              journey.hero[i].inCombat = true; 
               journey.hero[i].progress = "Fighting Encounter!";
             }
+            setTimeout(function () {
+              $srvc.travel(journey);
+            }, gameLoop.loopTime);
           } else {
             // if/ there is no fight for that step, take another step and update progress.
             journey.steps++;

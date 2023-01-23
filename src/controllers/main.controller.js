@@ -458,7 +458,7 @@ function MainController($scope, $interval, $timeout, $http, $compile, buildings,
   }, $scope.gameLoop);
 
   $interval(function () {
-    $scope.save();
+    //$scope.save();
   }, 30000);
 
   $timeout(function () {
@@ -1063,26 +1063,7 @@ function MainController($scope, $interval, $timeout, $http, $compile, buildings,
     $scope.startFight(encounterMonsters, journey, false);
   };
 
-  $scope.bossFight = function (journey) {
-    var bossID = journey.dungeon.bossID;
-    var multi = 1;
-    if (journey.hero.length > 1) {
-      multi = 10;
-    }
-    var bossBattle = [
-      {
-        name: $scope.bosses[bossID].name,
-        value: $scope.bosses[bossID].value * multi,
-        minDamage: $scope.bosses[bossID].minDamage * multi,
-        maxDamage: $scope.bosses[bossID].maxDamage * multi,
-        health: $scope.bosses[bossID].health * multi,
-        maxHealth: $scope.bosses[bossID].health * multi,
-        high: "Junk;j;" + parseInt($scope.bosses[bossID].value * multi * 3),
-        low: "Gold;g;" + parseInt($scope.bosses[bossID].value * multi),
-      },
-    ];
-    $scope.startFight(bossBattle.slice(), journey, true);
-  };
+
 
   $scope.startFight = function (monList, journey, boss) {
     var thisBattle = $scope.battles.length;
