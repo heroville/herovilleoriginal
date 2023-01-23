@@ -86,20 +86,7 @@ function MainController($scope, $interval, $timeout, $http, $compile, buildings,
   $scope.weapons = weapons;
   $scope.upgrades = upgrades;
   $scope.jobs = jobs;
-  $scope.potion = {
-    id: -1,
-    name: "Healing Herbs",
-    image: require("../images/P_Red04.png"),
-    healing: 20,
-    description: "Restores 20% Health consumed on purchase.",
-    count: 0,
-    maxCount: 5,
-    cost: 10,
-    prodTime: 5,
-    progress: "Create Potion",
-    sellPrice: 1,
-    working: 0,
-  };
+
   $scope.potions = potions;
   $scope.events = [
     {
@@ -1547,15 +1534,7 @@ function MainController($scope, $interval, $timeout, $http, $compile, buildings,
     };
   };
 
-  $scope.meetRequirements = function (hero, weapon) {
-    var result = false;
-    for (var i = 0; i < weapon.heroClass.length; i++) {
-      if (weapon.heroClass[i] == hero.academy.id) {
-        result = true;
-      }
-    }
-    return result;
-  };
+
 
   //New code
   $scope.init = function(){

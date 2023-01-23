@@ -153,4 +153,14 @@ app.service("heroesService", function HeroesService($mdDialog, heroList, weapons
     }
   };
 
+  this.meetRequirements = function (hero, weapon) {
+    var result = false;
+    for (var i = 0; i < weapon.heroClass.length; i++) {
+      if (weapon.heroClass[i] == hero.academy.id) {
+        result = true;
+      }
+    }
+    return result;
+  };
+
 });

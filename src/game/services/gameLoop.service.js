@@ -1,6 +1,6 @@
 import app from "../../app";
 
-app.service("gameLoopService", function (gameLoop, heroesService, dungeonService, heroList, dungeons, buildings)
+app.service("gameLoopService", function (gameLoop, heroesService, dungeonService, heroList, dungeons, buildings, weapons, potions,gold, potion)
 {
     var $srvc = this;
     this.init = function() {
@@ -25,60 +25,60 @@ app.service("gameLoopService", function (gameLoop, heroesService, dungeonService
                   j > hero.equip.weapon.id;
                   j--
                 ) {
-                  if ($scope.meetRequirements(hero, $scope.weapons[j])) {
+                  if (heroesService.meetRequirements(hero, weapons[j])) {
                     if (
                       hero.equip.gold >= $scope.weapons[j].sellPrice &&
-                      $scope.weapons[j].count > 0
+                      weapons[j].count > 0
                     ) {
-                      hero.equip.gold -= $scope.weapons[j].sellPrice;
-                      $scope.weapons[j].count--;
-                      goldService.incGold($scope.weapons[j].sellPrice);
-                      hero.equip.weapon = $.extend(true, {}, $scope.weapons[j]);
+                      hero.equip.gold -= weapons[j].sellPrice;
+                      weapons[j].count--;
+                      goldService.incGold(weapons[j].sellPrice);
+                      hero.equip.weapon = $.extend(true, {}, weapons[j]);
                       j = 0;
                     }
                   } else {
-                    $scope.debugLog("Not Allowed");
+                    console.log("Not Allowed");
                   }
                 }
               }
               // Buy Replacement
               if (
                 (weapon.durability <=
-                  $scope.weapons[weapon.id].durability * 0.2 ||
-                  weapon.minDamage < $scope.weapons[weapon.id].minDamage) &&
+                  weapons[weapon.id].durability * 0.2 ||
+                  weapon.minDamage < weapons[weapon.id].minDamage) &&
                 hero.equip.gold >= weapon.sellPrice &&
-                $scope.weapons[weapon.id].count > 0
+                weapons[weapon.id].count > 0
               ) {
-                hero.equip.gold -= $scope.weapons[weapon.id].sellPrice;
-                $scope.weapons[weapon.id].count--;
-                hero.equip.weapon = $.extend(true, {}, $scope.weapons[weapon.id]);
+                hero.equip.gold -= weapons[weapon.id].sellPrice;
+                weapons[weapon.id].count--;
+                hero.equip.weapon = $.extend(true, {}, weapons[weapon.id]);
               }
-              for (var j = 0; j < $scope.potions.length; j++) {
+              for (var j = 0; j < potions.length; j++) {
                 var equiped = false;
                 for (var k = 0; k < hero.equip.potions.length; k++) {
                   if (
-                    hero.equip.potions[k].count < $scope.potions[k].maxHero &&
-                    hero.equip.gold >= $scope.potions[k].sellPrice &&
-                    $scope.potions[k].count > 0
+                    hero.equip.potions[k].count < potions[k].maxHero &&
+                    hero.equip.gold >= potions[k].sellPrice &&
+                    potions[k].count > 0
                   ) {
-                    hero.equip.gold -= $scope.potions[k].sellPrice;
-                    goldService.incGold($scope.potions[k].sellPrice);
-                    $scope.potions[k].count--;
+                    hero.equip.gold -= potions[k].sellPrice;
+                    goldService.incGold(potions[k].sellPrice);
+                    potions[k].count--;
                     hero.equip.potions[k].count++;
                   }
                 }
               }
               // Heal with Potion
               if (
-                hero.health - hero.currHealth >= $scope.potion.healing &&
-                $scope.potion.count > 0 &&
-                gold.current + $scope.potion.sellPrice <= $scope.maxGold &&
-                hero.equip.gold >= $scope.potion.sellPrice
+                hero.health - hero.currHealth >= potion.healing &&
+                potion.count > 0 &&
+                gold.current + potion.sellPrice <= gold.maximum &&
+                hero.equip.gold >= potion.sellPrice
               ) {
-                hero.equip.gold -= $scope.potion.sellPrice;
-                goldService.incGold($scope.potion.sellPrice);
-                $scope.potion.count--;
-                heal(i, $scope.potion.healing, 1);
+                hero.equip.gold -= potion.sellPrice;
+                goldService.incGold(potion.sellPrice);
+                potion.count--;
+                heal(i, potion.healing, 1);
               }
             }
             // Heal the hero "i" for 2% health
@@ -91,7 +91,7 @@ app.service("gameLoopService", function (gameLoop, heroesService, dungeonService
               dungeonService.attemptDungeon(hero.dungeon, u);
               hero.location = dungeons[hero.dungeon].name;
             } else if (hero.progress == "Idle") {
-              resourcesService.incResources(Math.ceil($scope.heroList[i].level / 4) ^ 2);
+              resourcesService.incResources(Math.ceil(heroList[i].level / 4) ^ 2);
             }
           }
         }

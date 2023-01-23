@@ -1,6 +1,6 @@
 import app from "../../app";
 
-app.service("buildingsService", function BuildingsService(buildings,resourcesService,resources,gold,dungeonService,monstersService, messageService,heroesService) {
+app.service("buildingsService", function BuildingsService(buildings,resourcesService,resources,gold,dungeonService,monstersService, messageService,heroesService, dungeons) {
     this.incrBuilding = function (building) {
         if (resourcesService.decResources(building.cost, true)) {
           building.count++;
@@ -79,10 +79,10 @@ app.service("buildingsService", function BuildingsService(buildings,resourcesSer
             }
             //Build Dungeon
             case 6: {
-              if ($scope.dungeons.length < 14) {
-                $scope.activateDungeon();
+              if (dungeons.length < 14) {
+                dungeonService.activateDungeon();
               } else {
-                $scope.activateDungeon();
+                dungeonService.activateDungeon();
                 $scope.activateBlueprint(4);
                 buildings[6].enabled = false;
               }
