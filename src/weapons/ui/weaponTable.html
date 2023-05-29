@@ -1,0 +1,38 @@
+<table class="table table-bordered" ng-hide="!filteredWeapons.length">
+  <tr>
+    <td>
+      <b><u>{{buildings[3].name}}</u></b>
+    </td>
+  </tr>
+  <tr>
+    <td><u>Name</u></td>
+    <td><u>Damage</u></td>
+    <td><u>Requirement</u></td>
+    <td><u>Durability</u></td>
+    <td><u>Stock</u></td>
+    <td><u>Prod Cost (Res)</u></td>
+    <td><u>Prod Time</u></td>
+    <td><u>Sell Price (Gold)</u></td>
+    <td><u>Produce</u></td>
+  </tr>
+  <tr ng-repeat="weapon in filteredWeapons = (weapons | filter:{enabled:true})">
+    <td>
+      <img ng-src="images/{{weapon.image}}" />{{weapon.name}}
+    </td>
+    <td>{{weapon.minDamage}}-{{weapon.maxDamage}}</td>
+    <td>
+      <span ng-repeat-start="wepclass in weapon.heroClass" ng-if="!$last">{{heroClass[wepclass].name}},
+      </span><span ng-repeat-end ng-if="$last">{{heroClass[wepclass].name}}</span>
+    </td>
+    <td>{{weapon.durability}}</td>
+    <td>{{weapon.count}}/{{weapon.maxCount}}</td>
+    <td>{{weapon.cost}}</td>
+    <td>{{weapon.prodTime}}</td>
+    <td>{{weapon.sellPrice | number}}</td>
+    <td>
+      <button id="w{{weapon.id}}" ng-click="purchaseWeapon(weapon.id)">
+        {{weapon.progress}}
+      </button>
+    </td>
+  </tr>
+</table>
