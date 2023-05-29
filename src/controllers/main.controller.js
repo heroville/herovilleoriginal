@@ -317,38 +317,6 @@ function MainController($scope, $interval, $timeout, $http, $compile, buildings,
     }
   };
 
-  $scope.create = function (itemID) {
-    if (itemID == -1) {
-      if (
-        $scope.potion.count + $scope.potion.working <
-        $scope.potion.maxCount
-      ) {
-        if ($scope.resources >= $scope.potion.cost) {
-          $("#potionButt").attr("disabled", "disabled");
-          $scope.resources -= $scope.potion.cost;
-          $scope.potion.working++;
-          $scope.createPotion(true, 0);
-        } else {
-          $scope.showError("You do not have enough Resources.");
-        }
-      }
-    } else {
-      if (
-        $scope.potions[itemID].count + $scope.potions[itemID].working <
-        $scope.potions[itemID].maxCount
-      ) {
-        if ($scope.resources >= $scope.potions[itemID].cost) {
-          $("#a" + itemID).attr("disabled", "disabled");
-          resourcesService.decResources($scope.potions[itemID].cost, true);
-          $scope.potions[itemID].working++;
-          $scope.createPotions(itemID, true, 0);
-        } else {
-          $scope.showError("You do not have enough Resources.");
-        }
-      }
-    }
-  };
-
 
 
   $scope.heroProfession = function (selectedJobID, heroID) {
@@ -1346,63 +1314,6 @@ function MainController($scope, $interval, $timeout, $http, $compile, buildings,
   // Production/ --------------------------------------------------------------------------------------------------------------------------------------------------//
   ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-  $scope.createPotion = function create(button, start, heroID) {
-    if (heroID != 0) {
-      heroID = heroID || -1;
-    }
-
-    if ($scope.potion.prodTime > start) {
-      if (button) {
-        $scope.potion.progress = ($scope.potion.prodTime - start)
-          .toString()
-          .toHHMMSS();
-      } else if (heroID >= 0) {
-        $scope.heroList[heroID].progress = ($scope.potion.prodTime - start)
-          .toString()
-          .toHHMMSS();
-      }
-      setTimeout(function () {
-          create(button, start + 1, heroID);
-      }, $scope.gameLoop);
-    } else {
-      $scope.potion.working--;
-      $scope.potion.count++;
-      if (button) {
-        $scope.potion.progress = "Create Potion";
-        $("#potionButt").removeAttr("disabled");
-      } else if (heroID >= 0) {
-        $scope.heroList[heroID].progress = "Idle";
-      }
-    }
-  };
-
-  $scope.createPotions = function potion(potionID, button, start, heroID) {
-    if (heroID != 0) {
-      heroID = heroID || -1;
-    }
-    var acc = $scope.potions[potionID];
-    if (acc.prodTime > start) {
-      if (button) {
-        acc.progress = (acc.prodTime - start).toString().toHHMMSS();
-      } else if (heroID >= 0) {
-        $scope.heroList[heroID].progress = (acc.prodTime - start)
-          .toString()
-          .toHHMMSS();
-      }
-      setTimeout(function () {
-          potion(potionID, button, start + 1, heroID);
-      }, $scope.gameLoop);
-    } else {
-      acc.count++;
-      acc.working--;
-      if (button) {
-        acc.progress = "Create " + acc.name;
-        $("#a" + potionID).removeAttr("disabled");
-      } else if (heroID >= 0) {
-        $scope.heroList[heroID].progress = "Idle";
-      }
-    }
-  };
 
   $scope.buyWeapon = function weapon(weaponID, button, start, heroID) {
     if (heroID != 0) {

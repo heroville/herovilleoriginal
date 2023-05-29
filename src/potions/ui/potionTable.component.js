@@ -3,10 +3,11 @@ import template from "./potionTable.html";
 
 app.component("potionTable", {
   template: template,
-  controller: function PotionTableController($scope, potions, potionsService) {
+  controller: function PotionTableController($scope, potions, potion, potionsService) {
     this.potions = potions;
-    this.incrPotion = function (potion) {
-        potionsService.incrPotion(potion);
+    this.potion = potion;
+    this.create = function (potionid) {
+        potionsService.create(potionid);
     };
   }
 });
