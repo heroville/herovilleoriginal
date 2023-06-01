@@ -24,4 +24,5 @@ import './buildings/buildings';
 import './dungeons/dungeons';
 import './monsters/monsters';
 import './heroes/heroes';
+import './potions/potions';
 

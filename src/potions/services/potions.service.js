@@ -50,7 +50,7 @@ app.service("potionsService", function PotionsService(potions, potion, resources
       }
       setTimeout(function () {
         createPotion(button, start + 1, heroID);
-      }, gameLoop);
+      }, gameLoop.loopTime);
     } else {
       potion.working--;
       potion.count++;

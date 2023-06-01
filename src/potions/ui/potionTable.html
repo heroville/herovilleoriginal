@@ -1,7 +1,7 @@
 <table class="table table-bordered">
   <tr>
     <td>
-      <u><b>{{buildings[1].name}}</b></u>
+      <u><b>{{$ctrl.buildings[1].name}}</b></u>
     </td>
   </tr>
   <tr>
@@ -14,19 +14,19 @@
     <td><u>Produce</u></td>
   </tr>
   <tr>
-    <td><img src="images/P_Red04.png" />{{potion.name}}</td>
-    <td>{{potion.description}}</td>
-    <td>{{potion.count}}/{{potion.maxCount}}</td>
-    <td>{{potion.cost}}</td>
-    <td>{{potion.prodTime}}</td>
-    <td>{{potion.sellPrice}}</td>
+    <td><img ng-src="{{$crtl.potion.image}}" />{{$ctrl.potion.name}}</td>
+    <td>{{$ctrl.potion.description}}</td>
+    <td>{{$ctrl.potion.count}}/{{$ctrl.potion.maxCount}}</td>
+    <td>{{$ctrl.potion.cost}}</td>
+    <td>{{$ctrl.potion.prodTime}}</td>
+    <td>{{$ctrl.potion.sellPrice}}</td>
     <td>
-      <button ng-click="create(-1)" id="potionButt">
-        {{potion.progress}}
+      <button ng-click="$ctrl.create(-1)" id="potionButt">
+        {{$ctrl.potion.progress}}
       </button>
     </td>
   </tr>
-  <tr ng-repeat="acc in filteredAcc = (potions | filter:{enabled:true})">
+  <tr ng-repeat="acc in filteredAcc = ($ctrl.potions | filter:{enabled:true})">
     <td><img ng-src="images/{{acc.image}}" />{{acc.name}}</td>
     <td>{{acc.description}}</td>
     <td>{{acc.count}}/{{acc.maxCount}}</td>
@@ -34,7 +34,7 @@
     <td>{{acc.prodTime}}</td>
     <td>{{acc.sellPrice}}</td>
     <td>
-      <button id="p{{acc.id}}" ng-click="create(acc.id)">
+      <button id="p{{acc.id}}" ng-click="$ctrl.create(acc.id)">
         {{acc.progress}}
       </button>
     </td>

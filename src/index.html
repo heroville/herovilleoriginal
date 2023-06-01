@@ -43,7 +43,8 @@
       <uib-tab heading="Production" disabled="prodEnabled">
         <section id="containter">
           <div class="col-lg-6">
-            <table class="table table-bordered">
+            <potion-table></potion-table>
+            <!-- <table class="table table-bordered">
               <tr>
                 <td>
                   <u><b>{{buildings[1].name}}</b></u>
@@ -84,7 +85,7 @@
                   </button>
                 </td>
               </tr>
-            </table>
+            </table> -->
             <table class="table table-bordered" ng-hide="!filteredWeapons.length">
               <tr>
                 <td>
