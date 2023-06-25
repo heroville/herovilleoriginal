@@ -1,20 +1,20 @@
 <table class="table table-bordered" ng-hide="!filteredBlueprint.length">
   <tr>
     <td>
-      <b><u>{{buildings[2].name}}</u></b>
+      <b><u>{{$ctrl.currentBuilding.name}}</u></b>
     </td>
   </tr>
   <tr>
     <td><u>Name</u></td>
     <td><u>Cost (gold)</u></td>
   </tr>
-  <tr ng-repeat="blueprint in filteredBlueprint = (blueprints | filter:{enabled:true})">
+  <tr ng-repeat="blueprint in filteredBlueprint = ($ctrl.blueprints | filter:{enabled:true})">
     <td ng-attr-title="{{blueprint.description}}">
       {{blueprint.name}}
     </td>
     <td>{{blueprint.cost | number}}</td>
     <td>
-      <button ng-click="incrBlueprint(blueprint)" tooltip-placement="right"
+      <button ng-click="$ctrl.incrBlueprint(blueprint)" tooltip-placement="right"
         tooltip="{{blueprint.description}}">
         Buy {{blueprint.name}}
       </button>

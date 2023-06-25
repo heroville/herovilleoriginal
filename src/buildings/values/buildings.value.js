@@ -1,8 +1,8 @@
-import app from "../app";
+import app from "../../app";
 
 app.value('buildings', [
     {
-      id: 0,
+      id: 'tent',
       name: "Tent",
       count: 0,
       enabled: true,
@@ -13,7 +13,7 @@ app.value('buildings', [
       description: "This building allows heroes to join the town.",
     },
     {
-      id: 1,
+      id: 'stockpile',
       name: "Stockpile",
       count: 0,
       enabled: false,
@@ -25,7 +25,7 @@ app.value('buildings', [
         "Adds the Ability to create potions to sell to heroes for gold as well as extending the gold and resource capacities.",
     },
     {
-      id: 2,
+      id: 'market',
       name: "Market",
       count: 0,
       enabled: false,
@@ -37,7 +37,7 @@ app.value('buildings', [
         "Allows you to purchase blueprints which unlock new buildings.",
     },
     {
-      id: 3,
+      id: 'blacksmith',
       name: "Blacksmith",
       count: 0,
       enabled: false,
@@ -49,7 +49,7 @@ app.value('buildings', [
         "Allows you to construct weapons which can be sold to the hero for gold.",
     },
     {
-      id: 4,
+      id: 'tavern',
       name: "Tavern",
       count: 0,
       tier: 1,
@@ -60,7 +60,7 @@ app.value('buildings', [
         "Allows you to purchase Upgrades giving small bonuses to many different things.",
     },
     {
-      id: 5,
+      id: 'alchemist',
       name: "Alchemist",
       count: 0,
       tier: 1,
@@ -71,7 +71,7 @@ app.value('buildings', [
         "Allows you to construct better potions that provide benefits to the hero.",
     },
     {
-      id: 6,
+      id: 'dungeons',
       name: "Dungeons",
       count: 1,
       enabled: false,
@@ -82,7 +82,7 @@ app.value('buildings', [
       description: "Discovers a new Dungeon for your heroes",
     },
     {
-      id: 7,
+      id: 'academy',
       name: "Academy",
       count: 0,
       enabled: false,
@@ -93,7 +93,7 @@ app.value('buildings', [
       description: "Allows heroes to gain a class",
     },
     {
-      id: 8,
+      id: 'eliteDungeons',
       name: "Elite Dungeons",
       count: 0,
       enabled: false,
@@ -104,7 +104,7 @@ app.value('buildings', [
       description: "Allows parties to adventure into elite dungeons.",
     },
     {
-      id: 9,
+      id: 'workHut',
       name: "Work Hut",
       count: 0,
       enabled: false,

@@ -44,48 +44,6 @@
         <section id="containter">
           <div class="col-lg-6">
             <potion-table></potion-table>
-            <!-- <table class="table table-bordered">
-              <tr>
-                <td>
-                  <u><b>{{buildings[1].name}}</b></u>
-                </td>
-              </tr>
-              <tr>
-                <td><u>Item Name</u></td>
-                <td><u>Description</u></td>
-                <td><u>Stock</u></td>
-                <td><u>Prod Cost (Res)</u></td>
-                <td><u>Prod Time</u></td>
-                <td><u>Sell Price (Gold)</u></td>
-                <td><u>Produce</u></td>
-              </tr>
-              <tr>
-                <td><img src="images/P_Red04.png" />{{potion.name}}</td>
-                <td>{{potion.description}}</td>
-                <td>{{potion.count}}/{{potion.maxCount}}</td>
-                <td>{{potion.cost}}</td>
-                <td>{{potion.prodTime}}</td>
-                <td>{{potion.sellPrice}}</td>
-                <td>
-                  <button ng-click="create(-1)" id="potionButt">
-                    {{potion.progress}}
-                  </button>
-                </td>
-              </tr>
-              <tr ng-repeat="acc in filteredAcc = (potions | filter:{enabled:true})">
-                <td><img ng-src="images/{{acc.image}}" />{{acc.name}}</td>
-                <td>{{acc.description}}</td>
-                <td>{{acc.count}}/{{acc.maxCount}}</td>
-                <td>{{acc.cost}}</td>
-                <td>{{acc.prodTime}}</td>
-                <td>{{acc.sellPrice}}</td>
-                <td>
-                  <button id="p{{acc.id}}" ng-click="create(acc.id)">
-                    {{acc.progress}}
-                  </button>
-                </td>
-              </tr>
-            </table> -->
             <table class="table table-bordered" ng-hide="!filteredWeapons.length">
               <tr>
                 <td>
