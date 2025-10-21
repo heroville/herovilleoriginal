@@ -1,4 +1,4 @@
-app.controller("MainController", function ($scope, $interval, $timeout, $http, $compile, GameConfig) {
+app.controller("MainController", function ($scope, $interval, $timeout, $http, $compile, GameConfig, EconomyService) {
     $scope.dark=false;
     //DEBUG
     $scope.debugging = false;
@@ -28,6 +28,12 @@ app.controller("MainController", function ($scope, $interval, $timeout, $http, $
     $scope.gameLoop = 1000;
     $scope.damageMulti = 1;
     $scope.goldMulti = 1;
+
+    EconomyService.bindState($scope);
+    $scope.incGold = EconomyService.incGold;
+    $scope.decGold = EconomyService.decGold;
+    $scope.incResources = EconomyService.incResources;
+    $scope.decResources = EconomyService.decResources;
 
     //Display Variables
     $scope.version = '1.3';
@@ -430,14 +436,7 @@ app.controller("MainController", function ($scope, $interval, $timeout, $http, $
     $scope.incrRes = function (multi) {
         multi = multi || 1;
         $scope.gameStats.clicks++;
-        if (($scope.resources + multi) < $scope.maxResources) {
-            $scope.resources += (multi);
-
-        }
-        else {
-            $scope.resources = $scope.maxResources;
-        }
-        $scope.resources = $scope.resources;
+        EconomyService.incResources(multi);
     }
 
 
@@ -445,7 +444,7 @@ app.controller("MainController", function ($scope, $interval, $timeout, $http, $
     //function to Incrmeent the current building
 
     $scope.incrBuilding = function (building) {
-        if ($scope.decResources(building.cost)) {
+        if (EconomyService.decResources(building.cost)) {
             building.count++;
             building.cost = Math.ceil(building.cost + Math.pow((building.count + 1), building.multiplier));
             if (building.id == 0 && $scope.buildings[1].enabled == false) {
@@ -576,7 +575,7 @@ app.controller("MainController", function ($scope, $interval, $timeout, $http, $
     }
 
     $scope.incrBlueprint = function (blueprint) {
-        if ($scope.decGold(blueprint.cost)) {
+        if (EconomyService.decGold(blueprint.cost)) {
             blueprint.enabled = false;
             if (blueprint.buildingID > 0) {
                 $scope.buildings[blueprint.buildingID].enabled = true;
@@ -610,7 +609,7 @@ app.controller("MainController", function ($scope, $interval, $timeout, $http, $
         if ($scope.weapons[weapon].count + $scope.weapons[weapon].working < $scope.weapons[weapon].maxCount) {
             if ($scope.resources >= $scope.weapons[weapon].cost) {
                 $('#w'+ weapon).attr('disabled','disabled');
-                $scope.decResources($scope.weapons[weapon].cost);
+                EconomyService.decResources($scope.weapons[weapon].cost);
                 $scope.weapons[weapon].working++;
 
                 if ($scope.panelNumber == 16) {
@@ -635,14 +634,13 @@ app.controller("MainController", function ($scope, $interval, $timeout, $http, $
         if (itemID == -1) {
             if ($scope.potion.count + $scope.potion.working < $scope.potion.maxCount) {
 
-                if ($scope.resources >= $scope.potion.cost) {
+                if (EconomyService.decResources($scope.potion.cost)) {
                     if ($scope.panelNumber == 7) {
                         $scope.nextTutorial();
                     }
                     $('#potionButt').attr('disabled', 'disabled');
-                    $scope.resources -= $scope.potion.cost;
                     $scope.potion.working++;
-                    $scope.createPotion(true, 0);                
+                    $scope.createPotion(true, 0);
                 }
                 else {
                     $scope.showError("You do not have enough Resources.");
@@ -652,9 +650,8 @@ app.controller("MainController", function ($scope, $interval, $timeout, $http, $
         }
         else {
             if ($scope.potions[itemID].count + $scope.potions[itemID].working < $scope.potions[itemID].maxCount) {
-                if ($scope.resources >= $scope.potions[itemID].cost) {
+                if (EconomyService.decResources($scope.potions[itemID].cost)) {
                     $('#a' + itemID).attr('disabled', 'disabled');
-                    $scope.decResources($scope.potions[itemID].cost);
                     $scope.potions[itemID].working++;
                     $scope.createPotions(itemID, true, 0);
                 }
@@ -996,10 +993,9 @@ app.controller("MainController", function ($scope, $interval, $timeout, $http, $
                     break;
                 }
                 case 1: {
-                    if (($scope.potion.count + $scope.potion.working) < $scope.potion.maxCount) {
+                    if (($scope.potion.count + $scope.potion.working) < $scope.potion.maxCount && $scope.heroList[i].progress == "Idle") {
 
-                        if ($scope.resources >= $scope.potion.cost && $scope.heroList[i].progress == "Idle") {
-                            $scope.resources -= $scope.potion.cost;
+                        if (EconomyService.decResources($scope.potion.cost)) {
                             $scope.potion.working++;
                             if (!($scope.heroList[i].academy.id === GameConfig.heroClasses[1].id)) {
                                 $scope.createPotion(false, Math.floor((($scope.heroList[i].level) * .05)*$scope.potion.prodTime), i);
@@ -1012,9 +1008,8 @@ app.controller("MainController", function ($scope, $interval, $timeout, $http, $
                     }
                     for (j = 0; j < $scope.potions.length; j++) {
                         if ($scope.potions[j].enabled && ($scope.potions[j].count + $scope.potions[j].working) < $scope.potions[j].maxCount && $scope.heroList[i].progress == "Idle") {
-                            if ($scope.resources >= $scope.potions[j].cost) {
+                            if (EconomyService.decResources($scope.potions[j].cost)) {
                                 $scope.potions[j].working++;
-                                $scope.resources -= $scope.potions[j].cost;
                                 if (!($scope.heroList[i].academy.id === GameConfig.heroClasses[1].id)) {
                                     $scope.createPotions(j, false, (Math.floor((($scope.heroList[i].level) * .05) * $scope.potions[j].prodTime)), i);
                                 }
@@ -1030,9 +1025,8 @@ app.controller("MainController", function ($scope, $interval, $timeout, $http, $
                 case 2: {
                     for (j = 0; j < $scope.weapons.length; j++) {
                         if ($scope.weapons[j].enabled && ($scope.weapons[j].count + $scope.weapons[j].working) < $scope.weapons[j].maxCount && $scope.heroList[i].progress == "Idle") {
-                            if ($scope.resources >= $scope.weapons[j].cost) {
+                            if (EconomyService.decResources($scope.weapons[j].cost)) {
                                 $scope.weapons[j].working++;
-                                $scope.resources -= $scope.weapons[j].cost;
                                 if (!($scope.heroList[i].academy.id === GameConfig.heroClasses[1].id)) {
                                     $scope.gameStats.weaponsAuto++;
                                     $scope.buyWeapon(j, false, (Math.floor((($scope.heroList[i].level) * .05)*$scope.weapons[j].prodTime)), i);
@@ -2082,46 +2076,6 @@ $(document).ready(function(){
     //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     // Safety/ Function ---------------------------------------------------------------------------------------------------------------------------------------------//
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
-    $scope.incGold = function(value) {
-        if ((value * $scope.goldMulti) < ($scope.maxGold - $scope.gold)) {
-            $scope.gold += value * $scope.goldMulti;
-        }
-        else {
-            $scope.gold = $scope.maxGold;
-        }
-    }
-
-    $scope.decGold = function(value) {
-        if ($scope.gold >= value) {
-            $scope.gold -= value;
-            return true;
-        }
-        else {
-            false;
-        }
-    }
-
-
-    $scope.incResources = function(value) {
-        if (value < ($scope.maxResources - $scope.resources)) {
-            $scope.resources += value;
-        }
-        else {
-            $scope.resources = $scope.maxResources;
-        }
-    }
-
-    $scope.decResources = function(value) {
-        if ($scope.resources >= value) {
-            $scope.resources -= value;
-            return true;
-        }
-        else {
-            false;
-        }
-
-    }
 
     $scope.gainExp = function (hero, amount) {
         hero.experience += amount;
