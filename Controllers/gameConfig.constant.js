@@ -142,7 +142,7 @@
                 cost: 15,
                 buildingID: -2,
                 enabled: false,
-                description: "Enabled the Beastiary where you can see the different types of monsters in this game"
+                description: "Enabled the Bestiary where you can see the different types of monsters in this game"
             },
             {
                 id: 5,
