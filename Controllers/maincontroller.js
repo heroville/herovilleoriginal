@@ -711,9 +711,21 @@
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     $scope.reset = function () {
         //TODO: Add confirm dialog.
-        data = JSON.parse(localStorage["data"]);
+        const raw = localStorage.getItem('data');
+        if (!raw) {
+            $scope.showError("No save data to reset.");
+            return;
+        }
+        let data;
+        try {
+            data = JSON.parse(raw);
+        } catch (error) {
+            $scope.showError("Failed to reset save data: " + error.message);
+            localStorage.removeItem('data');
+            return;
+        }
         data.saveVersion = "Reset";
-        localStorage["data"] = JSON.stringify(data);
+        localStorage.setItem('data', JSON.stringify(data));
         location.reload();
     }
 
@@ -755,7 +767,18 @@
     }
 
     $scope.loadData = function () {
-        data = JSON.parse(localStorage["data"]);
+        const raw = localStorage.getItem('data');
+        if (!raw) {
+            return;
+        }
+        let data;
+        try {
+            data = JSON.parse(raw);
+        } catch (error) {
+            $scope.showError("Failed to load save data. Clearing corrupted save. Error: " + error.message);
+            localStorage.removeItem('data');
+            return;
+        }
         $scope.resources = data.resources;
         $scope.maxResources = data.maxResources;
         $scope.gold = data.gold;
@@ -839,7 +862,18 @@
     }
 
     $scope.load = function () {
-        test = JSON.parse(localStorage["data"]);
+        const raw = localStorage.getItem('data');
+        if (!raw) {
+            return;
+        }
+        let test;
+        try {
+            test = JSON.parse(raw);
+        } catch (error) {
+            $scope.showError("Failed to parse save data. Clearing corrupted save. Error: " + error.message);
+            localStorage.removeItem('data');
+            return;
+        }
         if (test) {
             if (test.saveVersion != $scope.version) {
                 if ($scope.forceReset) {
@@ -854,7 +888,7 @@
                 $scope.loadData();
             }
         }
-        
+
     }
 
     //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
