@@ -775,7 +775,7 @@
         try {
             data = JSON.parse(raw);
         } catch (error) {
-            $scope.showError("Failed to load save data. Clearing corrupted save.");
+            $scope.showError("Failed to load save data. Clearing corrupted save. Error: " + error.message);
             localStorage.removeItem('data');
             return;
         }
