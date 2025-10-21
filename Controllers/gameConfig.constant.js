@@ -97,7 +97,7 @@
                 name: 'Work Hut',
                 count: 0,
                 enabled: false,
-                teir: 1,
+                tier: 1,
                 cost: 100,
                 multiplier: 4,
                 description: "Allows you to train workers and gatherers."
