@@ -221,17 +221,17 @@ app.controller("MainController", function ($scope, $interval, $timeout, $http, $
 
     $scope.heroClass = angular.copy(GameConfig.heroClasses);
 
-    $http.get('Models/heroName.json')
+    $http.get('models/heroName.json')
         .success(function (data) {
             $scope.heroName = data;
         });
 
-    $http.get('Models/monsterList.json')
+    $http.get('models/monsterList.json')
          .success(function (data) {
              $scope.monsterList = data;
          });
 
-    $http.get('Models/dungeons.json')
+    $http.get('models/dungeons.json')
          .success(function (data) {
              $scope.dungeonNames = data;
          });
