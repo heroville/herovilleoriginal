@@ -721,6 +721,7 @@
             data = JSON.parse(raw);
         } catch (error) {
             $scope.showError("Failed to reset save data: " + error.message);
+            localStorage.removeItem('data');
             return;
         }
         data.saveVersion = "Reset";
