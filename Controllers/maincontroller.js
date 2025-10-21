@@ -436,7 +436,7 @@ app.controller("MainController", function ($scope, $interval, $timeout, $http, $
     $scope.incrRes = function (multi) {
         multi = multi || 1;
         $scope.gameStats.clicks++;
-        EconomyService.incResources(multi);
+        $scope.incResources(multi);
     }
 
 
