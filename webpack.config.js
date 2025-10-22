@@ -72,7 +72,8 @@ module.exports = (env, argv) => {
         template: path.resolve(__dirname, 'src/index.html'),
       }),
       new MiniCssExtractPlugin({
-        filename: 'styles.css',
+        filename: 'styles/[name].css',
+        chunkFilename: 'styles/[id].css',
       }),
       new CopyWebpackPlugin({
         patterns: [
@@ -103,11 +104,6 @@ module.exports = (env, argv) => {
       open: true,
       hot: true,
       historyApiFallback: true,
-    },
-    optimization: {
-      splitChunks: {
-        chunks: 'all',
-      },
     },
   };
 };
