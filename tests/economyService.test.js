@@ -1,7 +1,7 @@
 'use strict';
 
 const assert = require('assert');
-const createEconomyService = require('../Controllers/economy.service.js');
+const createEconomyService = require('../src/app/economy.service.js');
 
 (function runEconomyServiceTests() {
     const economy = createEconomyService();

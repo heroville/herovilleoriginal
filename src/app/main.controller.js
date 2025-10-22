@@ -1,3 +1,7 @@
+const angular = require('angular');
+const appModule = require('./app.module');
+const app = appModule.default || appModule;
+
 app.controller("MainController", function ($scope, $interval, $timeout, $http, $compile, GameConfig, EconomyService) {
     $scope.dark=false;
     //DEBUG

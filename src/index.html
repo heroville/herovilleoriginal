@@ -1,0 +1,379 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en">
+<head>
+  <meta charset="utf-8" />
+  <title>HeroVille Incremental Game</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css?family=Droid+Sans" rel="stylesheet" type="text/css" />
+</head>
+<body>
+  <link rel="shortcut icon" href="favicon.ico" type="image/x-icon" />
+  <div ng-app="Incremental" id="wrap" ng-controller="MainController" class="page-wrap">
+    <link href="darkStyle.css" ng-if="dark" rel="stylesheet" />
+    <div class="row">
+      <div class="col-lg-4">
+        <div class="panel panel-default">
+          <div class="panel-body">
+            <ul id="panelList">
+              <li>
+                <b>{{panel[0]}}</b>
+                <hr />
+              </li>
+              <li ng-repeat="lines in panel track by $index" ng-if="panel.indexOf(lines) > 0">
+                {{lines}}
+              </li>
+            </ul>
+            <br />
+            <div id="infoButtonDiv">
+              <div id="infobutton" ng-click="nextTutorial()" ng-show="showTutorial">Next</div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="col-lg-4">
+        <img src="images/heroville-logo.png" width="100%" />
+      </div>
+      <div class="col-lg-4">
+        <div class="panel panel-default">
+          <div class="panel-heading">Upgrades</div>
+          <div class="panel-body">
+            <ul id="upgradeList" ng-repeat="upgrade in filteredUpgrades = (upgrades | filter:{enabled:true})">
+              <li>
+                <button ng-click="buyUpgrade(upgrade.id)">
+                  {{upgrade.name}} <br />
+                  Cost(g): {{upgrade.price}} <br />
+                </button>
+              </li>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="row">
+      <div id="resources">
+        {{resources | number}}/{{maxResources | number}}
+        <img src="images/I_Chest01.png" />
+        {{gold | number}}/{{maxGold | number}}
+        <img src="images/I_GoldBar.png" />
+        <img ng-hide="gameLoop == 1000" ng-src="images/S_Buff11.png" tooltip="Doubles the game speed" tooltip-placement="bottom" />
+        <img ng-hide="damageMulti == 1" ng-src="images/S_Shadow07.png" tooltip="Doubles your heroes damage" tooltip-placement="bottom" />
+        <img ng-hide="goldMulti == 1" src="images/E_Gold02.png" tooltip="Doubles the gold gained from sales" tooltip-placement="bottom" />
+      </div>
+      <div id="gatherButton" ng-click="incrRes(incr)">Gather</div>
+      <div id="gatherButton" ng-click="testing2()" ng-show="debugging">Button</div>
+      <div id="errorDialog" title="Error"><br /></div>
+    </div>
+    <tabset id="gameTabs">
+      <tab heading="Town" id="town">
+        <section id="container">
+          <div class="col-lg-6">
+            <table class="table table-bordered">
+              <tr>
+                <td><b><u>Buildings</u></b></td>
+              </tr>
+              <tr>
+                <th><u>Name</u></th>
+                <th><u>Level</u></th>
+                <th><u>Cost</u></th>
+              </tr>
+              <tr ng-repeat="building in buildings" ng-show="building.enabled == true">
+                <td ng-attr-title="{{building.description}}">{{building.name}}</td>
+                <td>{{building.count | number}}</td>
+                <td>{{building.cost | number}}</td>
+                <td>
+                  <button ng-click="incrBuilding(building)" tooltip-placement="right" tooltip="{{building.description}}">Improve {{building.name}}</button>
+                </td>
+              </tr>
+            </table>
+          </div>
+          <div class="col-lg-6">
+            <table class="table table-bordered" ng-hide="!filteredDungeons.length">
+              <tr>
+                <td><u><b>Dungeons</b></u></td>
+              </tr>
+              <tr>
+                <td><u>Name</u></td>
+                <td><u>Level</u></td>
+                <td><u>Boss</u></td>
+                <td><u>Length</u></td>
+                <td><u>Encounter Rate</u></td>
+              </tr>
+              <tr ng-repeat="dungeon in filteredDungeons = (dungeons | filter:{enabled:true})">
+                <td>{{dungeon.name}}</td>
+                <td>{{dungeon.level}}</td>
+                <td>{{bosses[dungeon.bossID].name}}</td>
+                <td>{{dungeon.steps}}</td>
+                <td>{{dungeon.encounterRate}}%</td>
+              </tr>
+            </table>
+          </div>
+        </section>
+      </tab>
+      <tab heading="Hero" id="hero" disabled="heroEnabled">
+        <section id="container">
+          <div class="col-lg-7">
+            <div class="btn-group" dropdown is-open="status.isopen" id="heroFilter">
+              <button type="button" class="dropdown-toggle" id="sortButton">
+                Sort <span class="caret down"></span>
+              </button>
+              <ul class="dropdown-menu" role="menu">
+                <li><a href="" ng-click="sorting.heroTable = 'name'; reverse=!reverse"><u>Name</u></a></li>
+                <li><a href="" ng-click="sorting.heroTable = ['level','experience']; reverse=!reverse"><u>Level</u></a></li>
+                <li><a href="" ng-click="sorting.heroTable = 'equip.gold'; reverse=!reverse"><u>Gold</u></a></li>
+                <li><a href="" ng-click="sorting.heroTable = 'equip.scrap'; reverse=!reverse"><u>Resources</u></a></li>
+                <li><a href="" ng-click="sorting.heroTable = 'equip.weapon.id'; reverse=!reverse"><u>Weapon</u></a></li>
+                <li><a href="" ng-click="sorting.heroTable = 'equip.accessory.length'; reverse=!reverse"><u>Accessory</u></a></li>
+                <li><a href="" ng-click="sorting.heroTable = 'currHealth'; reverse=!reverse"><u>Health</u></a></li>
+                <li><a href="" ng-click="sorting.heroTable = 'experience'; reverse=!reverse"><u>Experience</u></a></li>
+                <li><a href="" ng-click="sorting.heroTable = 'dungeon'; reverse=!reverse"><u>Location</u></a></li>
+              </ul>
+            </div>
+            <input ng-model="hFilterString.name" />
+            <ul id="heroList" ng-repeat="hero in filteredheroList = (heroList | heroAdventure | orderBy:sorting.heroTable:reverse | filter:hFilterString)" ng-hide="showHeroTable.enabled">
+              <li>
+                <table class="table table-bordered" id="heroTable">
+                  <tr>
+                    <td>
+                      Lvl. {{hero.level}} {{hero.name}}
+                    </td>
+                  </tr>
+                  <tr>
+                    <td>
+                      Class: {{hero.academy.name}}
+                    </td>
+                  </tr>
+                  <tr>
+                    <td>
+                      HP: <progressbar value="hero.currHealth/hero.health*100" type="danger" style="width:220px;"><i>{{hero.currHealth | number}}/{{hero.health | number}}</i></progressbar>
+                      XP: <progressbar value="hero.experience/hero.next*100" type="warning" style="width:220px;"><i>{{hero.experience | number}}/{{hero.next | number}}</i></progressbar>
+                    </td>
+                  </tr>
+                  <tr>
+                    <td>
+                      <table id="lootTable">
+                        <tr>
+                          <td>
+                            Loot:
+                          </td>
+                          <td>
+                            Equip:
+                          </td>
+                        </tr>
+                        <tr>
+                          <td style="width:50%;">
+                            {{hero.equip.gold}} <img src="images/I_GoldBar.png" />
+                          </td>
+                          <td>
+                            <a href="" popover-template="showEquip.html" popover-placement="right" popover-trigger="mouseenter"><img ng-src="images/{{hero.equip.weapon.image}}" /> ({{hero.equip.weapon.minDamage}}-{{hero.equip.weapon.maxDamage}}) Durability: {{hero.equip.weapon.durability}}</a>
+                            <script id="showEquip.html" type="text/ng-template">
+                              <img ng-src="images/{{hero.equip.weapon.image}}" />
+                              {{hero.equip.weapon.name}} ({{hero.equip.weapon.minDamage}}-{{hero.equip.weapon.maxDamage}}) {{hero.equip.weapon.durability}}
+                              <div ng-repeat="accessory in hero.equip.accessory"><img ng-src="images/{{accessory.image}}" />{{accessory.name}} | {{accessory.durability}}</div>
+                              <div ng-repeat="pot in hero.equip.potions"><img ng-src="images/{{pot.image}}" />{{pot.name}} | {{pot.count}}</div>
+                            </script>
+                          </td>
+                        </tr>
+                      </table>
+                    </td>
+                  </tr>
+                  <tr>
+                    <td>
+                      Location: {{hero.location}}
+                    </td>
+                  </tr>
+                  <tr>
+                    <td>
+                      <a href="" popover-template="showBattle.html" popover-placement="right" popover-trigger="mouseenter"><div ng-model="progress">{{hero.progress}}</div></a>
+                      <script id="showBattle.html" type="text/ng-template">
+                        <table class="table table-bordered" ng-hide="!filteredBattle.length">
+                          <tr ng-repeat="battle in filteredBattle = (battles | heroBattle:hero)">
+                            <td>{{battle.hero[0].name}}</td>
+                            <td>{{battle.monster}}</td>
+                            <td>{{battle.winner}}</td>
+                          </tr>
+                        </table>
+                      </script>
+                    </td>
+                  </tr>
+                  <tr>
+                    <td>
+                      <a href="" popover-template="showAdventure.html" popover-placement="right" popover-trigger="mouseenter"><div>{{hero.adventureProgress}}</div></a>
+                      <script id="showAdventure.html" type="text/ng-template">
+                        <table class="table table-bordered" ng-hide="!filteredJourneys.length">
+                          <tr ng-repeat="journey in filteredJourneys = (journeys | heroBattle:hero)">
+                            <td>{{journey.hero[0].name}}</td>
+                            <td>{{journey.location}}</td>
+                            <td>{{journey.winner}}</td>
+                          </tr>
+                        </table>
+                      </script>
+                    </td>
+                  </tr>
+                  <tr>
+                    <td>
+                      <div class="btn-group" dropdown>
+                        <button type="button" class="dropdown-toggle">
+                          Manage <span class="caret down"></span>
+                        </button>
+                        <ul class="dropdown-menu" role="menu">
+                          <li><a href="" ng-click="hero.autoAdventure = !hero.autoAdventure">{{hero.autoAdventure ? 'Stop auto adventure' : 'Start auto adventure'}}</a></li>
+                          <li><a href="" ng-click="heroCollapse(hero)">View Details</a></li>
+                        </ul>
+                      </div>
+                    </td>
+                  </tr>
+                  <tr ng-hide="hero.collapsed">
+                    <td>
+                      <div id="heroAccordion">
+                        <h3>Stats</h3>
+                        <div>
+                          <table class="table table-bordered">
+                            <tr>
+                              <td>Damage</td>
+                              <td>{{hero.damage.min}}-{{hero.damage.max}}</td>
+                            </tr>
+                            <tr>
+                              <td>Armor</td>
+                              <td>{{hero.armor.min}}-{{hero.armor.max}}</td>
+                            </tr>
+                            <tr>
+                              <td>Attack Speed</td>
+                              <td>{{hero.attackSpeed}}s</td>
+                            </tr>
+                          </table>
+                        </div>
+                        <h3>Equipment</h3>
+                        <div>
+                          <table class="table table-bordered">
+                            <tr>
+                              <td>Weapon</td>
+                              <td>{{hero.equip.weapon.name}}</td>
+                            </tr>
+                            <tr>
+                              <td>Accessory</td>
+                              <td>{{hero.equip.accessory.length}}</td>
+                            </tr>
+                          </table>
+                        </div>
+                      </div>
+                    </td>
+                  </tr>
+                </table>
+              </li>
+            </ul>
+          </div>
+          <div class="col-lg-5">
+            <div class="panel panel-default">
+              <div class="panel-heading">Production</div>
+              <div class="panel-body">
+                <table class="table table-bordered">
+                  <tr>
+                    <td>Weapons</td>
+                    <td>{{weapons[wepChoice].name}}</td>
+                    <td>
+                      <button ng-click="buyWeapon()">Craft Weapon</button>
+                    </td>
+                  </tr>
+                  <tr>
+                    <td>Potions</td>
+                    <td>{{potion.name}}</td>
+                    <td>
+                      <button ng-click="buyPotion()">Brew Potion</button>
+                    </td>
+                  </tr>
+                </table>
+              </div>
+            </div>
+          </div>
+        </section>
+      </tab>
+      <tab heading="Workers" id="workers">
+        <section id="container">
+          <div class="col-lg-6">
+            <table class="table table-bordered">
+              <tr>
+                <td><b><u>Jobs</u></b></td>
+              </tr>
+              <tr>
+                <th><u>Name</u></th>
+                <th><u>Assigned</u></th>
+                <th><u>Limit</u></th>
+                <th><u>Action</u></th>
+              </tr>
+              <tr ng-repeat="job in jobs" ng-show="job.enabled == true">
+                <td>{{job.name}}</td>
+                <td>{{job.current}}</td>
+                <td>{{job.limit}}</td>
+                <td>
+                  <button ng-click="incWorker(job)">Assign</button>
+                  <button ng-click="decWorker(job)">Remove</button>
+                </td>
+              </tr>
+            </table>
+          </div>
+          <div class="col-lg-6">
+            <table class="table table-bordered">
+              <tr>
+                <td><b><u>Potions</u></b></td>
+              </tr>
+              <tr>
+                <th><u>Name</u></th>
+                <th><u>Count</u></th>
+                <th><u>Max</u></th>
+              </tr>
+              <tr ng-repeat="potion in potions" ng-show="potion.enabled == true">
+                <td>{{potion.name}}</td>
+                <td>{{potion.count}}</td>
+                <td>{{potion.maxCount}}</td>
+              </tr>
+            </table>
+          </div>
+        </section>
+      </tab>
+      <tab heading="Bestiary" id="bestiary">
+        <section id="container">
+          <div class="col-lg-12">
+            <table class="table table-bordered">
+              <tr>
+                <td><b><u>Monsters</u></b></td>
+              </tr>
+              <tr>
+                <th><u>Name</u></th>
+                <th><u>Type</u></th>
+                <th><u>Level</u></th>
+              </tr>
+              <tr ng-repeat="monster in monsters" ng-show="monster.enabled == true">
+                <td>{{monster.name}}</td>
+                <td>{{monster.type}}</td>
+                <td>{{monster.level}}</td>
+              </tr>
+            </table>
+          </div>
+        </section>
+      </tab>
+      <tab heading="Options/Help" id="options">
+        <section id="container">
+          <div class="col-lg-12">
+            <div class="panel panel-default">
+              <div class="panel-heading">Options</div>
+              <div class="panel-body">
+                <button ng-click="dark=!dark">Toggle Dark Mode</button>
+                <button ng-click="reset()">Reset Game</button>
+                <button ng-click="export()">Export Save</button>
+                <button ng-click="import()">Import Save</button>
+              </div>
+            </div>
+            <div class="panel panel-default">
+              <div class="panel-heading">Help</div>
+              <div class="panel-body">
+                <p>Welcome to HeroVille! Gather resources, manage your heroes, and expand your town.</p>
+              </div>
+            </div>
+          </div>
+        </section>
+      </tab>
+    </tabset>
+  </div>
+</body>
+</html>

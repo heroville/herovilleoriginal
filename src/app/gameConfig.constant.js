@@ -1,8 +1,7 @@
-/* global app */
-(function () {
-    'use strict';
+const appModule = require('./app.module');
+const app = appModule.default || appModule;
 
-    var gameConfig = {
+const gameConfig = {
         buildings: [
             {
                 id: 0,
@@ -478,11 +477,7 @@
         ]
     };
 
-    if (typeof app !== 'undefined' && app && app.constant) {
-        app.constant('GameConfig', gameConfig);
-    }
+app.constant('GameConfig', gameConfig);
 
-    if (typeof module !== 'undefined' && module.exports) {
-        module.exports = gameConfig;
-    }
-}());
+module.exports = gameConfig;
+module.exports.default = gameConfig;

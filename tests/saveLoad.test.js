@@ -1,7 +1,7 @@
 'use strict';
 
 const assert = require('assert');
-const GameConfig = require('../Controllers/gameConfig.constant.js');
+const GameConfig = require('../src/app/gameConfig.constant.js');
 
 function clone(value) {
     return JSON.parse(JSON.stringify(value));
