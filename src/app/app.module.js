@@ -1,4 +1,9 @@
 const angular = require('angular');
+
+if (typeof window !== 'undefined') {
+  window.angular = angular;
+}
+
 require('angular-ui-bootstrap');
 require('angular-ui-bootstrap/dist/ui-bootstrap-tpls');
 require('angulartics');
