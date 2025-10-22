@@ -2,8 +2,48 @@ const angular = require('angular');
 const appModule = require('./app.module');
 const app = appModule.default || appModule;
 
-app.controller("MainController", function ($scope, $interval, $timeout, $http, $compile, GameConfig, EconomyService) {
+app.controller("MainController", function ($scope, $interval, $timeout, $http, $compile, $document, GameConfig, EconomyService) {
     $scope.dark=false;
+
+    const DARK_THEME_LINK_ID = 'dark-theme-stylesheet';
+    const DARK_THEME_HREF = 'darkStyle.css';
+
+    const updateDarkThemeStylesheet = function (isDarkMode) {
+        const documentRef = $document && $document[0];
+        if (!documentRef) {
+            return;
+        }
+
+        const headElement = documentRef.head;
+        if (!headElement) {
+            return;
+        }
+
+        let linkElement = documentRef.getElementById(DARK_THEME_LINK_ID);
+
+        if (isDarkMode) {
+            if (!linkElement) {
+                linkElement = documentRef.createElement('link');
+                linkElement.id = DARK_THEME_LINK_ID;
+                linkElement.rel = 'stylesheet';
+                linkElement.href = DARK_THEME_HREF;
+                headElement.appendChild(linkElement);
+            }
+        }
+        else if (linkElement) {
+            headElement.removeChild(linkElement);
+        }
+    };
+
+    updateDarkThemeStylesheet($scope.dark);
+
+    $scope.$watch('dark', function (isDark, wasDark) {
+        if (isDark === wasDark) {
+            return;
+        }
+
+        updateDarkThemeStylesheet(isDark);
+    });
     //DEBUG
     $scope.debugging = false;
     $scope.forceReset = true;
