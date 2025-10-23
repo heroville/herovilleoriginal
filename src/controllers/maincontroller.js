@@ -921,7 +921,7 @@ app.controller("MainController", function ($scope, $interval, $timeout, $http, $
                     if (hero.equip.gold > 0) {
                         // Upgrade Weapon
                         if ($scope.buildings[3].count > hero.equip.weapon.id) {
-                            for (j = $scope.buildings[3].count; j > hero.equip.weapon.id; j--) {
+                            for (let j = $scope.buildings[3].count; j > hero.equip.weapon.id; j--) {
                                 if ($scope.meetRequirements(hero, $scope.weapons[j])) {
 
                                         if (hero.equip.gold >= $scope.weapons[j].sellPrice && $scope.weapons[j].count > 0) {
@@ -947,9 +947,9 @@ app.controller("MainController", function ($scope, $interval, $timeout, $http, $
                         }
 
                         // Buy Potion
-                        for (j = 0; j < $scope.potions.length; j++) {
+                        for (let j = 0; j < $scope.potions.length; j++) {
                             let equiped = false;
-                            for (k = 0; k < hero.equip.potions.length; k++) {
+                            for (let k = 0; k < hero.equip.potions.length; k++) {
                                 if (hero.equip.potions[k].count < $scope.potions[k].maxHero && hero.equip.gold >= $scope.potions[k].sellPrice && $scope.potions[k].count > 0) {
                                     hero.equip.gold -= $scope.potions[k].sellPrice;
                                     $scope.incGold($scope.potions[k].sellPrice);
