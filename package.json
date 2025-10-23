@@ -9,6 +9,7 @@
     "test": "node tests/runAllTests.js"
   },
   "devDependencies": {
+    "@rollup/rollup-win32-x64-msvc": "^4.52.5",
     "vite": "^5.3.0"
   }
 }

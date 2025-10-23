@@ -38,8 +38,8 @@ app.directive("removeMe", function ($rootScope) {
 app.filter('heroBattle', function () {
     return function (items, value) {
         var filtered = [];
-        for (i = 0; i < items.length; i++) {
-            for (j = 0; j < items[i].hero.length; j++)
+        for (let i = 0; i < items.length; i++) {
+            for (let j = 0; j < items[i].hero.length; j++)
             if (items[i].hero[j].id == value.id) {
                 filtered.push(items[i]);
             }
@@ -51,7 +51,7 @@ app.filter('heroBattle', function () {
 app.filter('heroWorker', function () {
     return function (heroList, value) {
         var filtered = [];
-        for (i = 0; i < heroList.length; i++) {
+        for (let i = 0; i < heroList.length; i++) {
             if (heroList[i].academy.id == 1) {
                 filtered.push(heroList[i]);
             }
@@ -64,7 +64,7 @@ app.filter('heroWorker', function () {
 app.filter('heroAdventure', function () {
     return function (heroList, value) {
         var filtered = [];
-        for (i = 0; i < heroList.length; i++) {
+        for (let i = 0; i < heroList.length; i++) {
             if (heroList[i].academy.id == 0 || heroList[i].academy.id == 2) {
                 filtered.push(heroList[i]);
             }
