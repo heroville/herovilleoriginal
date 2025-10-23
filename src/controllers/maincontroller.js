@@ -1588,7 +1588,7 @@ $(document).ready(function(){
     }
 
     $scope.bossFight = function(journey) {
-        bossID = journey.dungeon.bossID;
+        let bossID = journey.dungeon.bossID;
         let multi = 1;
         if (journey.hero.length > 1) {
             multi = 10;
