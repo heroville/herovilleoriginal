@@ -1,4 +1,5 @@
-﻿var app = angular.module('Incremental', ['ui.bootstrap', 'angulartics', 'angulartics.google.analytics']);
+const app = window.angular.module('Incremental', ['ui.bootstrap', 'angulartics', 'angulartics.google.analytics']);
+window.app = app;
 
 app.directive('ngSlider', function () {
     return {
@@ -72,6 +73,8 @@ app.filter('heroAdventure', function () {
     }
 }
 );
+
+export default app;
 
 
 

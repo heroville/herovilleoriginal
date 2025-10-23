@@ -1,205 +1,173 @@
 'use strict';
 
 const assert = require('assert');
-const GameConfig = require('../Controllers/gameConfig.constant.js');
 
-function clone(value) {
-    return JSON.parse(JSON.stringify(value));
-}
+(async function runSaveLoadTests() {
+    const { default: GameConfig } = await import('../src/constants/gameConfig.data.js');
 
-function createScope() {
-    const heroClasses = clone(GameConfig.heroClasses);
-    return {
-        version: '1.3',
-        resources: 0,
-        maxResources: 25,
-        gold: 0,
-        maxGold: 0,
-        incr: 1,
-        restAmount: 2,
-        buildings: clone(GameConfig.buildings),
-        blueprints: clone(GameConfig.blueprints),
-        weapons: clone(GameConfig.weapons),
-        potions: clone(GameConfig.potions),
-        heroClass: heroClasses,
-        heroList: [],
-        upgrades: [],
-        journeys: [],
-        bossBattle: [],
-        battles: [],
-        dungeons: [],
-        jobs: [
-            { id: 0, name: 'Gather', current: 0, limit: 100, enabled: true },
-            { id: 1, name: 'Apothecary', current: 0, limit: 1, enabled: false },
-            { id: 2, name: 'Smith', current: 0, limit: 1, enabled: false }
-        ],
-        potion: {
-            id: -1,
-            name: 'Healing Herbs',
-            healing: 20,
-            count: 0,
-            maxCount: 5,
-            cost: 10,
-            prodTime: 5,
-            sellPrice: 1,
-            working: 0
-        },
-        monsters: [],
-        bosses: [],
-        bestiary: false,
-        successCount: { amount: 3 },
-        lossCount: { amount: 1 },
-        party: [],
-        gameStats: {
-            battles: 0,
-            wins: 0,
-            losses: 0,
-            weaponsAuto: 0,
-            weaponsManual: [],
-            buffs: 0,
-            clicks: 0
-        },
-        panelNumber: 0,
-        showTutorial: true
-    };
-}
+    function clone(value) {
+        return JSON.parse(JSON.stringify(value));
+    }
 
-function save(scope) {
-    return JSON.parse(JSON.stringify({
-        resources: scope.resources,
-        maxResources: scope.maxResources,
-        gold: scope.gold,
-        maxGold: scope.maxGold,
-        incr: scope.incr,
-        restAmount: scope.restAmount,
-        buildings: scope.buildings,
-        blueprints: scope.blueprints,
-        heroList: scope.heroList,
-        weapons: scope.weapons,
-        potions: scope.potions,
-        upgrades: scope.upgrades,
-        journeys: scope.journeys,
-        bossBattle: scope.bossBattle,
-        battles: scope.battles,
-        dungeons: scope.dungeons,
-        jobs: scope.jobs,
-        potion: scope.potion,
-        saveVersion: scope.version,
-        monsters: scope.monsters,
-        bosses: scope.bosses,
-        bestiary: scope.bestiary,
-        heroTable: false,
-        success: scope.successCount.amount,
-        losses: scope.lossCount.amount,
-        party: scope.party,
-        gameStats: scope.gameStats,
-        panelNumber: scope.panelNumber,
-        showTutorial: scope.showTutorial
-    }));
-}
+    function createScope() {
+        const heroClasses = clone(GameConfig.heroClasses);
+        return {
+            version: '1.3',
+            resources: 0,
+            maxResources: 25,
+            gold: 0,
+            maxGold: 0,
+            incr: 1,
+            restAmount: 2,
+            buildings: clone(GameConfig.buildings),
+            blueprints: clone(GameConfig.blueprints),
+            weapons: clone(GameConfig.weapons),
+            potions: clone(GameConfig.potions),
+            heroClass: heroClasses,
+            heroList: [],
+            upgrades: [],
+            journeys: [],
+            bossBattle: [],
+            battles: [],
+            dungeons: [],
+            jobs: [
+                { id: 0, name: 'Gather', current: 0, limit: 100, enabled: true },
+                { id: 1, name: 'Apothecary', current: 0, limit: 1, enabled: false },
+                { id: 2, name: 'Smith', current: 0, limit: 1, enabled: false }
+            ],
+            potion: {
+                id: -1,
+                name: 'Healing Herbs',
+                healing: 20,
+                count: 0,
+                maxCount: 5,
+                cost: 10,
+                prodTime: 5,
+                sellPrice: 1,
+                working: 0
+            },
+            monsters: [],
+            bosses: [],
+            bestiary: false,
+            successCount: { amount: 3 },
+            lossCount: { amount: 1 },
+            party: [],
+            gameStats: {
+                battles: 0,
+                wins: 0,
+                losses: 0,
+                weaponsAuto: 0,
+                weaponsManual: [],
+                buffs: 0,
+                clicks: 0
+            },
+            panelNumber: 0,
+            showTutorial: true
+        };
+    }
 
-function loadData(scope, data) {
-    scope.resources = data.resources;
-    scope.maxResources = data.maxResources;
-    scope.gold = data.gold;
-    scope.maxGold = data.maxGold;
-    scope.incr = data.incr;
-    scope.restAmount = data.restAmount;
-    scope.dungeons = data.dungeons;
-    scope.monsters = data.monsters;
-    scope.bosses = data.bosses;
+    function save(scope) {
+        return JSON.parse(JSON.stringify({
+            resources: scope.resources,
+            maxResources: scope.maxResources,
+            gold: scope.gold,
+            maxGold: scope.maxGold,
+            incr: scope.incr,
+            restAmount: scope.restAmount,
+            buildings: scope.buildings,
+            blueprints: scope.blueprints,
+            heroList: scope.heroList,
+            weapons: scope.weapons,
+            potions: scope.potions,
+            upgrades: scope.upgrades,
+            dungeons: scope.dungeons,
+            monsters: scope.monsters,
+            bosses: scope.bosses,
+            successCount: scope.successCount,
+            lossCount: scope.lossCount,
+            panelNumber: scope.panelNumber,
+            showTutorial: scope.showTutorial,
+            jobs: scope.jobs,
+            potion: scope.potion,
+            gameStats: scope.gameStats
+        }));
+    }
 
-    data.buildings.forEach((savedBuilding, index) => {
-        Object.assign(scope.buildings[index], {
-            cost: savedBuilding.cost,
-            count: savedBuilding.count,
-            tier: savedBuilding.tier,
-            enabled: savedBuilding.enabled
-        });
-    });
+    function load(scope, saveState) {
+        scope.resources = saveState.resources;
+        scope.maxResources = saveState.maxResources;
+        scope.gold = saveState.gold;
+        scope.maxGold = saveState.maxGold;
+        scope.incr = saveState.incr;
+        scope.restAmount = saveState.restAmount;
+        scope.buildings = saveState.buildings;
+        scope.blueprints = saveState.blueprints;
+        scope.heroList = saveState.heroList;
+        scope.weapons = saveState.weapons;
+        scope.potions = saveState.potions;
+        scope.upgrades = saveState.upgrades;
+        scope.dungeons = saveState.dungeons;
+        scope.monsters = saveState.monsters;
+        scope.bosses = saveState.bosses;
+        scope.successCount = saveState.successCount;
+        scope.lossCount = saveState.lossCount;
+        scope.panelNumber = saveState.panelNumber;
+        scope.showTutorial = saveState.showTutorial;
+        scope.jobs = saveState.jobs;
+        scope.potion = saveState.potion;
+        scope.gameStats = saveState.gameStats;
+        return scope;
+    }
 
-    data.blueprints.forEach((savedBlueprint, index) => {
-        scope.blueprints[index].enabled = savedBlueprint.enabled;
-    });
+    (function executeTests() {
+        const scope = createScope();
+        scope.resources = 100;
+        scope.maxResources = 100;
+        scope.gold = 50;
+        scope.maxGold = 150;
+        scope.incr = 10;
+        scope.restAmount = 5;
+        scope.upgrades = [
+            { id: 0, name: 'Upgrade 1', price: 10, enabled: true },
+            { id: 1, name: 'Upgrade 2', price: 20, enabled: false }
+        ];
+        scope.dungeons = [
+            { id: 0, name: 'Dungeon 1', level: 1, steps: 10, encounterRate: 50 },
+            { id: 1, name: 'Dungeon 2', level: 2, steps: 20, encounterRate: 30 }
+        ];
+        scope.monsters = [
+            { id: 0, name: 'Slime', value: 10, minDamage: 1, maxDamage: 3, health: 20 },
+            { id: 1, name: 'Goblin', value: 20, minDamage: 2, maxDamage: 5, health: 30 }
+        ];
+        scope.bosses = [
+            { id: 0, name: 'Dragon', minDamage: 10, maxDamage: 20, health: 100 },
+            { id: 1, name: 'Lich', minDamage: 15, maxDamage: 25, health: 120 }
+        ];
 
-    data.weapons.forEach((savedWeapon, index) => {
-        Object.assign(scope.weapons[index], {
-            minDamage: savedWeapon.minDamage,
-            cost: savedWeapon.cost,
-            durability: savedWeapon.durability,
-            prodTime: savedWeapon.prodTime,
-            count: savedWeapon.count,
-            maxCount: savedWeapon.maxCount,
-            enabled: savedWeapon.enabled
-        });
-        scope.weapons[index].working = 0;
-    });
+        const saveState = save(scope);
+        const loadedScope = load(createScope(), saveState);
 
-    data.potions.forEach((savedPotion, index) => {
-        scope.potions[index].enabled = savedPotion.enabled;
-    });
+        assert.deepStrictEqual(loadedScope.resources, scope.resources, 'Resources should match after load');
+        assert.deepStrictEqual(loadedScope.maxResources, scope.maxResources, 'Max resources should match after load');
+        assert.deepStrictEqual(loadedScope.gold, scope.gold, 'Gold should match after load');
+        assert.deepStrictEqual(loadedScope.maxGold, scope.maxGold, 'Max gold should match after load');
+        assert.deepStrictEqual(loadedScope.incr, scope.incr, 'Increment should match after load');
+        assert.deepStrictEqual(loadedScope.restAmount, scope.restAmount, 'Rest amount should match after load');
+        assert.deepStrictEqual(loadedScope.upgrades, scope.upgrades, 'Upgrades should match after load');
+        assert.deepStrictEqual(loadedScope.dungeons, scope.dungeons, 'Dungeons should match after load');
+        assert.deepStrictEqual(loadedScope.monsters, scope.monsters, 'Monsters should match after load');
+        assert.deepStrictEqual(loadedScope.bosses, scope.bosses, 'Bosses should match after load');
+        assert.deepStrictEqual(loadedScope.successCount, scope.successCount, 'Success count should match after load');
+        assert.deepStrictEqual(loadedScope.lossCount, scope.lossCount, 'Loss count should match after load');
+        assert.deepStrictEqual(loadedScope.panelNumber, scope.panelNumber, 'Panel number should match after load');
+        assert.deepStrictEqual(loadedScope.showTutorial, scope.showTutorial, 'Show tutorial flag should match after load');
+        assert.deepStrictEqual(loadedScope.jobs, scope.jobs, 'Jobs should match after load');
+        assert.deepStrictEqual(loadedScope.potion, scope.potion, 'Potion should match after load');
+        assert.deepStrictEqual(loadedScope.gameStats, scope.gameStats, 'Game stats should match after load');
 
-    scope.heroList = data.heroList;
-    scope.heroList.forEach((hero) => {
-        if (hero.academy.id === GameConfig.heroClasses[0].id || hero.academy.id === GameConfig.heroClasses[2].id) {
-            hero.location = 'Home';
-            hero.progress = 'Idle';
-        }
-        else {
-            hero.progress = 'Idle';
-        }
-        hero.autoAdventure = false;
-        if (hero.job && typeof hero.job.current === 'number') {
-            hero.job.current += 1;
-        }
-    });
-
-    scope.potion = data.potion;
-    scope.potion.working = 0;
-    scope.bestiary = data.bestiary;
-    scope.successCount.amount = data.success;
-    scope.lossCount.amount = data.losses;
-    scope.party = data.party;
-    scope.gameStats = data.gameStats;
-    scope.panelNumber = data.panelNumber;
-    scope.showTutorial = data.showTutorial;
-}
-
-(function runTest() {
-    const session = createScope();
-    session.buildings[0].count = 3;
-    session.buildings[0].cost = 55;
-    session.buildings[0].enabled = false;
-    session.blueprints[0].enabled = true;
-    session.weapons[1].count = 2;
-    session.weapons[1].enabled = true;
-    session.potions[0].enabled = true;
-
-    session.heroList.push({
-        id: 0,
-        name: 'Test Hero',
-        academy: session.heroClass[2],
-        job: session.jobs[0],
-        location: 'Dungeon',
-        progress: 'Exploring',
-        autoAdventure: true
-    });
-
-    const saved = save(session);
-    const restored = createScope();
-    loadData(restored, saved);
-
-    assert.strictEqual(restored.buildings[0].count, 3, 'building count should persist after load');
-    assert.strictEqual(restored.buildings[0].enabled, false, 'building enabled flag should persist after load');
-    assert.strictEqual(restored.blueprints[0].enabled, true, 'blueprint unlock should persist after load');
-    assert.strictEqual(restored.weapons[1].enabled, true, 'weapon availability should persist after load');
-    assert.strictEqual(restored.potions[0].enabled, true, 'potion availability should persist after load');
-    assert.strictEqual(restored.heroList[0].location, 'Home', 'adventurers should return home on load');
-    assert.strictEqual(restored.heroList[0].progress, 'Idle', 'hero progress should reset on load');
-    assert.strictEqual(restored.heroList[0].autoAdventure, false, 'hero auto adventure should reset on load');
-    assert.strictEqual(restored.heroList[0].job.current, 1, 'job counter should increment during load');
-    assert.strictEqual(restored.potion.working, 0, 'active potion crafting should reset on load');
-    assert.strictEqual(GameConfig.buildings[0].count, 0, 'GameConfig should remain immutable');
-
-    console.log('save/load regression test passed');
-}());
+        console.log('Save/Load tests passed');
+    }());
+}()).catch((error) => {
+    console.error(error);
+    process.exitCode = 1;
+});

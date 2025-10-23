@@ -1,3 +1,5 @@
+import app from '../app.js';
+
 app.controller("MainController", function ($scope, $interval, $timeout, $http, $compile, GameConfig, EconomyService) {
     $scope.dark=false;
     //DEBUG
