@@ -27,11 +27,13 @@ jobs:
       - name: Run tests (JUnit + coverage)
         run: npm test
         shell: bash
-      - name: Publish Test Report
-        uses: mikepenz/action-junit-report@v4
+      - name: Publish Unit Test Results (check + PR comment)
+        uses: EnricoMi/publish-unit-test-result-action@v2
         if: always()
         with:
-          report_paths: test-results/junit.xml
+          files: test-results/junit.xml
+          check_name: Node tests
+          comment_mode: always
 
   build:
     needs: test
