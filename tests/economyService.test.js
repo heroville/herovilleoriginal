@@ -1,9 +1,9 @@
 'use strict';
 
 const assert = require('assert');
-const createEconomyService = require('../Controllers/economy.service.js');
 
-(function runEconomyServiceTests() {
+(async function runEconomyServiceTests() {
+    const { default: createEconomyService } = await import('../src/services/economy.service.js');
     const economy = createEconomyService();
     const state = {
         resources: 10,
@@ -36,4 +36,7 @@ const createEconomyService = require('../Controllers/economy.service.js');
     assert.strictEqual(state.gold, 16, 'failed gold spending attempts should not change stored gold');
 
     console.log('EconomyService tests passed');
-}());
+}()).catch((error) => {
+    console.error(error);
+    process.exitCode = 1;
+});

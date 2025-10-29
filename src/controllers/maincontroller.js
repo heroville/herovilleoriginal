@@ -1,3 +1,5 @@
+import app from '../app.js';
+
 app.controller("MainController", function ($scope, $interval, $timeout, $http, $compile, GameConfig, EconomyService) {
     $scope.dark=false;
     //DEBUG
@@ -268,7 +270,7 @@ app.controller("MainController", function ($scope, $interval, $timeout, $http, $
 
 
     $scope.save = function () {
-        var data = {
+        let data = {
             resources: $scope.resources,
             maxResources: $scope.maxResources,
             gold: $scope.gold,
@@ -325,24 +327,24 @@ app.controller("MainController", function ($scope, $interval, $timeout, $http, $
         $scope.dungeons = data.dungeons;
         $scope.monsters = data.monsters;
         $scope.bosses = data.bosses;
-        for (i = 0; i < data.buildings.length; i++) {
+        for (let i = 0; i < data.buildings.length; i++) {
             $scope.buildings[i].cost = data.buildings[i].cost;
             $scope.buildings[i].count = data.buildings[i].count;
             $scope.buildings[i].tier = data.buildings[i].tier;
             $scope.buildings[i].enabled = data.buildings[i].enabled;
         }
-        for (i = 0; i < data.blueprints.length; i++) {
+        for (let i = 0; i < data.blueprints.length; i++) {
             $scope.blueprints[i].enabled = data.blueprints[i].enabled;
         }
-        for (i = 0; i < data.upgrades.length; i++) {
+        for (let i = 0; i < data.upgrades.length; i++) {
             $scope.upgrades[i].enabled = data.upgrades[i].enabled;
         }
-        for (i = 0; i < data.jobs.length; i++) {
+        for (let i = 0; i < data.jobs.length; i++) {
             $scope.jobs[i].enabled = data.jobs[i].enabled;
         }
         $scope.heroList = data.heroList;
 
-        for (i = 0; i < $scope.heroList.length; i++) {
+        for (let i = 0; i < $scope.heroList.length; i++) {
             if ($scope.heroList[i].academy.id === GameConfig.heroClasses[0].id || $scope.heroList[i].academy.id === GameConfig.heroClasses[2].id) {
                 $scope.heroList[i].location = 'Home';
                 $scope.heroList[i].progress = 'Idle';
@@ -353,7 +355,7 @@ app.controller("MainController", function ($scope, $interval, $timeout, $http, $
             $scope.heroList[i].autoAdventure = false;
             $scope.heroList[i].job.current++;
         }
-        for (i = 0; i < data.weapons.length; i++) {
+        for (let i = 0; i < data.weapons.length; i++) {
             $scope.weapons[i].minDamage = data.weapons[i].minDamage;
             $scope.weapons[i].cost = data.weapons[i].cost;
             $scope.weapons[i].durability = data.weapons[i].durability;
@@ -363,7 +365,7 @@ app.controller("MainController", function ($scope, $interval, $timeout, $http, $
             $scope.weapons[i].enabled = data.weapons[i].enabled;
             $scope.weapons[i].working = 0;
         }
-        for(i=0; i <data.potions.length; i++){
+        for(let i=0; i <data.potions.length; i++){
             $scope.potions[i].enabled = data.potions[i].enabled
         }
         $scope.potion = data.potion;
@@ -470,7 +472,7 @@ app.controller("MainController", function ($scope, $interval, $timeout, $http, $
                 }
                     // Building Stockpile
                 case 1: {
-                    var multip = building.cost;                    
+                    let multip = building.cost;                    
                     $scope.maxResources = building.cost + Math.floor(building.cost / 10);
                     $scope.maxGold = Math.floor(building.cost / 10);
                     if ($scope.buildings[2].count == 0) {
@@ -912,14 +914,14 @@ app.controller("MainController", function ($scope, $interval, $timeout, $http, $
 
     $scope.rest = function () {
 
-        for (i = 0; i < $scope.heroList.length; i++) {
-            hero = $scope.heroList[i];
-            weapon = hero.equip.weapon;
+        for (let i = 0; i < $scope.heroList.length; i++) {
+            let hero = $scope.heroList[i];
+            let weapon = hero.equip.weapon;
             if (hero.location == 'Home') {
                     if (hero.equip.gold > 0) {
                         // Upgrade Weapon
                         if ($scope.buildings[3].count > hero.equip.weapon.id) {
-                            for (j = $scope.buildings[3].count; j > hero.equip.weapon.id; j--) {
+                            for (let j = $scope.buildings[3].count; j > hero.equip.weapon.id; j--) {
                                 if ($scope.meetRequirements(hero, $scope.weapons[j])) {
 
                                         if (hero.equip.gold >= $scope.weapons[j].sellPrice && $scope.weapons[j].count > 0) {
@@ -945,9 +947,9 @@ app.controller("MainController", function ($scope, $interval, $timeout, $http, $
                         }
 
                         // Buy Potion
-                        for (j = 0; j < $scope.potions.length; j++) {
-                            var equiped = false;
-                            for (k = 0; k < hero.equip.potions.length; k++) {
+                        for (let j = 0; j < $scope.potions.length; j++) {
+                            let equiped = false;
+                            for (let k = 0; k < hero.equip.potions.length; k++) {
                                 if (hero.equip.potions[k].count < $scope.potions[k].maxHero && hero.equip.gold >= $scope.potions[k].sellPrice && $scope.potions[k].count > 0) {
                                     hero.equip.gold -= $scope.potions[k].sellPrice;
                                     $scope.incGold($scope.potions[k].sellPrice);
@@ -972,7 +974,7 @@ app.controller("MainController", function ($scope, $interval, $timeout, $http, $
                     // Heal the hero "i" for 2% health
                     heal(i, 2, 1);
                     if (hero.currHealth == hero.health && (hero.academy.id === GameConfig.heroClasses[0].id || hero.academy.id === GameConfig.heroClasses[2].id)) {
-                        u = [hero]
+                        let u = [hero]
                         $scope.attemptDungeon(hero.dungeon, u);
                         hero.location = $scope.dungeons[hero.dungeon].name;
                     }
@@ -987,7 +989,7 @@ app.controller("MainController", function ($scope, $interval, $timeout, $http, $
     }
 
     $scope.work = function () {
-        for (i = 0; i < $scope.heroList.length; i++) {
+        for (let i = 0; i < $scope.heroList.length; i++) {
             switch ($scope.heroList[i].job.id) {
                 case 0: {
                     break;
@@ -1057,7 +1059,7 @@ app.controller("MainController", function ($scope, $interval, $timeout, $http, $
     $scope.testing = function () {
         $scope.gold = $scope.maxGold;
         $scope.resources = $scope.maxResources;
-        for (i = 0; i < $scope.heroList.length; i++) {
+        for (let i = 0; i < $scope.heroList.length; i++) {
             hero = $scope.heroList[i];
             hero.level++
             hero.next += hero.level * 25;
@@ -1076,27 +1078,27 @@ app.controller("MainController", function ($scope, $interval, $timeout, $http, $
     }
 
     
-    var init = function () {
+    let init = function () {
         $scope.load();        
     };
     $timeout(function () { init(); },500);
 
     String.prototype.toHHMMSS = function () {
-        var sec_num = parseInt(this, 10); // don't forget the second param
-        var hours = Math.floor(sec_num / 3600);
-        var minutes = Math.floor((sec_num - (hours * 3600)) / 60);
-        var seconds = sec_num - (hours * 3600) - (minutes * 60);
+        let sec_num = parseInt(this, 10); // don't forget the second param
+        let hours = Math.floor(sec_num / 3600);
+        let minutes = Math.floor((sec_num - (hours * 3600)) / 60);
+        let seconds = sec_num - (hours * 3600) - (minutes * 60);
 
         if (hours < 10) { hours = "0" + hours; }
         if (minutes < 10) { minutes = "0" + minutes; }
         if (seconds < 10) { seconds = "0" + seconds; }
-        var time = hours + ':' + minutes + ':' + seconds;
+        let time = hours + ':' + minutes + ':' + seconds;
         return time;
     }
 
     // Enter/ to confirm Hero Name
     $(document).delegate('.ui-dialog', 'keyup', function (e) {
-        var tagName = e.target.tagName.toLowerCase();
+        let tagName = e.target.tagName.toLowerCase();
 
         tagName = (tagName === 'input' && e.target.type === 'button') ? 'button' : tagName;
 
@@ -1111,7 +1113,7 @@ app.controller("MainController", function ($scope, $interval, $timeout, $http, $
         document.getElementById("errorDialog").innerHTML = message;
         setTimeout(function () { document.getElementById("errorDialog").innerHTML = "<br />" }, 3000);
         if ($scope.panelInfo) {
-            var d = new Date();
+            let d = new Date();
             //$scope.panel.unshift(d.getHours() + ":" + d.getMinutes() + ":" + d.getSeconds() + " : " + message);
             $scope.panel.unshift(d.toTimeString().slice(0, 8) + " : " + message);
             if ($scope.panel.length > 10) {
@@ -1150,13 +1152,13 @@ app.controller("MainController", function ($scope, $interval, $timeout, $http, $
         dialogClass: 'heroPopup',
         buttons: {
             'Accept': function () {
-                hName = $("#name").val();
-                valid = true;
+                let hName = $("#name").val();
+                let valid = true;
                 if (hName == "" || hName == null) {
                     document.getElementById("error").innerHTML = "You must enter a valid name for the hero.";
                     valid = false;
                 }
-                for (i = 0; i < $scope.heroList.length; i++) {
+                for (let i = 0; i < $scope.heroList.length; i++) {
                     if ($scope.heroList[i].name == hName) {
                         valid = false;
                         document.getElementById("error").innerHTML = "A hero with this name already exists."
@@ -1203,7 +1205,7 @@ $(document).ready(function(){
                     document.getElementById("error").innerHTML = "You must enter a valid name for the worker.";
                     valid = false;
                 }
-                for (i = 0; i < $scope.heroList.length; i++) {
+                for (let i = 0; i < $scope.heroList.length; i++) {
                     if ($scope.heroList[i].name == wName) {
                         valid = false;
                         document.getElementById("error").innerHTML = "A worker with this name already exists."
@@ -1277,7 +1279,7 @@ $(document).ready(function(){
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////  
 
     $scope.addHero = function(heroName) {
-        var hero = $scope.heroList;
+        let hero = $scope.heroList;
         hero[hero.length] =
             {
                 id: hero.length,
@@ -1330,7 +1332,7 @@ $(document).ready(function(){
             }
     }  
     $scope.addWorker = function(heroName) {
-        var hero = $scope.heroList;
+        let hero = $scope.heroList;
         hero[hero.length] =
             {
                 id: hero.length,
@@ -1384,14 +1386,14 @@ $(document).ready(function(){
     } 
 
     $scope.newHeroName = function () {
-        randFirst = Math.floor(Math.random() * $scope.heroName.first.length);
-        newName = $scope.heroName.first[randFirst];
+        let randFirst = Math.floor(Math.random() * $scope.heroName.first.length);
+        let newName = $scope.heroName.first[randFirst];
         newName += " ";
-        randTitle = Math.floor(Math.random() * $scope.heroName.title.length);
+        let randTitle = Math.floor(Math.random() * $scope.heroName.title.length);
         newName += $scope.heroName.title[randTitle];
         $scope.debugLog(newName);
-        exist = false;
-        for (i = 0; i < $scope.heroList.length; i++) {
+        let exist = false;
+        for (let i = 0; i < $scope.heroList.length; i++) {
             if ($scope.heroList[i].name == newName) {
                 exist = true;
             }
@@ -1404,23 +1406,23 @@ $(document).ready(function(){
 
     $scope.createMonster = function (level) {
 
-        monstersist = $scope.monsterList.monsters;
-        for (i = 0; i < $scope.monsters.length; i++) {
-            for (j = 0; j < monstersist.length; j++) {
-                if (monstersist[j].name == $scope.monsters[i].name) {
-                    monstersist.splice(j, 1);
+        let monsterList = $scope.monsterList.monsters;
+        for (let i = 0; i < $scope.monsters.length; i++) {
+            for (let j = 0; j < monsterList.length; j++) {
+                if (monsterList[j].name == $scope.monsters[i].name) {
+                    monsterList.splice(j, 1);
                 }
             }
         }
-        for (i = 0; i < 3; i++) {
-            random = Math.floor(Math.random() * monstersist.length);
-            randomMax = Math.ceil(Math.random() * (level*level + 1));
-            randomMin = Math.ceil(Math.random() * (randomMax));
-            averagedmg = Math.ceil((randomMax + randomMin) / 2);
-            mobHealth = Math.floor(((5 * level) / averagedmg) * (level * level));
+        for (let i = 0; i < 3; i++) {
+            let random = Math.floor(Math.random() * monsterList.length);
+            let randomMax = Math.ceil(Math.random() * (level*level + 1));
+            let randomMin = Math.ceil(Math.random() * (randomMax));
+            let averagedmg = Math.ceil((randomMax + randomMin) / 2);
+            let mobHealth = Math.floor(((5 * level) / averagedmg) * (level * level));
             $scope.monsters[$scope.monsters.length] = {
                 id: $scope.monsters.length,
-                name: monstersist[random].name,
+                name: monsterList[random].name,
                 value: level,
                 minDamage: randomMin,
                 maxDamage: randomMax,
@@ -1429,30 +1431,30 @@ $(document).ready(function(){
                 high: "Gold;g;" + level
             }
             $scope.debugLog("Created " + $scope.monsters[($scope.monsters.length - 1)].name);
-            monstersist.splice(random, 1);
+            monsterList.splice(random, 1);
         }
 
     }
 
     $scope.createBoss = function(level) {
         level += 2;
-        monstersist = $scope.monsterList.monsters;
-        for (i = 0; i < $scope.bosses.length; i++) {
-            for (j = 0; j < monstersist.length; j++) {
-                if (monstersist[j].name == $scope.bosses[i].name) {
-                    monstersist.splice(j, 1);
+        let monsterList = $scope.monsterList.monsters;
+        for (let i = 0; i < $scope.bosses.length; i++) {
+            for (j = 0; j < monsterList.length; j++) {
+                if (monsterList[j].name == $scope.bosses[i].name) {
+                    monsterList.splice(j, 1);
                 }
             }
         }
 
-        random = Math.floor(Math.random() * monstersist.length);
-        randomMax = Math.ceil(Math.random() * (level * level + 1));
-        randomMin = Math.ceil(Math.random() * (randomMax));
-        averagedmg = Math.ceil((randomMax + randomMin) / 2);
-        mobHealth = Math.floor(((5 * level) / averagedmg) * (level * level));
+        let random = Math.floor(Math.random() * monsterList.length);
+        let randomMax = Math.ceil(Math.random() * (level * level + 1));
+        let randomMin = Math.ceil(Math.random() * (randomMax));
+        let averagedmg = Math.ceil((randomMax + randomMin) / 2);
+        let mobHealth = Math.floor(((5 * level) / averagedmg) * (level * level));
         $scope.bosses[$scope.bosses.length] = {
             id: $scope.bosses.length,
-            name: monstersist[random].name,
+            name: monsterList[random].name,
             value: level,
             minDamage: randomMin,
             maxDamage: randomMax,
@@ -1461,13 +1463,13 @@ $(document).ready(function(){
             high: "Gold;g;" + level
         }
         $scope.debugLog("Created " + $scope.bosses[($scope.bosses.length - 1)].name);
-        monstersist.splice(random, 1);
+        monsterList.splice(random, 1);
 
     }
 
     $scope.dungeonName = function() {
-        var dList = $scope.dungeonNames.dungeons.slice();
-        for (i = 0; i < $scope.dungeons.length; i++) {
+        let dList = $scope.dungeonNames.dungeons.slice();
+        for (let i = 0; i < $scope.dungeons.length; i++) {
             for (j = 0; j < dList.length; j++) {
                 if (dList[j] == $scope.dungeons[i].name) {
                     $scope.debugLog("Removed " + dList[j]);
@@ -1476,8 +1478,8 @@ $(document).ready(function(){
                 }
             }
         }
-        random = Math.floor(Math.random() * dList.length);
-        name = dList[random];
+        let random = Math.floor(Math.random() * dList.length);
+        let name = dList[random];
         return name
     }
 
@@ -1490,8 +1492,8 @@ $(document).ready(function(){
 
     
     $scope.attemptDungeon = function(dungeonID, hero) {
-        dungeon = $scope.dungeons[dungeonID]
-        var journey = {
+        let dungeon = $scope.dungeons[dungeonID]
+        let journey = {
             hero: hero,
             dungeon: dungeon,
             steps: 0
@@ -1509,14 +1511,14 @@ $(document).ready(function(){
 
         // if/ steps are at the end of the dungeon fight a boss.
         if (journey.steps == journey.dungeon.steps) {
-            for (i = 0; i < journey.hero.length;i++){
+            for (let i = 0; i < journey.hero.length;i++){
                 journey.hero[i].progress = "Fighting Boss!";
             }            
             $scope.bossFight(journey);
         }
         else {
             // Roll/ for encounter
-            var roll = Math.floor((Math.random() * 100) + 1);
+            let roll = Math.floor((Math.random() * 100) + 1);
             if (roll < journey.dungeon.encounterRate) {
 
                 $scope.debugLog("Encounter Forming");
@@ -1524,7 +1526,7 @@ $(document).ready(function(){
                 // Form/ an encounter of $scope.monsters below "encounter level"
 
                 $scope.monsterFight(journey);
-                for (i = 0; i < journey.hero.length; i++) {
+                for (let i = 0; i < journey.hero.length; i++) {
                     journey.hero[i].progress = "Fighting Encounter!";
                 }
 
@@ -1532,7 +1534,7 @@ $(document).ready(function(){
             else {
                 // if/ there is no fight for that step, take another step and update progress.
                 journey.steps++;
-                for (i = 0; i < journey.hero.length; i++) {
+                for (let i = 0; i < journey.hero.length; i++) {
                     journey.hero[i].progress = Math.round((journey.steps / journey.dungeon.steps) * 100) + "%" + " Complete";
                 }
                 $timeout(function () { $scope.travel(journey) }, $scope.gameLoop);
@@ -1542,29 +1544,29 @@ $(document).ready(function(){
     }
 
     $scope.monsterFight = function (journey) {
-        var eLevel = journey.dungeon.encounterLevel;
-        var validMonsters = [];
-        var encounterMonsters = [];
-        var monsterCount = 0;
-        var currentMonster;
-        var currLevel = 0;
-        var copyMonsters = $scope.monsters.slice();
+        let eLevel = journey.dungeon.encounterLevel;
+        let validMonsters = [];
+        let encounterMonsters = [];
+        let monsterCount = 0;
+        let currentMonster;
+        let currLevel = 0;
+        let copyMonsters = $scope.monsters.slice();
         $scope.debugLog("Encounter Level= " + eLevel);
-        for (i = 0; i < copyMonsters.length; i++) {
+        for (let i = 0; i < copyMonsters.length; i++) {
             if (copyMonsters[i].value >= Math.floor(eLevel / 4) && copyMonsters[i].value <= eLevel) {
                 validMonsters[validMonsters.length] = copyMonsters[i];
             }
         }
         while (monsterCount < 4 && currLevel < eLevel && (eLevel - currLevel) >= Math.floor(eLevel / 4)) {
-            var reducedMonster = [];
-            for (i = 0; i < validMonsters.length; i++) {
+            let reducedMonster = [];
+            for (let i = 0; i < validMonsters.length; i++) {
                 if (validMonsters[i].value <= (eLevel - currLevel)) {
                     reducedMonster[reducedMonster.length] = validMonsters[i];
 
                 }
             }
             currentMonster = Math.floor(Math.random() * reducedMonster.length);
-            var multi = 1;
+            let multi = 1;
             if (journey.hero.length > 1) {
                 multi = 10;
             }
@@ -1586,12 +1588,12 @@ $(document).ready(function(){
     }
 
     $scope.bossFight = function(journey) {
-        bossID = journey.dungeon.bossID;
-        var multi = 1;
+        let bossID = journey.dungeon.bossID;
+        let multi = 1;
         if (journey.hero.length > 1) {
             multi = 10;
         }       
-        var bossBattle = [{
+        let bossBattle = [{
             name: $scope.bosses[bossID].name,
             value: $scope.bosses[bossID].value * multi,
             minDamage: $scope.bosses[bossID].minDamage * multi,
@@ -1605,7 +1607,7 @@ $(document).ready(function(){
     }
 
     $scope.startFight = function(monList, journey, boss) {
-        var thisBattle = $scope.battles.length;
+        let thisBattle = $scope.battles.length;
         $scope.battles[thisBattle] = {
             id: thisBattle,
             hero: journey.hero,
@@ -1618,7 +1620,7 @@ $(document).ready(function(){
     }
 
     $scope.activatePotions = function(hero){
-        for(i=0;i<hero.length;i++){
+        for(let i=0;i<hero.length;i++){
         if(hero[i].equip.potions[0].count > 0){
             hero[i].equip.potions[0].active = true;
         }
@@ -1630,12 +1632,12 @@ $(document).ready(function(){
     }
 
     $scope.takeTurn = function(battle, journey) {
-        var turnDamage = 0;
-        var hero = journey.hero;
-        var monstersList = battle.copyMonsters
+        let turnDamage = 0;
+        let hero = journey.hero;
+        let monstersList = battle.copyMonsters
 
         // Start/ of hero turn
-        var dead;
+        let dead;
         dead = $scope.heroTurn(hero, monstersList);
         $scope.debugLog("Arrived after heroTurn");    
 
@@ -1645,15 +1647,15 @@ $(document).ready(function(){
         if (!$scope.monstersAlive(monstersList)) {
             // Win/ battle what happens?
             $scope.gameStats.wins++;
-            for(i=1;i<hero.length;i++){
+            for(let i=1;i<hero.length;i++){
                 $scope.clearPotions(hero[i]);
             }
-            for (j = 0; j < monstersList.length; j++) {
-                for (i = 0; i < hero.length; i++) {
+            for (let j = 0; j < monstersList.length; j++) {
+                for (let i = 0; i < hero.length; i++) {
                     if (hero[i].level <= (journey.dungeon.level * 2)) {
                         battle.experience += (monstersList[j].value * 5);
                     }
-                    lootChance = Math.random() * 100;
+                    let lootChance = Math.random() * 100;
                         if (lootChance < 10) {
                             if (monstersList[j].high != null) {
                                 $scope.addLoot(monstersList[j].high, hero[i]);
@@ -1664,7 +1666,7 @@ $(document).ready(function(){
                 }
             }
             if (battle.boss) {
-                for (i = 0; i < hero.length; i++) {
+                for (let i = 0; i < hero.length; i++) {
                     if ((hero[i].dungeon + 1) < $scope.dungeons.length) {
                         if (hero[i].clearCount >= $scope.successCount.amount) {
                             hero[i].dungeon++;
@@ -1681,7 +1683,7 @@ $(document).ready(function(){
                 }
             }
             else {
-                for (k = 0; k < hero.length; k++) {
+                for (let k = 0; k < hero.length; k++) {
                     journey.steps++;
                     hero[k].progress = Math.round((journey.steps / journey.dungeon.steps) * 100) + "%" + " Complete";
                 }
@@ -1689,7 +1691,7 @@ $(document).ready(function(){
                 $timeout(function () { $scope.travel(journey) }, $scope.gameLoop);
 
             }
-            for (i = 0; i < hero.length; i++) {
+            for (let i = 0; i < hero.length; i++) {
                 
                 $scope.gainExp(hero[i],battle.experience);
                 
@@ -1700,7 +1702,7 @@ $(document).ready(function(){
         }
 
         else if ($scope.enemyTurn(hero, monstersList)) {
-            for (i = 0; i < hero.length; i++) {
+            for (let i = 0; i < hero.length; i++) {
                 // Lost/ battle what happens?
                 $scope.battles.splice($scope.battles.indexOf(battle), 1);
                 $scope.gameStats.losses++;
@@ -1740,7 +1742,7 @@ $(document).ready(function(){
     }      
 
     $scope.clearPotions = function(hero){
-        for (i=1; i < hero.equip.potions.length; i++){
+        for (let i=1; i < hero.equip.potions.length; i++){
             if(hero.equip.potions[i].active){
                 hero.equip.potions[i].amount--;
             }
@@ -1749,9 +1751,9 @@ $(document).ready(function(){
 
     // Hero/ turn during battle
     $scope.heroTurn = function(heroL, enemyL) {
-        var damage = 0;
+        let damage = 0;
         $scope.debugLog("Arrived in heroTurn");
-        for (i = 0; i < heroL.length; i++) {
+        for (let i = 0; i < heroL.length; i++) {
             if (heroL[i].currHealth > 0) {
                 if(heroL[i].equip.potions[0].active){
                     heal(i, $scope.potions[0].value, 1);
@@ -1760,14 +1762,14 @@ $(document).ready(function(){
             }
             $scope.debugLog("Doing " + damage + " damage");
         }
-        var dead = 0;
-        for (i = 0; i < enemyL.length; i++) {
+        let dead = 0;
+        for (let i = 0; i < enemyL.length; i++) {
             if (enemyL[i].health == 0) {
                 dead++;
             }
         }
-        var tempDead = [];
-        for (i = 0; i < enemyL.length; i++) {
+        let tempDead = [];
+        for (let i = 0; i < enemyL.length; i++) {
             if (enemyL[i].health == 0) {
             }
             else if (enemyL[i].health < (damage)) {
@@ -1796,10 +1798,10 @@ $(document).ready(function(){
             }
             }
 
-            var min = hero.equip.weapon.minDamage;
-            var max = hero.equip.weapon.maxDamage;
-            var damage = (Math.floor(Math.random() * (max - min + 1))) + min;
-            var heroDamageMulti = 1;
+            let min = hero.equip.weapon.minDamage;
+            let max = hero.equip.weapon.maxDamage;
+            let damage = (Math.floor(Math.random() * (max - min + 1))) + min;
+            let heroDamageMulti = 1;
             if(hero.equip.potions[1].active == true){
                 heroDamageMulti = 1.5;
             }
@@ -1811,8 +1813,8 @@ $(document).ready(function(){
     }
 
     $scope.monstersAlive = function (monsterList) {
-        dead = 0;
-        for (i = 0; i < monsterList.length; i++) {
+        let dead = 0;
+        for (let i = 0; i < monsterList.length; i++) {
             if (monsterList[i].health <= 0) {
                 dead++
             }
@@ -1822,22 +1824,22 @@ $(document).ready(function(){
 
     // enemy/ Turn
     $scope.enemyTurn = function (hero, monsterList) {
-        var turnDamage = 0;
-        for (i = 0; i < monsterList.length; i++) {
+        let turnDamage = 0;
+        for (let i = 0; i < monsterList.length; i++) {
             if (monsterList[i].health > 0) {
-                var mobDam = $scope.enemyDamage(monsterList[i]);
+                let mobDam = $scope.enemyDamage(monsterList[i]);
                 turnDamage += mobDam;
             }
         }
         $scope.debugLog("Taking " + turnDamage + " damage");
-        var dead = 0;
-        for (k = 0; k < hero.length; k++) {
+        let dead = 0;
+        for (let k = 0; k < hero.length; k++) {
             
             if (hero[k].currHealth <= 0){
                 dead++;
             }
         }
-        for (k = 0; k < hero.length; k++) {
+        for (let k = 0; k < hero.length; k++) {
             if (hero[k].currHealth <= 0) {
                 $scope.debugLog("Hero is already Dead");
             }
@@ -1847,7 +1849,7 @@ $(document).ready(function(){
                 dead++;
             }
             else {
-                heroDamage = Math.floor(turnDamage / (hero.length - dead));
+                let heroDamage = Math.floor(turnDamage / (hero.length - dead));
                 if (k < heroDamage % (hero.length - dead)) {
                     heroDamage++;
                     
@@ -1877,9 +1879,9 @@ $(document).ready(function(){
         if (enemy.health <= 0)
             return 0;
         else {
-            var min = enemy.minDamage;
-            var max = enemy.maxDamage;
-            var damage = (Math.floor(Math.random() * (max - min + 1))) + min;
+            let min = enemy.minDamage;
+            let max = enemy.maxDamage;
+            let damage = (Math.floor(Math.random() * (max - min + 1))) + min;
             return damage;
         }
         
@@ -1891,10 +1893,10 @@ $(document).ready(function(){
 
     $scope.addLoot = function(item, hero) {
         if (item != null) {
-            var itemsplit = item.split(";");
-            var itemName = itemsplit[0];
-            var itemType = itemsplit[1];
-            var itemValue = itemsplit[2];
+            let itemsplit = item.split(";");
+            let itemName = itemsplit[0];
+            let itemType = itemsplit[1];
+            let itemValue = itemsplit[2];
             if (hero.academy.id === GameConfig.heroClasses[2].id) {
                 itemValue += Math.ceil(itemValue * .15);
             }
@@ -1936,7 +1938,7 @@ $(document).ready(function(){
             else if (heroID >= 0) {
                 $scope.heroList[heroID].progress = ($scope.potion.prodTime - start).toString().toHHMMSS();
             }
-            var caller = arguments.callee;
+            let caller = arguments.callee;
             setTimeout(function () { caller(button, start + 1, heroID); }, $scope.gameLoop);
         }
         else {
@@ -1957,7 +1959,7 @@ $(document).ready(function(){
         if (heroID != 0) {
             heroID = heroID || -1;
         }
-        acc = $scope.potions[potionID];
+        let acc = $scope.potions[potionID];
         if (acc.prodTime > start) {
             if (button) {
                 acc.progress = (acc.prodTime - start).toString().toHHMMSS();
@@ -1965,7 +1967,7 @@ $(document).ready(function(){
             else if (heroID >= 0) {
                 $scope.heroList[heroID].progress = (acc.prodTime - start).toString().toHHMMSS();
             }
-            var caller = arguments.callee;
+            let caller = arguments.callee;
             setTimeout(function () { caller(potionID, button, start + 1, heroID); }, $scope.gameLoop);
         }
         else {
@@ -1994,7 +1996,7 @@ $(document).ready(function(){
             else if (heroID >= 0) {
                 $scope.heroList[heroID].progress = ($scope.weapons[weaponID].prodTime - start).toString().toHHMMSS();
             }
-            var caller = arguments.callee;
+            let caller = arguments.callee;
             setTimeout(function () { caller(weaponID, button, start + 1, heroID); }, $scope.gameLoop);
         }
         else {
@@ -2096,7 +2098,7 @@ $(document).ready(function(){
 
     function heal(heroID, amount, flag) {
 
-        var hero = $scope.heroList[heroID];
+        let hero = $scope.heroList[heroID];
 
         if (flag == 1) {
             amount = Math.floor((hero.health / 100) * amount);
@@ -2118,7 +2120,7 @@ $(document).ready(function(){
     }
 
     $scope.meetRequirements = function (hero, weapon) {
-        var result = false;
+        let result = false;
         for (var i = 0; i < weapon.heroClass.length; i++) {
             if (weapon.heroClass[i] == hero.academy.id) {
                 result = true;

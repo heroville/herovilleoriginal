@@ -1,4 +1,9 @@
 'use strict';
 
-require('./saveLoad.test.js');
-require('./economyService.test.js');
+(async function runAllTests() {
+    await import('./saveLoad.test.js');
+    await import('./economyService.test.js');
+}()).catch((error) => {
+    console.error(error);
+    process.exitCode = 1;
+});

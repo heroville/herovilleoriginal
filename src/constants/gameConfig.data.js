@@ -1,8 +1,4 @@
-/* global app */
-(function () {
-    'use strict';
-
-    var gameConfig = {
+const gameConfig = {
         buildings: [
             {
                 id: 0,
@@ -476,13 +472,6 @@
                 name: "Adventurer"
             }
         ]
-    };
+};
 
-    if (typeof app !== 'undefined' && app && app.constant) {
-        app.constant('GameConfig', gameConfig);
-    }
-
-    if (typeof module !== 'undefined' && module.exports) {
-        module.exports = gameConfig;
-    }
-}());
+export default gameConfig;

@@ -19,7 +19,7 @@
     color:#000;
     text-decoration:none;
     width: 90px;
-    background: #dcdcdc url(/images/I_Chest02.png) no-repeat scroll 5px center;
+    background: #dcdcdc url(../images/I_Chest02.png) no-repeat scroll 5px center;
     -webkit-touch-callout: none;
     -webkit-user-select: none;
     -khtml-user-select: none;
@@ -32,7 +32,7 @@
 
 #gatherButton:hover {
   padding:4px 4px 4px 39px;
-  background: #dcdcdc url(/images/I_Chest02.png) no-repeat scroll 4px center;
+  background: #dcdcdc url(../images/I_Chest02.png) no-repeat scroll 4px center;
   border: 2px solid #666;
   cursor: pointer;
 }

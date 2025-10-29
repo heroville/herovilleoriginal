@@ -2,27 +2,20 @@
 <html  xmlns="http://www.w3.org/1999/xhtml">
 <head>
     <title>HeroVille Incremental Game</title>
-    <script src="Scripts/angular.min.js"></script>
-    <script src="Scripts/angulartics.min.js"></script>
-    <script src="Scripts/angulartics-ga.min.js"></script>
-    <script src="Scripts/jquery-2.1.1.min.js"></script>
-    <script src="Scripts/jquery-ui-1.10.4.min.js"></script>
-    <script src="app.js"></script>
-    <script src="Controllers/gameConfig.constant.js"></script>
-    <script src="Controllers/economy.service.js"></script>
-    <script src="Controllers/maincontroller.js"></script>
-    <script src="bootstrap.min.js"></script>    
-    <script src="ui-bootstrap-tpls.min.js"></script>
-    <link href="jquery-ui-1.10.0.custom.css" rel="stylesheet" />
-    <link href="bootstrap.min.css" rel="stylesheet" />
-    <link href='http://fonts.googleapis.com/css?family=Droid+Sans' rel='stylesheet' type='text/css'>
+    <link rel="icon" href="./favicon.ico" type="image/x-icon" />
+    <link href="./styles/jquery-ui-1.10.0.custom.css" rel="stylesheet" />
+    <link href="./styles/bootstrap.min.css" rel="stylesheet" />
+    <link href='https://fonts.googleapis.com/css?family=Droid+Sans' rel='stylesheet' type='text/css'>
+      <script src="./src/lib/jquery-2.1.1.min.js"></script>
+  <script src="./src/lib/jquery-ui-1.10.4.min.js"></script>
+  <script src="./src/lib/bootstrap.min.js"></script>
+    <script type="module" src="/src/main.js"></script>
 
 </head>
 <body>
-    <link rel="shortcut icon" href="favicon.ico" type="image/x-icon" />
     <div ng-app="Incremental" id="wrap" ng-controller="MainController" class="page-wrap">
-    <link href="newStyle.css" rel="stylesheet" />
-    <link href="darkStyle.css" ng-if="dark" rel="stylesheet" />
+    <link href="./styles/newStyle.css" rel="stylesheet" />
+    <link ng-href="./styles/darkStyle.css" ng-if="dark" rel="stylesheet" />
         <div class="row">
             <div class="col-lg-4">
                 <div class="panel panel-default">
