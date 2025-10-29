@@ -100,78 +100,72 @@ function createElementStub(tagName, noop) {
 }
 
 function ensureBrowserEnvironment() {
-    if (globalThis.window) {
-        return;
+  const g = globalThis;
+  const noop = () => undefined;
+
+  const location = (g.location && typeof g.location === 'object') ? g.location : {
+    href: 'http://localhost/',
+    protocol: 'http:',
+    host: 'localhost',
+    port: '80',
+    pathname: '/',
+    search: '',
+    hash: ''
+  };
+
+  const documentElement = {
+    nodeName: 'HTML',
+    style: {},
+    appendChild: noop,
+    setAttribute: noop,
+    getAttribute: () => null
+  };
+
+  const document = (g.document && typeof g.document === 'object') ? g.document : {
+    documentElement,
+    head: { appendChild: noop },
+    body: { appendChild: noop, removeChild: noop },
+    createElement: (tagName) => createElementStub(tagName, noop),
+    createElementNS: () => ({ style: {} }),
+    getElementsByTagName: () => [],
+    addEventListener: noop,
+    removeEventListener: noop,
+    defaultView: null,
+    location,
+    baseURI: 'http://localhost/',
+    URL: 'http://localhost/'
+  };
+
+  const win = (g.window && typeof g.window === 'object') ? g.window : {};
+  if (!('document' in win)) win.document = document;
+  if (!('location' in win)) win.location = location;
+  if (!('navigator' in win)) win.navigator = { userAgent: 'node.js' };
+  if (!('history' in win)) win.history = { pushState: noop, replaceState: noop };
+  if (!('name' in win)) win.name = 'nodejs';
+  if (!('setTimeout' in win)) win.setTimeout = setTimeout;
+  if (!('clearTimeout' in win)) win.clearTimeout = clearTimeout;
+  if (!('setInterval' in win)) win.setInterval = setInterval;
+  if (!('clearInterval' in win)) win.clearInterval = clearInterval;
+  if (!('addEventListener' in win)) win.addEventListener = noop;
+  if (!('removeEventListener' in win)) win.removeEventListener = noop;
+  if (!('performance' in win)) win.performance = { now: () => Date.now() };
+
+  document.defaultView = win;
+
+  const tryDefine = (name, value) => {
+    const desc = Object.getOwnPropertyDescriptor(g, name);
+    if (!desc) {
+      try { Object.defineProperty(g, name, { value, configurable: true, writable: true }); } catch {}
+    } else if (desc.writable) {
+      try { g[name] = value; } catch {}
     }
+  };
 
-    const noop = () => undefined;
-    const location = {
-        href: 'http://localhost/',
-        protocol: 'http:',
-        host: 'localhost',
-        port: '80',
-        pathname: '/',
-        search: '',
-        hash: ''
-    };
-
-    const documentElement = {
-        nodeName: 'HTML',
-        style: {},
-        appendChild: noop,
-        setAttribute: noop,
-        getAttribute: () => null
-    };
-
-    const document = {
-        documentElement,
-        head: {
-            appendChild: noop
-        },
-        body: {
-            appendChild: noop,
-            removeChild: noop
-        },
-        createElement: (tagName) => createElementStub(tagName, noop),
-        createElementNS: () => ({ style: {} }),
-        getElementsByTagName: () => [],
-        addEventListener: noop,
-        removeEventListener: noop,
-        defaultView: null,
-        location,
-        baseURI: 'http://localhost/',
-        URL: 'http://localhost/'
-    };
-
-    const window = {
-        document,
-        location,
-        navigator: {
-            userAgent: 'node.js'
-        },
-        history: {
-            pushState: noop,
-            replaceState: noop
-        },
-        name: 'nodejs',
-        setTimeout,
-        clearTimeout,
-        setInterval,
-        clearInterval,
-        addEventListener: noop,
-        removeEventListener: noop,
-        performance: {
-            now: () => Date.now()
-        }
-    };
-
-    document.defaultView = window;
-
-    globalThis.window = window;
-    globalThis.document = document;
-    globalThis.navigator = window.navigator;
-    globalThis.location = location;
-    globalThis.self = window;
+  tryDefine('window', win);
+  tryDefine('document', document);
+  tryDefine('navigator', win.navigator);
+  tryDefine('location', location);
+  tryDefine('self', win);
 }
 
 function ensureAngular() {
