@@ -1,0 +1,19 @@
+▶ EconomyService
+  ▶ factory logic
+    ✔ manages resource and gold totals against their limits (0.7035ms)
+  ✔ factory logic (1.1936ms)
+  ▶ Angular integration
+    ✔ exposes the same API when resolved through the Angular injector (0.1041ms)
+  ✔ Angular integration (7.841ms)
+✔ EconomyService (9.3345ms)
+▶ save/load routines
+  ✔ restores a saved scope snapshot without mutating the source data (1.1051ms)
+✔ save/load routines (1.6289ms)
+ℹ tests 3
+ℹ suites 4
+ℹ pass 3
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 73.3475

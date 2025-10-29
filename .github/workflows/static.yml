@@ -15,27 +15,47 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
+  test:
+    permissions:
+      contents: read
+      checks: write
+      pull-requests: write
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: 'npm'
+      - run: npm ci --omit=optional
+      - name: Run tests (JUnit + coverage)
+        run: npm test
+        shell: bash
+      - name: Publish Unit Test Results (check + PR comment)
+        uses: EnricoMi/publish-unit-test-result-action@v2
+        if: always()
+        with:
+          files: test-results/junit.xml
+          check_name: Node tests
+          comment_mode: always
+
   build:
+    needs: test
     runs-on: windows-latest
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
-
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
           node-version: 20
           cache: 'npm'
-
       - name: Install dependencies
         run: npm install
-
       - name: Build site
         run: npm run build
-
       - name: Setup Pages
         uses: actions/configure-pages@v5
-
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v3
         with:
