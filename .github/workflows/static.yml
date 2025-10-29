@@ -24,8 +24,8 @@ jobs:
           node-version: 22
           cache: 'npm'
       - run: npm ci
-      - name: Run tests (JUnit)
-        run: node --test --test-reporter=junit --test-reporter-destination=test-results/junit.xml
+      - name: Run tests (JUnit + coverage)
+        run: npm test
         shell: bash
       - name: Publish Test Report
         uses: mikepenz/action-junit-report@v4
