@@ -1,14 +1,14 @@
 ▶ EconomyService
   ▶ factory logic
-    ✔ manages resource and gold totals against their limits (0.4421ms)
-  ✔ factory logic (0.8599ms)
+    ✔ manages resource and gold totals against their limits (0.7035ms)
+  ✔ factory logic (1.1936ms)
   ▶ Angular integration
-    ✔ exposes the same API when resolved through the Angular injector (0.0868ms)
-  ✔ Angular integration (52.3224ms)
-✔ EconomyService (53.4515ms)
+    ✔ exposes the same API when resolved through the Angular injector (0.1041ms)
+  ✔ Angular integration (7.841ms)
+✔ EconomyService (9.3345ms)
 ▶ save/load routines
-  ✔ restores a saved scope snapshot without mutating the source data (1.1341ms)
-✔ save/load routines (1.6621ms)
+  ✔ restores a saved scope snapshot without mutating the source data (1.1051ms)
+✔ save/load routines (1.6289ms)
 ℹ tests 3
 ℹ suites 4
 ℹ pass 3
@@ -16,25 +16,4 @@
 ℹ cancelled 0
 ℹ skipped 0
 ℹ todo 0
-ℹ duration_ms 115.6865
-ℹ start of coverage report
-ℹ ----------------------------------------------------------------------------------------------
-ℹ file                     | line % | branch % | funcs % | uncovered lines
-ℹ ----------------------------------------------------------------------------------------------
-ℹ src                      |        |          |         | 
-ℹ  app.js                  |  27.50 |   100.00 |    0.00 | 5-24 28-35 39-48 52-61 65-74
-ℹ  constants               |        |          |         | 
-ℹ   gameConfig.data.js     | 100.00 |   100.00 |  100.00 | 
-ℹ  controllers             |        |          |         | 
-ℹ   economy.service.js     | 100.00 |   100.00 |  100.00 | 
-ℹ  services                |        |          |         | 
-ℹ   economy.service.js     |  97.37 |    72.73 |  100.00 | 3-4
-ℹ tests                    |        |          |         | 
-ℹ  economyService.spec.js  | 100.00 |   100.00 |  100.00 | 
-ℹ  saveLoad.spec.js        | 100.00 |   100.00 |  100.00 | 
-ℹ  utils                   |        |          |         | 
-ℹ   angular.js             |  94.67 |    72.73 |   68.97 | 26 29 34-35 52 81-82 160-161 195-197
-ℹ ----------------------------------------------------------------------------------------------
-ℹ all files                |  93.47 |    79.17 |   74.07 | 
-ℹ ----------------------------------------------------------------------------------------------
-ℹ end of coverage report
+ℹ duration_ms 73.3475
