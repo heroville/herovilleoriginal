@@ -1,10 +1,8 @@
-'use strict';
+import { describe, it } from 'node:test';
+import assert from 'node:assert/strict';
+import GameConfig from '../src/constants/gameConfig.data.js';
 
-const assert = require('assert');
-
-(async function runSaveLoadTests() {
-    const { default: GameConfig } = await import('../src/constants/gameConfig.data.js');
-
+describe('save/load routines', () => {
     function clone(value) {
         return JSON.parse(JSON.stringify(value));
     }
@@ -119,7 +117,7 @@ const assert = require('assert');
         return scope;
     }
 
-    (function executeTests() {
+    it('restores a saved scope snapshot without mutating the source data', () => {
         const scope = createScope();
         scope.resources = 100;
         scope.maxResources = 100;
@@ -147,27 +145,24 @@ const assert = require('assert');
         const saveState = save(scope);
         const loadedScope = load(createScope(), saveState);
 
-        assert.deepStrictEqual(loadedScope.resources, scope.resources, 'Resources should match after load');
-        assert.deepStrictEqual(loadedScope.maxResources, scope.maxResources, 'Max resources should match after load');
-        assert.deepStrictEqual(loadedScope.gold, scope.gold, 'Gold should match after load');
-        assert.deepStrictEqual(loadedScope.maxGold, scope.maxGold, 'Max gold should match after load');
-        assert.deepStrictEqual(loadedScope.incr, scope.incr, 'Increment should match after load');
-        assert.deepStrictEqual(loadedScope.restAmount, scope.restAmount, 'Rest amount should match after load');
-        assert.deepStrictEqual(loadedScope.upgrades, scope.upgrades, 'Upgrades should match after load');
-        assert.deepStrictEqual(loadedScope.dungeons, scope.dungeons, 'Dungeons should match after load');
-        assert.deepStrictEqual(loadedScope.monsters, scope.monsters, 'Monsters should match after load');
-        assert.deepStrictEqual(loadedScope.bosses, scope.bosses, 'Bosses should match after load');
-        assert.deepStrictEqual(loadedScope.successCount, scope.successCount, 'Success count should match after load');
-        assert.deepStrictEqual(loadedScope.lossCount, scope.lossCount, 'Loss count should match after load');
-        assert.deepStrictEqual(loadedScope.panelNumber, scope.panelNumber, 'Panel number should match after load');
-        assert.deepStrictEqual(loadedScope.showTutorial, scope.showTutorial, 'Show tutorial flag should match after load');
-        assert.deepStrictEqual(loadedScope.jobs, scope.jobs, 'Jobs should match after load');
-        assert.deepStrictEqual(loadedScope.potion, scope.potion, 'Potion should match after load');
-        assert.deepStrictEqual(loadedScope.gameStats, scope.gameStats, 'Game stats should match after load');
+        assert.deepStrictEqual(loadedScope.resources, scope.resources, 'resources should match after load');
+        assert.deepStrictEqual(loadedScope.maxResources, scope.maxResources, 'max resources should match after load');
+        assert.deepStrictEqual(loadedScope.gold, scope.gold, 'gold should match after load');
+        assert.deepStrictEqual(loadedScope.maxGold, scope.maxGold, 'max gold should match after load');
+        assert.deepStrictEqual(loadedScope.incr, scope.incr, 'increment should match after load');
+        assert.deepStrictEqual(loadedScope.restAmount, scope.restAmount, 'rest amount should match after load');
+        assert.deepStrictEqual(loadedScope.upgrades, scope.upgrades, 'upgrades should match after load');
+        assert.deepStrictEqual(loadedScope.dungeons, scope.dungeons, 'dungeons should match after load');
+        assert.deepStrictEqual(loadedScope.monsters, scope.monsters, 'monsters should match after load');
+        assert.deepStrictEqual(loadedScope.bosses, scope.bosses, 'bosses should match after load');
+        assert.deepStrictEqual(loadedScope.successCount, scope.successCount, 'success count should match after load');
+        assert.deepStrictEqual(loadedScope.lossCount, scope.lossCount, 'loss count should match after load');
+        assert.deepStrictEqual(loadedScope.panelNumber, scope.panelNumber, 'panel number should match after load');
+        assert.deepStrictEqual(loadedScope.showTutorial, scope.showTutorial, 'show tutorial flag should match after load');
+        assert.deepStrictEqual(loadedScope.jobs, scope.jobs, 'jobs should match after load');
+        assert.deepStrictEqual(loadedScope.potion, scope.potion, 'potion should match after load');
+        assert.deepStrictEqual(loadedScope.gameStats, scope.gameStats, 'game stats should match after load');
 
-        console.log('Save/Load tests passed');
-    }());
-}()).catch((error) => {
-    console.error(error);
-    process.exitCode = 1;
+        assert.notStrictEqual(saveState, scope, 'the saved snapshot should be a copy');
+    });
 });

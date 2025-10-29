@@ -2,11 +2,12 @@
   "name": "herovilleoriginal",
   "version": "1.0.0",
   "private": true,
+  "type": "module",
   "scripts": {
     "dev": "vite",
     "build": "vite build",
     "preview": "vite preview",
-    "test": "node tests/runAllTests.js"
+    "test": "node tests/run-with-coverage.js"
   },
   "devDependencies": {
     "@rollup/rollup-win32-x64-msvc": "^4.52.5",
