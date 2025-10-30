@@ -64,8 +64,8 @@
             <div id="gatherButton" ng-click="testing2()" ng-show="debugging">Button</div>
             <div id="errorDialog" title="Error"><br /></div>
         </div>
-            <tabset id="gameTabs">
-                <tab heading="Town" id="town">
+            <uib-tabset id="gameTabs">
+                <uib-tab heading="Town" id="town">
                     <section id="container">
                         <div class="col-lg-6">
                             <table class="table table-bordered">
@@ -108,8 +108,8 @@
                             
                         </div>
                     </section>
-                </tab>
-                <tab heading="Hero" id="hero" disabled="heroEnabled">
+                </uib-tab>
+                <uib-tab heading="Hero" id="hero" disable="heroEnabled">
                     <section id="container">
                         <div class="col-lg-7">
                             <div class="btn-group" dropdown is-open="status.isopen" id="heroFilter">
@@ -273,10 +273,10 @@
                             </table>
                         </div>
                     </section>
-                </tab>
+                </uib-tab>
 
 
-                <tab heading="Production" disabled="prodEnabled">
+                <uib-tab heading="Production" disable="prodEnabled">
                     <section id="containter">
                         <div class="col-lg-6">
                             <table class="table table-bordered">
@@ -359,9 +359,9 @@
                         </div>
                     </section>
 
-                </tab>
+                </uib-tab>
 
-                <tab heading="Professions" disabled="upgEnabled">
+                <uib-tab heading="Professions" disable="upgEnabled">
                     <section id="container">
                         <div class="col-lg-6">
                             <table class="table table-bordered" ng-hide="!filteredJobs.length">
@@ -383,8 +383,8 @@
 </section>
 
 
-                </tab>
-                <tab heading="Bestiary" disabled="beastEnabled">
+                </uib-tab>
+                <uib-tab heading="Bestiary" disable="beastEnabled">
                     <section id="container">
                         <div class="col-lg-6">
                             <table class="table table-bordered">
@@ -427,8 +427,8 @@
                     </section>
 
 
-                </tab>
-                <tab heading="Options/Help" id="options">
+                </uib-tab>
+                <uib-tab heading="Options/Help" id="options">
                     <div class="col-lg-6" id="optionTab">
                         <h3>Options</h3>
                         <button id="save" ng-click="save()">Save</button>
@@ -471,8 +471,8 @@
                             </ul>
                         </div>
                     </div>
-                </tab>
-            </tabset>
+                </uib-tab>
+            </uib-tabset>
             <div id="randomTrigger"></div>
 
             <div class="footer navbar-fixed-bottom">
