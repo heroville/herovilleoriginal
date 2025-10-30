@@ -175,9 +175,26 @@ function ensureAngular() {
 
     ensureBrowserEnvironment();
 
-    const angularPath = resolve(__dirname, '../../src/lib/angular.min.js');
+    const moduleRoot = resolve(__dirname, '../../node_modules');
+    const angularPath = resolve(moduleRoot, 'angular/angular.min.js');
     const angularSource = readFileSync(angularPath, 'utf8');
     vm.runInThisContext(angularSource, { filename: 'angular.min.js' });
+
+    const loadCompanion = (relativePath, filename) => {
+        try {
+            const source = readFileSync(resolve(moduleRoot, relativePath), 'utf8');
+            vm.runInThisContext(source, { filename });
+        }
+        catch (error) {
+            if (error && error.code !== 'ENOENT') {
+                throw error;
+            }
+        }
+    };
+
+    loadCompanion('angular-ui-bootstrap/dist/ui-bootstrap-tpls.js', 'angular-ui-bootstrap.js');
+    loadCompanion('angulartics/dist/angulartics.min.js', 'angulartics.min.js');
+    loadCompanion('angulartics-google-analytics/dist/angulartics-ga.min.js', 'angulartics-ga.min.js');
 
     angularLoaded = true;
     globalThis.angular = globalThis.window.angular;
