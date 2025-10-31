@@ -230,18 +230,24 @@ app.controller("MainController", function ($scope, $interval, $timeout, $http, $
     $scope.heroClass = angular.copy(GameConfig.heroClasses);
 
     $http.get('models/heroName.json')
-        .success(function (data) {
-            $scope.heroName = data;
+        .then(function (response) {
+            $scope.heroName = response.data;
+        }, function (err) {
+            console && console.error && console.error('Failed to load heroName.json', err);
         });
 
     $http.get('models/monsterList.json')
-         .success(function (data) {
-             $scope.monsterList = data;
+         .then(function (response) {
+             $scope.monsterList = response.data;
+         }, function (err) {
+             console && console.error && console.error('Failed to load monsterList.json', err);
          });
 
     $http.get('models/dungeons.json')
-         .success(function (data) {
-             $scope.dungeonNames = data;
+         .then(function (response) {
+             $scope.dungeonNames = response.data;
+         }, function (err) {
+             console && console.error && console.error('Failed to load dungeons.json', err);
          });
 
 
@@ -1141,6 +1147,8 @@ app.controller("MainController", function ($scope, $interval, $timeout, $http, $
         $scope.panelInfo = true;
     }
 
+    ;(function initDialog(){
+        if (window.$ && $.fn && $.fn.dialog) {
     $("#dialog").dialog({
         closeOnEscape: false,
         open: function (event, ui) {
@@ -1173,7 +1181,11 @@ app.controller("MainController", function ($scope, $interval, $timeout, $http, $
             }
         }
     });
-$(document).ready(function(){
+        } else {
+            $timeout(initDialog, 50);
+        }
+    })();
+    $(document).ready(function(){
     $("#paypal").click( function() {
         ga('send', 'event', 'Clicks', 'Paypal');
 });
@@ -1187,7 +1199,9 @@ $(document).ready(function(){
 });
 });
 
-
+    
+    ;(function initDialog2(){
+        if (window.$ && $.fn && $.fn.dialog) {
     $("#dialog2").dialog({
         closeOnEscape: false,
         open: function (event, ui) {
@@ -1220,7 +1234,13 @@ $(document).ready(function(){
             }
         }
     });
+        } else {
+            $timeout(initDialog2, 50);
+        }
+    })();
 
+    ;(function initLoading(){
+        if (window.$ && $.fn && $.fn.dialog) {
     $("#loading").dialog({
         closeOnEscape: false,
         open: function (event, ui) {
@@ -1243,7 +1263,13 @@ $(document).ready(function(){
 
         }
     });
+        } else {
+            $timeout(initLoading, 50);
+        }
+    })();
 
+    ;(function initVersion(){
+        if (window.$ && $.fn && $.fn.dialog) {
     $("#version").dialog({
         closeOnEscape: true,
         open: function (event, ui) {
@@ -1259,7 +1285,13 @@ $(document).ready(function(){
 
         }
     });
+        } else {
+            $timeout(initVersion, 50);
+        }
+    })();
 
+    ;(function initConfirm(){
+        if (window.$ && $.fn && $.fn.dialog) {
     $("#confirm").dialog({
         autoOpen: false,
         modal: true,
@@ -1273,6 +1305,10 @@ $(document).ready(function(){
             }
         }
     });
+        } else {
+            $timeout(initConfirm, 50);
+        }
+    })();
 
     //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     // Array/ Generation --------------------------------------------------------------------------------------------------------------------------------------------//

@@ -1,15 +1,15 @@
 <?xml version="1.0" encoding="utf-8"?>
 <testsuites>
-	<testsuite name="EconomyService" time="0.009335" disabled="0" errors="0" tests="2" failures="0" skipped="0" hostname="Mitchell-PC">
-		<testsuite name="factory logic" time="0.001194" disabled="0" errors="0" tests="1" failures="0" skipped="0" hostname="Mitchell-PC">
-			<testcase name="manages resource and gold totals against their limits" time="0.000704" classname="test" file="C:\Code\herovilleoriginal\tests\economyService.spec.js"/>
+	<testsuite name="EconomyService" time="0.018771" disabled="0" errors="0" tests="2" failures="0" skipped="0" hostname="Mitchell-PC">
+		<testsuite name="factory logic" time="0.000862" disabled="0" errors="0" tests="1" failures="0" skipped="0" hostname="Mitchell-PC">
+			<testcase name="manages resource and gold totals against their limits" time="0.000434" classname="test" file="C:\Code\herovilleoriginal\tests\economyService.spec.js"/>
 		</testsuite>
-		<testsuite name="Angular integration" time="0.007841" disabled="0" errors="0" tests="1" failures="0" skipped="0" hostname="Mitchell-PC">
-			<testcase name="exposes the same API when resolved through the Angular injector" time="0.000104" classname="test" file="C:\Code\herovilleoriginal\tests\economyService.spec.js"/>
+		<testsuite name="Angular integration" time="0.017623" disabled="0" errors="0" tests="1" failures="0" skipped="0" hostname="Mitchell-PC">
+			<testcase name="exposes the same API when resolved through the Angular injector" time="0.000093" classname="test" file="C:\Code\herovilleoriginal\tests\economyService.spec.js"/>
 		</testsuite>
 	</testsuite>
-	<testsuite name="save/load routines" time="0.001629" disabled="0" errors="0" tests="1" failures="0" skipped="0" hostname="Mitchell-PC">
-		<testcase name="restores a saved scope snapshot without mutating the source data" time="0.001105" classname="test" file="C:\Code\herovilleoriginal\tests\saveLoad.spec.js"/>
+	<testsuite name="save/load routines" time="0.001926" disabled="0" errors="0" tests="1" failures="0" skipped="0" hostname="Mitchell-PC">
+		<testcase name="restores a saved scope snapshot without mutating the source data" time="0.001310" classname="test" file="C:\Code\herovilleoriginal\tests\saveLoad.spec.js"/>
 	</testsuite>
 	<!-- tests 3 -->
 	<!-- suites 4 -->
@@ -18,5 +18,5 @@
 	<!-- cancelled 0 -->
 	<!-- skipped 0 -->
 	<!-- todo 0 -->
-	<!-- duration_ms 73.3475 -->
+	<!-- duration_ms 99.0513 -->
 </testsuites>

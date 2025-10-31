@@ -1,18 +1,15 @@
 import { defineConfig } from 'vite';
-import { viteStaticCopy } from 'vite-plugin-static-copy';
 import ngAnnotate from 'rollup-plugin-ng-annotate';
 
 export default defineConfig({
-  plugins: [
-    viteStaticCopy({
-      targets: [{ src: 'src/lib/**/*', dest: 'src/lib' }]
-    })
-  ],
+  plugins: [],
   esbuild: {
-    minifyIdentifiers: false
+    minifyIdentifiers: false,
+    target: 'esnext' // allow features like top-level await during dev transforms
   },
   base: './',
   build: {
+    target: 'esnext', // permit top-level await in bundled output for modern browsers
     outDir: 'dist',
     emptyOutDir: true,
     minify: 'esbuild',

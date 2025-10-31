@@ -127,6 +127,8 @@ function ensureBrowserEnvironment() {
     body: { appendChild: noop, removeChild: noop },
     createElement: (tagName) => createElementStub(tagName, noop),
     createElementNS: () => ({ style: {} }),
+        querySelector: () => null,
+        querySelectorAll: () => [],
     getElementsByTagName: () => [],
     addEventListener: noop,
     removeEventListener: noop,
@@ -141,6 +143,19 @@ function ensureBrowserEnvironment() {
   if (!('location' in win)) win.location = location;
   if (!('navigator' in win)) win.navigator = { userAgent: 'node.js' };
   if (!('history' in win)) win.history = { pushState: noop, replaceState: noop };
+    // Minimal DOM constructors expected by Angular's feature detection
+    if (!('Node' in win)) {
+        win.Node = function Node() {};
+    }
+    if (!win.Node.prototype) {
+        win.Node.prototype = {};
+    }
+    if (!win.Node.prototype.contains) {
+        win.Node.prototype.contains = function () { return false; };
+    }
+    if (!('Element' in win)) {
+        win.Element = function Element() {};
+    }
   if (!('name' in win)) win.name = 'nodejs';
   if (!('setTimeout' in win)) win.setTimeout = setTimeout;
   if (!('clearTimeout' in win)) win.clearTimeout = clearTimeout;
@@ -166,6 +181,8 @@ function ensureBrowserEnvironment() {
   tryDefine('navigator', win.navigator);
   tryDefine('location', location);
   tryDefine('self', win);
+    tryDefine('Node', win.Node);
+    tryDefine('Element', win.Element);
 }
 
 function ensureAngular() {
@@ -175,12 +192,30 @@ function ensureAngular() {
 
     ensureBrowserEnvironment();
 
-    const angularPath = resolve(__dirname, '../../src/lib/angular.min.js');
+    const moduleRoot = resolve(__dirname, '../../node_modules');
+    const angularPath = resolve(moduleRoot, 'angular/angular.min.js');
     const angularSource = readFileSync(angularPath, 'utf8');
     vm.runInThisContext(angularSource, { filename: 'angular.min.js' });
+    // Expose global 'angular' symbol for companion modules that expect it
+    globalThis.angular = globalThis.window.angular;
+
+    const loadCompanion = (relativePath, filename) => {
+        try {
+            const source = readFileSync(resolve(moduleRoot, relativePath), 'utf8');
+            vm.runInThisContext(source, { filename });
+        }
+        catch (error) {
+            if (error && error.code !== 'ENOENT') {
+                throw error;
+            }
+        }
+    };
+
+    loadCompanion('angular-ui-bootstrap/dist/ui-bootstrap-tpls.js', 'angular-ui-bootstrap.js');
+    loadCompanion('angulartics/dist/angulartics.min.js', 'angulartics.min.js');
+    loadCompanion('angulartics-google-analytics/dist/angulartics-ga.min.js', 'angulartics-ga.min.js');
 
     angularLoaded = true;
-    globalThis.angular = globalThis.window.angular;
     return globalThis.window.angular;
 }
 
@@ -221,5 +256,19 @@ export async function bootstrapAngular({ modules = [] } = {}) {
 
 export function createInjector(dependencies = ['ng', 'Incremental']) {
     const angular = ensureAngular();
-    return angular.injector(dependencies);
+    // Try to use an existing bootstrapped injector first
+    try {
+        const existing = angular.element(globalThis.document).injector && angular.element(globalThis.document).injector();
+        if (existing) return existing;
+    } catch {}
+
+    // Bootstrap Angular against the stubbed document to provide $rootElement
+    try {
+        angular.bootstrap(globalThis.document, dependencies);
+        const inj = angular.element(globalThis.document).injector();
+        if (inj) return inj;
+    } catch (err) {
+        // Fallback to manual injector creation (may miss $rootElement-dependent services)
+        return angular.injector(dependencies);
+    }
 }
