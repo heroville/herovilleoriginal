@@ -20,6 +20,7 @@ import 'angulartics-google-analytics';
 import app from './app.js';
 import './controllers/gameConfig.constant.js';
 import './controllers/economy.service.js';
+import './controllers/save-state.service.js';
 import './controllers/maincontroller.js';
 
 

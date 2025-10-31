@@ -1,6 +1,6 @@
 import app from '../app.js';
 
-app.controller("MainController", function ($scope, $interval, $timeout, $http, $compile, GameConfig, EconomyService) {
+app.controller("MainController", function ($scope, $interval, $timeout, $http, $compile, GameConfig, EconomyService, SaveStateService) {
     $scope.dark=false;
     //DEBUG
     $scope.debugging = false;
@@ -36,6 +36,7 @@ app.controller("MainController", function ($scope, $interval, $timeout, $http, $
     $scope.decGold = EconomyService.decGold;
     $scope.incResources = EconomyService.incResources;
     $scope.decResources = EconomyService.decResources;
+    $scope.pendingIncompatibleSave = false;
 
     //Display Variables
     $scope.version = '1.3';
@@ -255,28 +256,12 @@ app.controller("MainController", function ($scope, $interval, $timeout, $http, $
     //Game Functions (SAVE/LOAD/RESET) ----------------------------------------------------------------------------------------------------------------------------//
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     $scope.reset = function () {
-        //TODO: Add confirm dialog.
-        const raw = localStorage.getItem('data');
-        if (!raw) {
-            $scope.showError("No save data to reset.");
-            return;
-        }
-        let data;
-        try {
-            data = JSON.parse(raw);
-        } catch (error) {
-            $scope.showError("Failed to reset save data: " + error.message);
-            localStorage.removeItem('data');
-            return;
-        }
-        data.saveVersion = "Reset";
-        localStorage.setItem('data', JSON.stringify(data));
-        location.reload();
+        SaveStateService.reset();
     }
 
 
-    $scope.save = function () {
-        let data = {
+    function buildSaveSnapshot() {
+        return {
             resources: $scope.resources,
             maxResources: $scope.maxResources,
             gold: $scope.gold,
@@ -306,22 +291,16 @@ app.controller("MainController", function ($scope, $interval, $timeout, $http, $
             gameStats: $scope.gameStats,
             panelNumber: $scope.panelNumber,
             showTutorial: $scope.showTutorial
-    }
-    localStorage["data"] = JSON.stringify(data);
-    $scope.showError("Game has saved");
+        };
     }
 
-    $scope.loadData = function () {
-        const raw = localStorage.getItem('data');
-        if (!raw) {
-            return;
-        }
-        let data;
-        try {
-            data = JSON.parse(raw);
-        } catch (error) {
-            $scope.showError("Failed to load save data. Clearing corrupted save. Error: " + error.message);
-            localStorage.removeItem('data');
+    $scope.save = function () {
+        const data = buildSaveSnapshot();
+        SaveStateService.save(data);
+    }
+
+    function applySaveState(data) {
+        if (!data) {
             return;
         }
         $scope.resources = data.resources;
@@ -402,38 +381,29 @@ app.controller("MainController", function ($scope, $interval, $timeout, $http, $
             $scope.panelNumber = (data.panelNumber - 1);
             $scope.showTutorial = data.showTutorial;
             $scope.nextTutorial();
-            
+
         }
     }
 
+    $scope.loadData = function () {
+        const data = SaveStateService.loadData();
+        if (!data) {
+            return;
+        }
+        applySaveState(data);
+    }
+
     $scope.load = function () {
-        const raw = localStorage.getItem('data');
-        if (!raw) {
+        const result = SaveStateService.load({
+            currentVersion: $scope.version,
+            forceReset: $scope.forceReset
+        });
+        if (!result || !result.data) {
             return;
         }
-        let test;
-        try {
-            test = JSON.parse(raw);
-        } catch (error) {
-            $scope.showError("Failed to parse save data. Clearing corrupted save. Error: " + error.message);
-            localStorage.removeItem('data');
-            return;
+        if (!result.incompatible) {
+            applySaveState(result.data);
         }
-        if (test) {
-            if (test.saveVersion != $scope.version) {
-                if ($scope.forceReset) {
-                    //localStorage.clear();
-                }
-                else {
-                    $("#loading").dialog("open");
-                }
-
-            }
-            else {
-                $scope.loadData();
-            }
-        }
-
     }
 
     //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -1128,6 +1098,28 @@ app.controller("MainController", function ($scope, $interval, $timeout, $http, $
         }
     }
 
+    function openLoadingDialog() {
+        if (window.$ && $.fn && $.fn.dialog) {
+            $("#loading").dialog("open");
+            $scope.pendingIncompatibleSave = false;
+        }
+    }
+
+    $scope.$on(SaveStateService.EVENTS.ERROR, function (event, payload) {
+        if (payload && payload.message) {
+            $scope.showError(payload.message);
+        }
+    });
+
+    $scope.$on(SaveStateService.EVENTS.SAVED, function () {
+        $scope.showError("Game has saved");
+    });
+
+    $scope.$on(SaveStateService.EVENTS.INCOMPATIBLE, function () {
+        $scope.pendingIncompatibleSave = true;
+        openLoadingDialog();
+    });
+
     $scope.debugLog = function(value) {
         if ($scope.debugging) {
             console.log(value);
@@ -1263,6 +1255,9 @@ app.controller("MainController", function ($scope, $interval, $timeout, $http, $
 
         }
     });
+        if ($scope.pendingIncompatibleSave) {
+            openLoadingDialog();
+        }
         } else {
             $timeout(initLoading, 50);
         }
