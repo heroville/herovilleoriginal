@@ -6,9 +6,6 @@
     <link href="./styles/jquery-ui-1.10.0.custom.css" rel="stylesheet" />
     <link href="./styles/bootstrap.min.css" rel="stylesheet" />
     <link href='https://fonts.googleapis.com/css?family=Droid+Sans' rel='stylesheet' type='text/css'>
-      <script src="./src/lib/jquery-2.1.1.min.js"></script>
-  <script src="./src/lib/jquery-ui-1.10.4.min.js"></script>
-  <script src="./src/lib/bootstrap.min.js"></script>
     <script type="module" src="/src/main.js"></script>
 
 </head>
@@ -59,16 +56,16 @@
                 <img src="images/I_Chest01.png" />
                 {{gold | number}}/{{maxGold | number}}
                 <img src="images/I_GoldBar.png" />
-                <img ng-hide="gameLoop == 1000" ng-src="images/S_Buff11.png" tooltip="Doubles the game speed" tooltip-placement="bottom" />
-                <img ng-hide="damageMulti == 1" ng-src="images/S_Shadow07.png" tooltip="Doubles your heroes damage" tooltip-placement="bottom" />
-                <img ng-hide="goldMulti == 1" src="images/E_Gold02.png" tooltip="Doubles the gold gained from sales" tooltip-placement="bottom" />
+                <img ng-hide="gameLoop == 1000" ng-src="images/S_Buff11.png" title="Doubles the game speed" />
+                <img ng-hide="damageMulti == 1" ng-src="images/S_Shadow07.png" title="Doubles your heroes damage" />
+                <img ng-hide="goldMulti == 1" src="images/E_Gold02.png" title="Doubles the gold gained from sales" />
             </div>
             <div id="gatherButton" ng-click="incrRes(incr)">Gather</div>
             <div id="gatherButton" ng-click="testing2()" ng-show="debugging">Button</div>
             <div id="errorDialog" title="Error"><br /></div>
         </div>
-            <tabset id="gameTabs">
-                <tab heading="Town" id="town">
+            <uib-tabset id="gameTabs">
+                <uib-tab heading="Town" id="town">
                     <section id="container">
                         <div class="col-lg-6">
                             <table class="table table-bordered">
@@ -84,7 +81,7 @@
                                     <td ng-attr-title="{{building.description}}">{{building.name}}</td>
                                     <td>{{building.count | number}}</td>
                                     <td>{{building.cost | number}}</td>
-                                    <td><button ng-click="incrBuilding(building)" tooltip-placement="right" tooltip="{{building.description}}">Improve {{building.name}}</button></td>
+                                    <td><button ng-click="incrBuilding(building)" ng-attr-title="{{building.description}}">Improve {{building.name}}</button></td>
                                 </tr>
                             </table>
                         </div>
@@ -111,15 +108,15 @@
                             
                         </div>
                     </section>
-                </tab>
-                <tab heading="Hero" id="hero" disabled="heroEnabled">
+                </uib-tab>
+                <uib-tab heading="Hero" id="hero" disabled="heroEnabled">
                     <section id="container">
                         <div class="col-lg-7">
-                            <div class="btn-group" dropdown is-open="status.isopen" id="heroFilter">
+                            <div class="btn-group" uib-dropdown is-open="status.isopen" id="heroFilter">
                                 <button type="button" class="dropdown-toggle" id="sortButton">
                                     Sort <span class="caret down"></span>
                                 </button>
-                                <ul class="dropdown-menu" role="menu">
+                                <ul class="uib-dropdown-menu" role="menu">
                                     <li><a href="" ng-click="sorting.heroTable = 'name'; reverse=!reverse"><u>Name</u></a></li>
                                     <li><a href="" ng-click="sorting.heroTable = ['level','experience']; reverse=!reverse"><u>Level</u></a></li>
                                     <li><a href="" ng-click="sorting.heroTable = 'equip.gold'; reverse=!reverse"><u>Gold</u></a></li>
@@ -147,8 +144,8 @@
                                         </tr>
                                         <tr>
                                             <td>
-                                                HP: <progressbar value="hero.currHealth/hero.health*100" type="danger" style="width:220px;"><i>{{hero.currHealth | number}}/{{hero.health | number}}</i></progressbar>
-                                                XP: <progressbar value="hero.experience/hero.next*100" type="warning" style="width:220px;"><i>{{hero.experience | number}}/{{hero.next | number}}</i></progressbar>
+                                                HP: <uib-progressbar value="hero.currHealth/hero.health*100" type="danger" style="width:220px;"><i>{{hero.currHealth | number}}/{{hero.health | number}}</i></uib-progressbar>
+                                                XP: <uib-progressbar value="hero.experience/hero.next*100" type="warning" style="width:220px;"><i>{{hero.experience | number}}/{{hero.next | number}}</i></uib-progressbar>
                                             </td>
                                         </tr>
                                         <tr>
@@ -167,7 +164,7 @@
                                                             {{hero.equip.gold}} <img src="images/I_GoldBar.png" />
                                                         </td>
                                                         <td>
-                                                            <a href="" popover-template="showEquip.html" popover-placement="right" popover-trigger="mouseenter"><img ng-src="images/{{hero.equip.weapon.image}}" /> ({{hero.equip.weapon.minDamage}}-{{hero.equip.weapon.maxDamage}}) Durability: {{hero.equip.weapon.durability}}</a>
+                                                            <a href="" uib-popover-template="'showEquip.html'" uib-popover-placement="right" uib-popover-trigger="mouseenter"><img ng-src="images/{{hero.equip.weapon.image}}" /> ({{hero.equip.weapon.minDamage}}-{{hero.equip.weapon.maxDamage}}) Durability: {{hero.equip.weapon.durability}}</a>
                                                             <script id="showEquip.html" type="text/ng-template">
                                                                 <img ng-src="images/{{hero.equip.weapon.image}}" />
                                                                 {{hero.equip.weapon.name}} ({{hero.equip.weapon.minDamage}}-{{hero.equip.weapon.maxDamage}}) {{hero.equip.weapon.durability}}
@@ -187,13 +184,13 @@
                                         </tr>
                                         <tr>
                                             <td>
-                                                <a href="" popover-template="showBattle.html" popover-placement="right" popover-trigger="mouseenter"><div ng-model="progress">{{hero.progress}}</div></a>
+                                                <a href="" uib-popover-template="'showBattle.html'" uib-popover-placement="right" uib-popover-trigger="mouseenter"><div ng-model="progress">{{hero.progress}}</div></a>
                                                 <script id="showBattle.html" type="text/ng-template">
                                                     <table class="table table-bordered" ng-hide="!filteredBattle.length">
                                                         <tr ng-repeat="battle in filteredBattle = (battles | heroBattle:hero)">
                                                             <td>
                                                                 <div ng-repeat="monster in battle.copyMonsters" id="monsterList">
-                                                                    {{monster.name}} ({{monster.minDamage}} - {{monster.maxDamage}}) <progressbar max="monster.maxHealth" value="monster.health" type="danger" style="width:200px"><i>{{monster.health}}/{{monster.maxHealth}}</i></progressbar>
+                                                                    {{monster.name}} ({{monster.minDamage}} - {{monster.maxDamage}}) <uib-progressbar max="monster.maxHealth" value="monster.health" type="danger" style="width:200px"><i>{{monster.health}}/{{monster.maxHealth}}</i></uib-progressbar>
                                                                 </div>
                                                             </td>
                                                         </tr>
@@ -232,7 +229,7 @@
                                         {{hero.equip.scrap}} <img src="images/I_Chest01.png" /> {{hero.equip.gold}} <img src="images/I_GoldBar.png" />
                                     </td>
                                     <td>
-                                        <a href="" popover-template="showEquip.html" popover-placement="right" popover-trigger="mouseenter">DMG: ({{hero.equip.weapon.minDamage}}-{{hero.equip.weapon.maxDamage}}) DUR: {{hero.equip.weapon.durability}}</a>
+                                        <a href="" uib-popover-template="'showEquip.html'" uib-popover-placement="right" uib-popover-trigger="mouseenter">DMG: ({{hero.equip.weapon.minDamage}}-{{hero.equip.weapon.maxDamage}}) DUR: {{hero.equip.weapon.durability}}</a>
                                     </td>
                                     <td>
                                         {{hero.currHealth | number}}/{{hero.health | number}}
@@ -244,7 +241,7 @@
                                         {{hero.location}}
                                     </td>
                                     <td>
-                                        <a href="" popover-template="showBattle.html" popover-placement="right" popover-trigger="mouseenter">{{hero.progress}}</a>
+                                        <a href="" uib-popover-template="'showBattle.html'" uib-popover-placement="right" uib-popover-trigger="mouseenter">{{hero.progress}}</a>
                                     </td>
                                 </tr>
 
@@ -276,10 +273,10 @@
                             </table>
                         </div>
                     </section>
-                </tab>
+                </uib-tab>
 
 
-                <tab heading="Production" disabled="prodEnabled">
+                <uib-tab heading="Production" disabled="prodEnabled">
                     <section id="containter">
                         <div class="col-lg-6">
                             <table class="table table-bordered">
@@ -355,16 +352,16 @@
                                 <tr ng-repeat="blueprint in filteredBlueprint = (blueprints | filter:{enabled:true})">
                                     <td ng-attr-title="{{blueprint.description}}">{{blueprint.name}}</td>
                                     <td>{{blueprint.cost | number}}</td>
-                                    <td><button ng-click="incrBlueprint(blueprint)" tooltip-placement="right" tooltip="{{blueprint.description}}">Buy {{blueprint.name}}</button></td>
+                                    <td><button ng-click="incrBlueprint(blueprint)" ng-attr-title="{{blueprint.description}}">Buy {{blueprint.name}}</button></td>
                                 </tr>
                             </table>
 
                         </div>
                     </section>
 
-                </tab>
+                </uib-tab>
 
-                <tab heading="Professions" disabled="upgEnabled">
+                <uib-tab heading="Professions" disabled="upgEnabled">
                     <section id="container">
                         <div class="col-lg-6">
                             <table class="table table-bordered" ng-hide="!filteredJobs.length">
@@ -386,8 +383,8 @@
 </section>
 
 
-                </tab>
-                <tab heading="Bestiary" disabled="beastEnabled">
+                </uib-tab>
+                <uib-tab heading="Bestiary" disabled="beastEnabled">
                     <section id="container">
                         <div class="col-lg-6">
                             <table class="table table-bordered">
@@ -430,8 +427,8 @@
                     </section>
 
 
-                </tab>
-                <tab heading="Options/Help" id="options">
+                </uib-tab>
+                <uib-tab heading="Options/Help" id="options">
                     <div class="col-lg-6" id="optionTab">
                         <h3>Options</h3>
                         <button id="save" ng-click="save()">Save</button>
@@ -439,17 +436,17 @@
                         <button id="reset" ng-click="reset()">Reset</button>
                         <button id="swap theme" ng-click="changeTheme()" value="SwapTheme">Swap Theme</button>
                         <div id="optionMenu">
-                            <accordion close-others="true">
-                                <accordion-group>
-                                    <accordion-heading>
+                            <uib-accordion close-others="true">
+                                <uib-accordion-group>
+                                    <uib-accordion-heading>
                                         <div class="noTextSelect">Hero Options</div>
-                                    </accordion-heading>
+                                    </uib-accordion-heading>
                                     <div>Format Heroes as Table <input type="checkbox" ng-model="showHeroTable.enabled" id="showOld" name="showHeroTable" /> </div>
                                     <div>Successes before moving up dungeon <select id="dungeonCount" ng-model="successCount.amount" ng-options="opt for opt in optionsSuccess"></select></div>
                                     <div>Dungeons moved down on loss <select id="dungeonCount" ng-model="lossCount.amount" ng-options="opt for opt in optionsLoss"></select></div>
-                                </accordion-group>
+                                </uib-accordion-group>
 
-                            </accordion>
+                            </uib-accordion>
                         </div>
                         <button id="skip" ng-click="skipTut()">Skip Tutorial</button>
                     </div>
@@ -474,8 +471,8 @@
                             </ul>
                         </div>
                     </div>
-                </tab>
-            </tabset>
+                </uib-tab>
+            </uib-tabset>
             <div id="randomTrigger"></div>
 
             <div class="footer navbar-fixed-bottom">

@@ -1,13 +1,11 @@
 import { defineConfig } from 'vite';
-import { viteStaticCopy } from 'vite-plugin-static-copy';
 import ngAnnotate from 'rollup-plugin-ng-annotate';
 
 export default defineConfig({
-  plugins: [
-    viteStaticCopy({
-      targets: [{ src: 'src/lib/**/*', dest: 'src/lib' }]
-    })
-  ],
+  resolve: {
+    // Single jQuery instance for app, jQuery UI, and Bootstrap
+    dedupe: ['jquery']
+  },
   esbuild: {
     minifyIdentifiers: false
   },

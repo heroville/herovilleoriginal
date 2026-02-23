@@ -230,19 +230,19 @@ app.controller("MainController", function ($scope, $interval, $timeout, $http, $
     $scope.heroClass = angular.copy(GameConfig.heroClasses);
 
     $http.get('models/heroName.json')
-        .success(function (data) {
-            $scope.heroName = data;
+        .then(function (response) {
+            $scope.heroName = response.data;
         });
 
     $http.get('models/monsterList.json')
-         .success(function (data) {
-             $scope.monsterList = data;
-         });
+        .then(function (response) {
+            $scope.monsterList = response.data;
+        });
 
     $http.get('models/dungeons.json')
-         .success(function (data) {
-             $scope.dungeonNames = data;
-         });
+        .then(function (response) {
+            $scope.dungeonNames = response.data;
+        });
 
 
     //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////

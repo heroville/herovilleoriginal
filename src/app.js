@@ -1,4 +1,4 @@
-const app = window.angular.module('Incremental', ['ui.bootstrap', 'angulartics', 'angulartics.google.analytics']);
+const app = window.angular.module('Incremental', ['ngAnimate', 'ui.bootstrap', 'angulartics', 'angulartics.google.analytics']);
 window.app = app;
 
 app.directive('ngSlider', function () {
