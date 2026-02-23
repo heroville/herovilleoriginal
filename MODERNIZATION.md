@@ -93,7 +93,7 @@ Phase 2 can be broken into a separate, more detailed plan (e.g. component map, s
 
 1. **Libraries to npm** (1.2) – unblocks cleaner builds and removes vendored files. **Done:** jQuery, jQuery UI, Bootstrap, Angular 1.8, angular-animate, angular-ui-bootstrap, angulartics, angulartics-google-analytics are now npm dependencies; load order is enforced in `src/vendor/jquery-global.js` and `src/main.js`; `src/lib/` is no longer used by the bundle (can be removed after you confirm the app in browser). **Setup:** Use Node 18+ (see `.nvmrc` for 20). Run `npm install` (`.npmrc` uses `legacy-peer-deps=true` for angulartics peer deps). Then `npm run dev` or `npm run build` + `npm run preview`.  
 2. **Split index.html** (1.1) – **Done.** Tab/section markup in `public/partials/` (town, hero, production, professions, bestiary, options, dialogs); inline `ng-template` scripts extracted to `partials/showEquip.html` and `partials/showBattle.html`; GA moved to `src/analytics.js`; single entry `index.html` is layout/shell only.  
-3. **Split maincontroller** (1.3) – extract services first, then thin the controller.  
+3. **Split maincontroller** (1.3) – extract services first, then thin the controller. **Plan:** See [MAINCONTROLLER-SPLIT.md](./MAINCONTROLLER-SPLIT.md) for phased order (SaveLoad → Combat → Dungeon → Hero → Production), per-phase verification, and [VERIFICATION-CHECKLIST.md](./VERIFICATION-CHECKLIST.md) for manual browser checks after each phase.  
 4. **Cleanup** (1.4) – structure, naming, lint, docs.
 
 You can do 1.1 and 1.3 in parallel to some extent (e.g. extract one service and one HTML partial at a time) to keep the app running and testable after each step.

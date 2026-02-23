@@ -1,6 +1,6 @@
 import app from '../app.js';
 
-app.controller("MainController", function ($scope, $interval, $timeout, $http, $compile, GameConfig, EconomyService) {
+app.controller("MainController", function ($scope, $interval, $timeout, $http, $compile, GameConfig, EconomyService, SaveLoadService) {
     $scope.dark=false;
     //DEBUG
     $scope.debugging = false;
@@ -249,186 +249,27 @@ app.controller("MainController", function ($scope, $interval, $timeout, $http, $
     //Game Functions (SAVE/LOAD/RESET) ----------------------------------------------------------------------------------------------------------------------------//
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     $scope.reset = function () {
-        //TODO: Add confirm dialog.
-        const raw = localStorage.getItem('data');
-        if (!raw) {
-            $scope.showError("No save data to reset.");
-            return;
-        }
-        let data;
-        try {
-            data = JSON.parse(raw);
-        } catch (error) {
-            $scope.showError("Failed to reset save data: " + error.message);
-            localStorage.removeItem('data');
-            return;
-        }
-        data.saveVersion = "Reset";
-        localStorage.setItem('data', JSON.stringify(data));
-        location.reload();
-    }
-
+        SaveLoadService.reset($scope);
+    };
 
     $scope.save = function () {
-        let data = {
-            resources: $scope.resources,
-            maxResources: $scope.maxResources,
-            gold: $scope.gold,
-            maxGold: $scope.maxGold,
-            incr: $scope.incr,
-            restAmount: $scope.restAmount,
-            buildings: $scope.buildings,
-            blueprints: $scope.blueprints,
-            heroList: $scope.heroList,
-            weapons: $scope.weapons,
-            potions: $scope.potions,
-            upgrades: $scope.upgrades,
-            journeys: $scope.journeys,
-            bossBattle: $scope.bossBattle,
-            battles: $scope.battles,
-            dungeons: $scope.dungeons,
-            jobs: $scope.jobs,
-            potion: $scope.potion,
-            saveVersion: $scope.version,
-            monsters: $scope.monsters,
-            bosses: $scope.bosses,
-            bestiary: $scope.bestiary,
-            heroTable: $("#showOld").prop("checked"),
-            success: $scope.successCount.amount,
-            losses: $scope.lossCount.amount,
-            party: $scope.party,
-            gameStats: $scope.gameStats,
-            panelNumber: $scope.panelNumber,
-            showTutorial: $scope.showTutorial
-    }
-    localStorage["data"] = JSON.stringify(data);
-    $scope.showError("Game has saved");
-    }
+        SaveLoadService.save($scope, { heroTable: $("#showOld").prop("checked") });
+    };
 
     $scope.loadData = function () {
-        const raw = localStorage.getItem('data');
-        if (!raw) {
-            return;
+        if (SaveLoadService.loadData($scope) && typeof $ !== 'undefined') {
+            $("#showOld").prop("checked", $scope.heroTable);
         }
-        let data;
-        try {
-            data = JSON.parse(raw);
-        } catch (error) {
-            $scope.showError("Failed to load save data. Clearing corrupted save. Error: " + error.message);
-            localStorage.removeItem('data');
-            return;
-        }
-        $scope.resources = data.resources;
-        $scope.maxResources = data.maxResources;
-        $scope.gold = data.gold;
-        $scope.maxGold = data.maxGold;
-        $scope.incr = data.incr;
-        $scope.restAmount = data.restAmount;
-        $scope.dungeons = data.dungeons;
-        $scope.monsters = data.monsters;
-        $scope.bosses = data.bosses;
-        for (let i = 0; i < data.buildings.length; i++) {
-            $scope.buildings[i].cost = data.buildings[i].cost;
-            $scope.buildings[i].count = data.buildings[i].count;
-            $scope.buildings[i].tier = data.buildings[i].tier;
-            $scope.buildings[i].enabled = data.buildings[i].enabled;
-        }
-        for (let i = 0; i < data.blueprints.length; i++) {
-            $scope.blueprints[i].enabled = data.blueprints[i].enabled;
-        }
-        for (let i = 0; i < data.upgrades.length; i++) {
-            $scope.upgrades[i].enabled = data.upgrades[i].enabled;
-        }
-        for (let i = 0; i < data.jobs.length; i++) {
-            $scope.jobs[i].enabled = data.jobs[i].enabled;
-        }
-        $scope.heroList = data.heroList;
-
-        for (let i = 0; i < $scope.heroList.length; i++) {
-            if ($scope.heroList[i].academy.id === GameConfig.heroClasses[0].id || $scope.heroList[i].academy.id === GameConfig.heroClasses[2].id) {
-                $scope.heroList[i].location = 'Home';
-                $scope.heroList[i].progress = 'Idle';
-            }
-            else {
-                $scope.heroList[i].progress = 'Idle';
-            }
-            $scope.heroList[i].autoAdventure = false;
-            $scope.heroList[i].job.current++;
-        }
-        for (let i = 0; i < data.weapons.length; i++) {
-            $scope.weapons[i].minDamage = data.weapons[i].minDamage;
-            $scope.weapons[i].cost = data.weapons[i].cost;
-            $scope.weapons[i].durability = data.weapons[i].durability;
-            $scope.weapons[i].prodTime = data.weapons[i].prodTime;
-            $scope.weapons[i].count = data.weapons[i].count;
-            $scope.weapons[i].maxCount = data.weapons[i].maxCount;
-            $scope.weapons[i].enabled = data.weapons[i].enabled;
-            $scope.weapons[i].working = 0;
-        }
-        for(let i=0; i <data.potions.length; i++){
-            $scope.potions[i].enabled = data.potions[i].enabled
-        }
-        $scope.potion = data.potion;
-        $scope.potion.working = 0;
-        $scope.bestiary = data.bestiary;
-        if ($scope.buildings[0].count > 0) {
-            $scope.heroEnabled = false;
-        }
-        if ($scope.buildings[1].count > 0) {
-            $scope.prodEnabled = false;
-        }
-        if ($scope.buildings[4].count > 0) {
-            $scope.upgEnabled = false;
-        }
-        if ($scope.bestiary) {
-            $scope.beastEnabled = false;
-        }
-        $("#showOld").prop("checked", data.heroTable);
-        $scope.successCount.amount = data.success;
-        $scope.lossCount.amount = data.losses;
-        $scope.party = data.party;
-        $scope.gameStats = data.gameStats;
-        if (data.panelNumber == 22) {
-            $scope.skipTut();
-            $scope.panel = ["Game successfully loaded"];
-        }
-        else {
-            $scope.panelNumber = (data.panelNumber - 1);
-            $scope.showTutorial = data.showTutorial;
-            $scope.nextTutorial();
-            
-        }
-    }
+    };
 
     $scope.load = function () {
-        const raw = localStorage.getItem('data');
-        if (!raw) {
-            return;
+        const result = SaveLoadService.load($scope);
+        if (result === 'version_mismatch') {
+            $("#loading").dialog("open");
+        } else if (result === 'loaded' && typeof $ !== 'undefined') {
+            $("#showOld").prop("checked", $scope.heroTable);
         }
-        let test;
-        try {
-            test = JSON.parse(raw);
-        } catch (error) {
-            $scope.showError("Failed to parse save data. Clearing corrupted save. Error: " + error.message);
-            localStorage.removeItem('data');
-            return;
-        }
-        if (test) {
-            if (test.saveVersion != $scope.version) {
-                if ($scope.forceReset) {
-                    //localStorage.clear();
-                }
-                else {
-                    $("#loading").dialog("open");
-                }
-
-            }
-            else {
-                $scope.loadData();
-            }
-        }
-
-    }
+    };
 
     //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     //Click Functions --------------------------------------------------------------------------------------------------------------------------------------------//
@@ -1219,16 +1060,15 @@ app.controller("MainController", function ($scope, $interval, $timeout, $http, $
             dialogClass: 'loadPopup',
             buttons: {
                 'Accept': function () {
-
                     $scope.loadData();
-                    shouldLoad = true;
+                    if (typeof $ !== 'undefined') {
+                        $("#showOld").prop("checked", $scope.heroTable);
+                    }
                     $(this).dialog('close');
                 },
                 'Cancel': function () {
-                    shouldLoad = true;
                     $(this).dialog('close');
                 }
-
             }
         });
 
