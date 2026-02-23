@@ -1,0 +1,10 @@
+<table class="table table-bordered" ng-hide="!filteredBattle.length">
+    <tr ng-repeat="battle in filteredBattle = (battles | heroBattle:hero)">
+        <td>
+            <div ng-repeat="monster in battle.copyMonsters" id="monsterList">
+                {{monster.name}} ({{monster.minDamage}} - {{monster.maxDamage}}) <uib-progressbar max="monster.maxHealth" value="monster.health" type="danger" style="width:200px"><i>{{monster.health}}/{{monster.maxHealth}}</i></uib-progressbar>
+            </div>
+        </td>
+    </tr>
+</table>
+<div ng-show="!filteredBattle.length">Not in Battle</div>

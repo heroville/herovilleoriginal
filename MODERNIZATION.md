@@ -8,7 +8,7 @@ This document outlines the two-phase plan to bring Heroville from its current st
 
 | Area | Current state |
 |------|----------------|
-| **HTML** | Single ~530-line `index.html` with all UI, inline `<script type="text/ng-template">` blocks, and a small GA script |
+| **HTML** | Shell `index.html` (~115 lines) with layout and `ng-include`; tab/section partials in `public/partials/` (town, hero, production, professions, bestiary, options, dialogs); popover templates (showEquip, showBattle) as separate partials; GA in `src/analytics.js`. |
 | **JS** | One ~2,133-line `maincontroller.js` (MainController + most game logic), plus `app.js` (directives/filters), small config and economy service |
 | **Libraries** | From npm: jquery, jquery-ui-dist, bootstrap, angular, angular-animate, angular-ui-bootstrap, angulartics, angulartics-google-analytics (see `package.json`). Load order in `src/vendor/jquery-global.js` and `src/main.js`. |
 | **Styles** | Bootstrap, jQuery UI custom, `newStyle.css`, `darkStyle.css` in `public/styles/` |
@@ -92,7 +92,7 @@ Phase 2 can be broken into a separate, more detailed plan (e.g. component map, s
 ## Suggested Phase 1 Order
 
 1. **Libraries to npm** (1.2) – unblocks cleaner builds and removes vendored files. **Done:** jQuery, jQuery UI, Bootstrap, Angular 1.8, angular-animate, angular-ui-bootstrap, angulartics, angulartics-google-analytics are now npm dependencies; load order is enforced in `src/vendor/jquery-global.js` and `src/main.js`; `src/lib/` is no longer used by the bundle (can be removed after you confirm the app in browser). **Setup:** Use Node 18+ (see `.nvmrc` for 20). Run `npm install` (`.npmrc` uses `legacy-peer-deps=true` for angulartics peer deps). Then `npm run dev` or `npm run build` + `npm run preview`.  
-2. **Split index.html** (1.1) – smaller files and clearer structure for later migration.  
+2. **Split index.html** (1.1) – **Done.** Tab/section markup in `public/partials/` (town, hero, production, professions, bestiary, options, dialogs); inline `ng-template` scripts extracted to `partials/showEquip.html` and `partials/showBattle.html`; GA moved to `src/analytics.js`; single entry `index.html` is layout/shell only.  
 3. **Split maincontroller** (1.3) – extract services first, then thin the controller.  
 4. **Cleanup** (1.4) – structure, naming, lint, docs.
 

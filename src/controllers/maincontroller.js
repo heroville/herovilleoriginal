@@ -1141,137 +1141,140 @@ app.controller("MainController", function ($scope, $interval, $timeout, $http, $
         $scope.panelInfo = true;
     }
 
-    $("#dialog").dialog({
-        closeOnEscape: false,
-        open: function (event, ui) {
-            $(".ui-dialog-titlebar-close", ui.dialog || ui).hide();
-            $("#name").val($scope.newHeroName());
-        },
-        autoOpen: false,
-        modal: true,
-        dialogClass: 'heroPopup',
-        buttons: {
-            'Accept': function () {
-                let hName = $("#name").val();
-                let valid = true;
-                if (hName == "" || hName == null) {
-                    document.getElementById("error").innerHTML = "You must enter a valid name for the hero.";
-                    valid = false;
-                }
-                for (let i = 0; i < $scope.heroList.length; i++) {
-                    if ($scope.heroList[i].name == hName) {
+    // Defer dialog init so jQuery UI doesn't move DOM nodes during Angular's link phase (avoids childNodes undefined error)
+    $timeout(function () {
+        $("#dialog").dialog({
+            closeOnEscape: false,
+            open: function (event, ui) {
+                $(".ui-dialog-titlebar-close", ui.dialog || ui).hide();
+                $("#name").val($scope.newHeroName());
+            },
+            autoOpen: false,
+            modal: true,
+            dialogClass: 'heroPopup',
+            buttons: {
+                'Accept': function () {
+                    let hName = $("#name").val();
+                    let valid = true;
+                    if (hName == "" || hName == null) {
+                        document.getElementById("error").innerHTML = "You must enter a valid name for the hero.";
                         valid = false;
-                        document.getElementById("error").innerHTML = "A hero with this name already exists."
                     }
-                }
-                if (valid) {
-                    $scope.addHero(hName);
+                    for (let i = 0; i < $scope.heroList.length; i++) {
+                        if ($scope.heroList[i].name == hName) {
+                            valid = false;
+                            document.getElementById("error").innerHTML = "A hero with this name already exists."
+                        }
+                    }
+                    if (valid) {
+                        $scope.addHero(hName);
 
+                        $(this).dialog('close');
+                    }
+
+                }
+            }
+        });
+
+        $("#dialog2").dialog({
+            closeOnEscape: false,
+            open: function (event, ui) {
+                $(".ui-dialog-titlebar-close", ui.dialog || ui).hide();
+                $("#name2").val($scope.newHeroName());
+            },
+            autoOpen: false,
+            modal: true,
+            dialogClass: 'workerPopup',
+            buttons: {
+                'Accept': function () {
+                    wName = $("#name2").val();
+                    valid = true;
+                    if (wName == "" || wName == null) {
+                        document.getElementById("error").innerHTML = "You must enter a valid name for the worker.";
+                        valid = false;
+                    }
+                    for (let i = 0; i < $scope.heroList.length; i++) {
+                        if ($scope.heroList[i].name == wName) {
+                            valid = false;
+                            document.getElementById("error").innerHTML = "A worker with this name already exists."
+                        }
+                    }
+                    if (valid) {
+                        $scope.addWorker(wName);
+
+                        $(this).dialog('close');
+                    }
+
+                }
+            }
+        });
+
+        $("#loading").dialog({
+            closeOnEscape: false,
+            open: function (event, ui) {
+                $(".ui-dialog-titlebar-close", ui.dialog || ui).hide();
+            },
+            autoOpen: false,
+            modal: true,
+            dialogClass: 'loadPopup',
+            buttons: {
+                'Accept': function () {
+
+                    $scope.loadData();
+                    shouldLoad = true;
+                    $(this).dialog('close');
+                },
+                'Cancel': function () {
+                    shouldLoad = true;
                     $(this).dialog('close');
                 }
 
             }
-        }
-    });
-$(document).ready(function(){
-    $("#paypal").click( function() {
-        ga('send', 'event', 'Clicks', 'Paypal');
-});
+        });
 
-   $("#reddit").click( function() {
-        ga('send', 'event', 'Clicks', 'Reddit');
-});
+        $("#version").dialog({
+            closeOnEscape: true,
+            open: function (event, ui) {
 
-   $("#patreon").click( function() {
-        ga('send', 'event', 'Clicks', 'Patreon');
-});
-});
-
-
-    $("#dialog2").dialog({
-        closeOnEscape: false,
-        open: function (event, ui) {
-            $(".ui-dialog-titlebar-close", ui.dialog || ui).hide();
-            $("#name2").val($scope.newHeroName());
-        },
-        autoOpen: false,
-        modal: true,
-        dialogClass: 'workerPopup',
-        buttons: {
-            'Accept': function () {
-                wName = $("#name2").val();
-                valid = true;
-                if (wName == "" || wName == null) {
-                    document.getElementById("error").innerHTML = "You must enter a valid name for the worker.";
-                    valid = false;
-                }
-                for (let i = 0; i < $scope.heroList.length; i++) {
-                    if ($scope.heroList[i].name == wName) {
-                        valid = false;
-                        document.getElementById("error").innerHTML = "A worker with this name already exists."
-                    }
-                }
-                if (valid) {
-                    $scope.addWorker(wName);
-
+            },
+            autoOpen: false,
+            modal: true,
+            dialogClass: 'loadPopup',
+            buttons: {
+                'Close': function () {
                     $(this).dialog('close');
                 }
 
             }
-        }
-    });
+        });
 
-    $("#loading").dialog({
-        closeOnEscape: false,
-        open: function (event, ui) {
-            $(".ui-dialog-titlebar-close", ui.dialog || ui).hide();
-        },
-        autoOpen: false,
-        modal: true,
-        dialogClass: 'loadPopup',
-        buttons: {
-            'Accept': function () {
-
-                $scope.loadData();
-                shouldLoad = true;
-                $(this).dialog('close');
-            },
-            'Cancel': function () {
-                shouldLoad = true;
-                $(this).dialog('close');
+        $("#confirm").dialog({
+            autoOpen: false,
+            modal: true,
+            buttons: {
+                "Confirm": function () {
+                    $scope.confirmClass();
+                    $(this).dialog("close");
+                },
+                "Cancel": function () {
+                    $(this).dialog("close");
+                }
             }
+        });
+    }, 0);
 
-        }
-    });
+    $(document).ready(function(){
+        $("#paypal").click( function() {
+            ga('send', 'event', 'Clicks', 'Paypal');
+        });
 
-    $("#version").dialog({
-        closeOnEscape: true,
-        open: function (event, ui) {
-            
-        },
-        autoOpen: false,
-        modal: true,
-        dialogClass: 'loadPopup',
-        buttons: {
-            'Close': function () {
-                $(this).dialog('close');
-            }
+        $("#reddit").click( function() {
+            ga('send', 'event', 'Clicks', 'Reddit');
+        });
 
-        }
-    });
-
-    $("#confirm").dialog({
-        autoOpen: false,
-        modal: true,
-        buttons: {
-            "Confirm": function () {
-                $scope.confirmClass();
-                $(this).dialog("close");
-            },
-            "Cancel": function () {
-                $(this).dialog("close");
-            }
-        }
+        $("#patreon").click( function() {
+            ga('send', 'event', 'Clicks', 'Patreon');
+        });
     });
 
     //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////

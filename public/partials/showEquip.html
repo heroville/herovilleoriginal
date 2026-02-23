@@ -1,0 +1,4 @@
+<img ng-src="images/{{hero.equip.weapon.image}}" />
+{{hero.equip.weapon.name}} ({{hero.equip.weapon.minDamage}}-{{hero.equip.weapon.maxDamage}}) {{hero.equip.weapon.durability}}
+<div ng-repeat="accessory in hero.equip.accessory"><img ng-src="images/{{accessory.image}}" />{{accessory.name}} | {{accessory.durability}}</div>
+<div ng-repeat="pot in hero.equip.potions"><img ng-src="images/{{pot.image}}" />{{pot.name}} | {{pot.count}}</div>

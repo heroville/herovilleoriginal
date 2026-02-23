@@ -17,7 +17,10 @@ import 'angular-ui-bootstrap/ui-bootstrap-tpls.min.js';
 import 'angulartics';
 import 'angulartics-google-analytics';
 
-// 4. App
+// 4. Analytics (GA) – keeps index.html structure-only
+import './analytics.js';
+
+// 5. App
 import app from './app.js';
 import './controllers/gameConfig.constant.js';
 import './controllers/economy.service.js';
