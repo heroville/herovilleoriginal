@@ -1,6 +1,6 @@
 import app from '../app.js';
 
-app.controller("MainController", function ($scope, $interval, $timeout, $http, $compile, GameConfig, EconomyService, SaveLoadService) {
+app.controller("MainController", function ($scope, $interval, $timeout, $http, $compile, GameConfig, EconomyService, SaveLoadService, CombatService) {
     $scope.dark=false;
     //DEBUG
     $scope.debugging = false;
@@ -1450,313 +1450,44 @@ app.controller("MainController", function ($scope, $interval, $timeout, $http, $
     }
 
     $scope.startFight = function(monList, journey, boss) {
-        let thisBattle = $scope.battles.length;
-        $scope.battles[thisBattle] = {
-            id: thisBattle,
-            hero: journey.hero,
-            copyMonsters: monList.slice(),
-            experience: 0,
-            boss: boss
-        }
-        $scope.activatePotions(journey.hero);
-        $scope.takeTurn($scope.battles[thisBattle], journey);
-    }
+        CombatService.startFight($scope, monList, journey, boss);
+    };
 
-    $scope.activatePotions = function(hero){
-        for(let i=0;i<hero.length;i++){
-        if(hero[i].equip.potions[0].count > 0){
-            hero[i].equip.potions[0].active = true;
-        }
-        if(hero[i].equip.potions[1].count >0){
-            hero[i].equip.potions[1].active = true;
-        }
-        }
-
-    }
+    $scope.activatePotions = function(hero) {
+        CombatService.activatePotions(hero);
+    };
 
     $scope.takeTurn = function(battle, journey) {
-        let turnDamage = 0;
-        let hero = journey.hero;
-        let monstersList = battle.copyMonsters
+        CombatService.takeTurn($scope, battle, journey);
+    };
 
-        // Start/ of hero turn
-        let dead;
-        dead = $scope.heroTurn(hero, monstersList);
-        $scope.debugLog("Arrived after heroTurn");    
+    $scope.clearPotions = function(hero) {
+        CombatService.clearPotions(hero);
+    };
 
-        // Start/ of monsters turn
-        
-
-        if (!$scope.monstersAlive(monstersList)) {
-            // Win/ battle what happens?
-            $scope.gameStats.wins++;
-            for(let i=1;i<hero.length;i++){
-                $scope.clearPotions(hero[i]);
-            }
-            for (let j = 0; j < monstersList.length; j++) {
-                for (let i = 0; i < hero.length; i++) {
-                    if (hero[i].level <= (journey.dungeon.level * 2)) {
-                        battle.experience += (monstersList[j].value * 5);
-                    }
-                    let lootChance = Math.random() * 100;
-                        if (lootChance < 10) {
-                            if (monstersList[j].high != null) {
-                                $scope.addLoot(monstersList[j].high, hero[i]);
-                            }
-
-                        }
-
-                }
-            }
-            if (battle.boss) {
-                for (let i = 0; i < hero.length; i++) {
-                    if ((hero[i].dungeon + 1) < $scope.dungeons.length) {
-                        if (hero[i].clearCount >= $scope.successCount.amount) {
-                            hero[i].dungeon++;
-                            hero[i].clearCount = 0;
-                        }
-                        else {
-                            hero[i].clearCount++;
-                        }
-
-                    }
-                    hero[i].location = 'Home';
-                    hero[i].progress = "Resting";
-                    $scope.addLoot(journey.dungeon.reward, hero[i]);
-                }
-            }
-            else {
-                for (let k = 0; k < hero.length; k++) {
-                    journey.steps++;
-                    hero[k].progress = Math.round((journey.steps / journey.dungeon.steps) * 100) + "%" + " Complete";
-                }
-
-                $timeout(function () { $scope.travel(journey) }, $scope.gameLoop);
-
-            }
-            for (let i = 0; i < hero.length; i++) {
-                
-                $scope.gainExp(hero[i],battle.experience);
-                
-            }
-            $scope.debugLog("winner");
-            $scope.battles.splice($scope.battles.indexOf(battle), 1);
-            $scope.debugLog($scope.battles.length);
-        }
-
-        else if ($scope.enemyTurn(hero, monstersList)) {
-            for (let i = 0; i < hero.length; i++) {
-                // Lost/ battle what happens?
-                $scope.battles.splice($scope.battles.indexOf(battle), 1);
-                $scope.gameStats.losses++;
-                hero[i].location = 'Home';
-                hero[i].currHealth = 0;
-                hero[i].progress = "Resting";
-                hero[i].equip.weapon = $.extend(true, {}, $scope.weapons[0]);
-                $scope.clearPotions(hero[i]);
-                if ($scope.buildings[0].tier == 1) {
-                    hero[i].experience = 0;
-                    hero[i].equip.scrap = 0;
-                    hero[i].equip.gold = 0;
-                    hero[i].level = 1;
-                    hero[i].next = 50;
-                    hero[i].health = 100;
-                    hero[i].dungeon = 0;
-                    $scope.showError("A hero has lost a fight, he has also lost all his progress and must start again.");
-                    
-                }
-                else {
-                    if ((hero[i].dungeon - $scope.lossCount.amount) > 0) {
-                        hero[i].dungeon -= $scope.lossCount.amount;
-                    }
-                    else {
-                        hero[i].dungeon = 0;
-                    }
-                    $scope.showError("A hero lost a fight, he has respawned in town and must heal before fighting.")
-                }
-                $scope.debugLog("loser");
-            }
-
-
-        }
-        else {
-            $timeout(function () { $scope.takeTurn(battle, journey) }, $scope.gameLoop);
-        }
-    }      
-
-    $scope.clearPotions = function(hero){
-        for (let i=1; i < hero.equip.potions.length; i++){
-            if(hero.equip.potions[i].active){
-                hero.equip.potions[i].amount--;
-            }
-        }
-    }
-
-    // Hero/ turn during battle
     $scope.heroTurn = function(heroL, enemyL) {
-        let damage = 0;
-        $scope.debugLog("Arrived in heroTurn");
-        for (let i = 0; i < heroL.length; i++) {
-            if (heroL[i].currHealth > 0) {
-                if(heroL[i].equip.potions[0].active){
-                    heal(i, $scope.potions[0].value, 1);
-                }
-                damage += $scope.heroDamage(heroL[i]);
-            }
-            $scope.debugLog("Doing " + damage + " damage");
-        }
-        let dead = 0;
-        for (let i = 0; i < enemyL.length; i++) {
-            if (enemyL[i].health == 0) {
-                dead++;
-            }
-        }
-        let tempDead = [];
-        for (let i = 0; i < enemyL.length; i++) {
-            if (enemyL[i].health == 0) {
-            }
-            else if (enemyL[i].health < (damage)) {
-                enemyL[i].health = 0;
-                tempDead[tempDead.length] = enemyL[i];
-                damage = 0;
-            }
-            else {
-                enemyL[i].health -= damage;
-                damage = 0;
-            }
-        }
-        return tempDead
-    }
+        return CombatService.heroTurn($scope, heroL, enemyL);
+    };
 
     $scope.heroDamage = function(hero) {
-        if (hero.equip.weapon.id != $scope.weapons[0].id) {
-            if(hero.equip.weapon.broken == false){
-            if (hero.equip.weapon.durability <= 0) {
-                    hero.equip.weapon.minDamage = Math.ceil(hero.equip.weapon.minDamage/2);
-                    hero.equip.weapon.maxDamage = Math.ceil(hero.equip.weapon.maxDamage/2);
-                    hero.equip.weapon.broken = true;
-            }
-            else {
-                hero.equip.weapon.durability--;
-            }
-            }
+        return CombatService.heroDamage($scope, hero);
+    };
 
-            let min = hero.equip.weapon.minDamage;
-            let max = hero.equip.weapon.maxDamage;
-            let damage = (Math.floor(Math.random() * (max - min + 1))) + min;
-            let heroDamageMulti = 1;
-            if(hero.equip.potions[1].active == true){
-                heroDamageMulti = 1.5;
-            }
-            return Math.ceil(damage * $scope.damageMulti * heroDamageMulti);
-        }
-        else {
-            return 1 * $scope.damageMulti;
-        }
-    }
+    $scope.monstersAlive = function(monsterList) {
+        return CombatService.monstersAlive(monsterList);
+    };
 
-    $scope.monstersAlive = function (monsterList) {
-        let dead = 0;
-        for (let i = 0; i < monsterList.length; i++) {
-            if (monsterList[i].health <= 0) {
-                dead++
-            }
-        }
-        return (monsterList.length != dead)
-    }
-
-    // enemy/ Turn
-    $scope.enemyTurn = function (hero, monsterList) {
-        let turnDamage = 0;
-        for (let i = 0; i < monsterList.length; i++) {
-            if (monsterList[i].health > 0) {
-                let mobDam = $scope.enemyDamage(monsterList[i]);
-                turnDamage += mobDam;
-            }
-        }
-        $scope.debugLog("Taking " + turnDamage + " damage");
-        let dead = 0;
-        for (let k = 0; k < hero.length; k++) {
-            
-            if (hero[k].currHealth <= 0){
-                dead++;
-            }
-        }
-        for (let k = 0; k < hero.length; k++) {
-            if (hero[k].currHealth <= 0) {
-                $scope.debugLog("Hero is already Dead");
-            }
-            else if (hero[k].currHealth <= turnDamage / (hero.length - dead)) {
-                hero[k].currHealth = 0;
-                $scope.debugLog("Hero Died");
-                dead++;
-            }
-            else {
-                let heroDamage = Math.floor(turnDamage / (hero.length - dead));
-                if (k < heroDamage % (hero.length - dead)) {
-                    heroDamage++;
-                    
-                }
-                $scope.debugLog("Taking " + turnDamage + " damage");
-                hero[k].currHealth -= heroDamage;
-                if(hero[k].equip.potions[4].count > 0 && hero[k].health - hero[k].currHealth > $scope.potions[4].value){
-                    hero[k].equip.potions[4].count--;
-                    heal(k,$scope.potions[4].value);
-                }
-                else if(hero[k].equip.potions[3].count > 0 && hero[k].health - hero[k].currHealth > $scope.potions[3].value){
-                    hero[k].equip.potions[3].count--;
-                    heal(k,$scope.potions[3].value);
-                }
-                else if(hero[k].equip.potions[2].count > 0 && hero[k].health - hero[k].currHealth > $scope.potions[2].value){
-                    hero[k].equip.potions[2].count--;
-                    heal(k,$scope.potions[2].value);
-                }
-                
-            }
-            
-        }
-        return (hero.length == dead)
-    }
+    $scope.enemyTurn = function(hero, monsterList) {
+        return CombatService.enemyTurn($scope, hero, monsterList);
+    };
 
     $scope.enemyDamage = function(enemy) {
-        if (enemy.health <= 0)
-            return 0;
-        else {
-            let min = enemy.minDamage;
-            let max = enemy.maxDamage;
-            let damage = (Math.floor(Math.random() * (max - min + 1))) + min;
-            return damage;
-        }
-        
-
-
-    }
-
-
+        return CombatService.enemyDamage(enemy);
+    };
 
     $scope.addLoot = function(item, hero) {
-        if (item != null) {
-            let itemsplit = item.split(";");
-            let itemName = itemsplit[0];
-            let itemType = itemsplit[1];
-            let itemValue = itemsplit[2];
-            if (hero.academy.id === GameConfig.heroClasses[2].id) {
-                itemValue += Math.ceil(itemValue * .15);
-            }
-            $scope.debugLog(itemType);
-            switch (itemType) {
-                case 'j': {
-                    hero.equip.scrap += parseInt(itemValue);
-                    break;
-                }
-                case 'g': {
-                    hero.equip.gold += parseInt(itemValue);
-                    break;
-                }
-            }
-        }
-
-    }
+        CombatService.addLoot($scope, item, hero);
+    };
 
     $scope.changeTheme = function(){
         $scope.dark=!$scope.dark;
@@ -1955,6 +1686,7 @@ app.controller("MainController", function ($scope, $interval, $timeout, $http, $
         }
 
     }
+    $scope.heal = heal;
 
     $scope.greaterThan = function (prop, val) {
         return function (item) {

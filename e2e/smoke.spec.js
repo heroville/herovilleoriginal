@@ -52,4 +52,43 @@ test.describe('Heroville smoke', () => {
     await page.getByRole('link', { name: 'Hero' }).click();
     await expect(page.locator('#heroList')).toContainText(heroName, { timeout: 5000 });
   });
+
+  test('Town shows dungeon list after first Tent', async ({ page }) => {
+    await page.goto('/');
+    const gather = page.locator('#gatherButton').first();
+    for (let i = 0; i < 6; i++) await gather.click();
+
+    await page.getByRole('link', { name: 'Town' }).click();
+    await page.getByRole('button', { name: 'Improve Tent' }).click();
+    await expect(page.locator('#name')).toBeVisible({ timeout: 5000 });
+    await page.locator('#name').fill('DungeonTestHero');
+    await page.locator('.heroPopup').getByRole('button', { name: 'Accept' }).click();
+
+    await page.getByRole('link', { name: 'Town' }).click();
+    const townPanel = page.locator('section#container').filter({ hasText: 'Buildings' });
+    await expect(townPanel).toContainText('Dungeons', { timeout: 5000 });
+    await expect(townPanel).toContainText(/Encounter Rate|Length/, { timeout: 3000 });
+  });
+
+  test('combat runs and win/loss stats update after hero adventures', async ({ page }) => {
+    await page.goto('/');
+    const gather = page.locator('#gatherButton').first();
+    for (let i = 0; i < 6; i++) await gather.click();
+
+    await page.getByRole('link', { name: 'Town' }).click();
+    await page.getByRole('button', { name: 'Improve Tent' }).click();
+    await expect(page.locator('#name')).toBeVisible({ timeout: 5000 });
+    await page.locator('#name').fill('CombatTestHero');
+    await page.locator('.heroPopup').getByRole('button', { name: 'Accept' }).click();
+
+    await page.getByRole('link', { name: 'Options/Help' }).click();
+    const tips = page.locator('#tips');
+    await expect(tips).toContainText(/Total Battles:|Wins:|Losses:/, { timeout: 5000 });
+
+    await expect(tips).toContainText(/Total Battles: [1-9]|Wins: [1-9]|Losses: [1-9]/, { timeout: 55000 });
+
+    await page.locator('a[uib-tab-heading-transclude]').filter({ hasText: /^Hero$/ }).click();
+    await expect(page.locator('#heroList')).toContainText('CombatTestHero');
+    await expect(page.locator('#heroList')).toContainText(/Location: Home|Location: Cave|Resting|Complete|Fighting/);
+  });
 });
