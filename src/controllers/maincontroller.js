@@ -1,6 +1,6 @@
 import app from '../app.js';
 
-app.controller("MainController", function ($scope, $interval, $timeout, $http, $compile, GameConfig, EconomyService, SaveLoadService, CombatService) {
+app.controller("MainController", function ($scope, $interval, $timeout, $http, $compile, GameConfig, EconomyService, SaveLoadService, CombatService, DungeonService) {
     $scope.dark=false;
     //DEBUG
     $scope.debugging = false;
@@ -507,21 +507,8 @@ app.controller("MainController", function ($scope, $interval, $timeout, $http, $
     }
 
     $scope.activateDungeon = function () {
-        $scope.dungeons[$scope.dungeons.length] = {
-            id: $scope.dungeons.length,
-            name: $scope.dungeonName(),
-            level: $scope.dungeons.length + 1,
-            steps: 15 * ($scope.dungeons.length + 1),
-            encounterRate: (15 + Math.floor(Math.random() * 6)),
-            encounterLevel: $scope.dungeons.length + 2,
-            bossID: $scope.dungeons.length,
-            enabled: true,
-            reward: ("Gold;g;" + ($scope.dungeons.length + 1))
-        }
-        $scope.createMonster($scope.dungeons.length);
-        $scope.createBoss($scope.dungeons.length - 1);
-
-    }
+        DungeonService.activateDungeon($scope);
+    };
 
     $scope.heroProfession = function (selectedJobID, heroID) {
         
@@ -1248,83 +1235,16 @@ app.controller("MainController", function ($scope, $interval, $timeout, $http, $
     }
 
     $scope.createMonster = function (level) {
+        DungeonService.createMonster($scope, level);
+    };
 
-        let monsterList = $scope.monsterList.monsters;
-        for (let i = 0; i < $scope.monsters.length; i++) {
-            for (let j = 0; j < monsterList.length; j++) {
-                if (monsterList[j].name == $scope.monsters[i].name) {
-                    monsterList.splice(j, 1);
-                }
-            }
-        }
-        for (let i = 0; i < 3; i++) {
-            let random = Math.floor(Math.random() * monsterList.length);
-            let randomMax = Math.ceil(Math.random() * (level*level + 1));
-            let randomMin = Math.ceil(Math.random() * (randomMax));
-            let averagedmg = Math.ceil((randomMax + randomMin) / 2);
-            let mobHealth = Math.floor(((5 * level) / averagedmg) * (level * level));
-            $scope.monsters[$scope.monsters.length] = {
-                id: $scope.monsters.length,
-                name: monsterList[random].name,
-                value: level,
-                minDamage: randomMin,
-                maxDamage: randomMax,
-                health: mobHealth,
-                low: "Junk;j;" + (level * 3),
-                high: "Gold;g;" + level
-            }
-            $scope.debugLog("Created " + $scope.monsters[($scope.monsters.length - 1)].name);
-            monsterList.splice(random, 1);
-        }
+    $scope.createBoss = function (level) {
+        DungeonService.createBoss($scope, level);
+    };
 
-    }
-
-    $scope.createBoss = function(level) {
-        level += 2;
-        let monsterList = $scope.monsterList.monsters;
-        for (let i = 0; i < $scope.bosses.length; i++) {
-            for (j = 0; j < monsterList.length; j++) {
-                if (monsterList[j].name == $scope.bosses[i].name) {
-                    monsterList.splice(j, 1);
-                }
-            }
-        }
-
-        let random = Math.floor(Math.random() * monsterList.length);
-        let randomMax = Math.ceil(Math.random() * (level * level + 1));
-        let randomMin = Math.ceil(Math.random() * (randomMax));
-        let averagedmg = Math.ceil((randomMax + randomMin) / 2);
-        let mobHealth = Math.floor(((5 * level) / averagedmg) * (level * level));
-        $scope.bosses[$scope.bosses.length] = {
-            id: $scope.bosses.length,
-            name: monsterList[random].name,
-            value: level,
-            minDamage: randomMin,
-            maxDamage: randomMax,
-            health: mobHealth,
-            low: "Junk;j;" + (level * 3),
-            high: "Gold;g;" + level
-        }
-        $scope.debugLog("Created " + $scope.bosses[($scope.bosses.length - 1)].name);
-        monsterList.splice(random, 1);
-
-    }
-
-    $scope.dungeonName = function() {
-        let dList = $scope.dungeonNames.dungeons.slice();
-        for (let i = 0; i < $scope.dungeons.length; i++) {
-            for (j = 0; j < dList.length; j++) {
-                if (dList[j] == $scope.dungeons[i].name) {
-                    $scope.debugLog("Removed " + dList[j]);
-                    dList.splice(j, 1);
-
-                }
-            }
-        }
-        let random = Math.floor(Math.random() * dList.length);
-        let name = dList[random];
-        return name
-    }
+    $scope.dungeonName = function () {
+        return DungeonService.dungeonName($scope);
+    };
 
 
 
