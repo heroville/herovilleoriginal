@@ -51,6 +51,7 @@ test.describe('Heroville smoke', () => {
 
     await page.getByRole('link', { name: 'Hero' }).click();
     await expect(page.locator('#heroList')).toContainText(heroName, { timeout: 5000 });
+    await expect(page.locator('#heroList')).toContainText('Class: Adventurer');
   });
 
   test('Town shows dungeon list after first Tent', async ({ page }) => {
@@ -94,6 +95,27 @@ test.describe('Heroville smoke', () => {
 
     const dungeonTable = townPanel.locator('table').filter({ hasText: 'Encounter Rate' });
     await expect(dungeonTable.locator('tr')).toHaveCount(4, { timeout: 5000 });
+  });
+
+  test('Production tab shows potion UI after Stockpile (ProductionService)', async ({ page }) => {
+    await page.goto('/');
+    const gather = page.locator('#gatherButton').first();
+    for (let i = 0; i < 5; i++) await gather.click();
+
+    await page.getByRole('link', { name: 'Town' }).click();
+    await page.getByRole('button', { name: 'Improve Tent' }).click();
+    await expect(page.locator('#name')).toBeVisible({ timeout: 5000 });
+    await page.locator('#name').fill('ProdTestHero');
+    await page.locator('.heroPopup').getByRole('button', { name: 'Accept' }).click();
+
+    for (let i = 0; i < 25; i++) await gather.click();
+    await page.getByRole('link', { name: 'Town' }).click();
+    await page.getByRole('button', { name: 'Improve Stockpile' }).click();
+
+    await page.locator('a[uib-tab-heading-transclude]').filter({ hasText: /^Production$/ }).click();
+    const productionSection = page.locator('section#containter');
+    await expect(productionSection).toContainText('Healing Herbs', { timeout: 5000 });
+    await expect(productionSection).toContainText('Create Potion');
   });
 
   test('combat runs and win/loss stats update after hero adventures', async ({ page }) => {

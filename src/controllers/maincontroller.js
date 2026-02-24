@@ -1,6 +1,6 @@
 import app from '../app.js';
 
-app.controller("MainController", function ($scope, $interval, $timeout, $http, $compile, GameConfig, EconomyService, SaveLoadService, CombatService, DungeonService) {
+app.controller("MainController", function ($scope, $interval, $timeout, $http, $compile, GameConfig, EconomyService, SaveLoadService, CombatService, DungeonService, HeroService, ProductionService, UiService, UtilService, BuildingService) {
     $scope.dark=false;
     //DEBUG
     $scope.debugging = false;
@@ -275,287 +275,55 @@ app.controller("MainController", function ($scope, $interval, $timeout, $http, $
     //Click Functions --------------------------------------------------------------------------------------------------------------------------------------------//
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-    //function to increment resources on click
     $scope.incrRes = function (multi) {
-        multi = multi || 1;
-        $scope.gameStats.clicks++;
-        $scope.incResources(multi);
-    }
+        EconomyService.incrRes(multi);
+    };
 
 
 
-    //function to Incrmeent the current building
+    $scope.openHeroDialog = function () { $("#dialog").dialog("open"); };
+    $scope.openWorkerDialog = function () { $("#dialog2").dialog("open"); };
+    $scope.disablePotionButton = function (id) {
+        if (id === -1) $('#potionButt').attr('disabled', 'disabled');
+        else $('#a' + id).attr('disabled', 'disabled');
+    };
+    $scope.disableWeaponButton = function (id) { $('#w' + id).attr('disabled', 'disabled'); };
 
     $scope.incrBuilding = function (building) {
-        if (EconomyService.decResources(building.cost)) {
-            building.count++;
-            building.cost = Math.ceil(building.cost + Math.pow((building.count + 1), building.multiplier));
-            if (building.id == 0 && $scope.buildings[1].enabled == false) {
-                //Enable Town Hall
-                $scope.buildings[1].enabled = true;
-                $scope.buildings[6].enabled = true;
-                //Activate First Dungeon
-                $scope.activateDungeon();
-                $scope.createMonster(1);
-            }
-            switch (building.id) {
-                //Building Tent
-                case 0: {
-                    $("#dialog").dialog("open");
-                    $scope.heroEnabled = false;
-                    if (building.count == 5) {
-                        $scope.activateBlueprint(3);
-                    }
-                    if ($scope.panelNumber == 3) {
-                        $scope.nextTutorial();
-                    }
-                    break;
-                }
-                    // Building Stockpile
-                case 1: {
-                    let multip = building.cost;                    
-                    $scope.maxResources = building.cost + Math.floor(building.cost / 10);
-                    $scope.maxGold = Math.floor(building.cost / 10);
-                    if ($scope.buildings[2].count == 0) {
-                        $scope.buildings[2].enabled = true;
-                        $scope.prodEnabled = false;
-                        $scope.jobs[1].enabled = true;
-                    }
-                    else if ($scope.buildings[4].count == 0) {
-                        $scope.activateBlueprint(2);
-                    }
-                    if ($scope.panelNumber == 6) {
-                        $scope.nextTutorial();
-                    }
-                    break;
-                }
-                    //Building Market
-                case 2: {
-                    if (!$scope.buildings[3].enabled) {
-                        $scope.blueprints[0].enabled = true;
-                        $scope.buildings[2].enabled = false;
-                        if ($scope.panelNumber == 13) {
-                            $scope.nextTutorial();
-                        }
-                    }
-                    break;
-                }
-                    //Building Blacksmith
-                case 3: {
-                    if ($scope.buildings[3].count + 1 < $scope.weapons.length) {
-                        $scope.weapons[$scope.buildings[3].count].enabled = true;
-                        if ($scope.panelNumber == 15) {
-                            $scope.nextTutorial();
-                        }
-                    }
-                    else {
-                        $scope.weapons[$scope.buildings[3].count].enabled = true;
-
-                        $scope.buildings[3].enabled = false;
-                    }
-                    if($scope.buildings[3].count % 3 == 0){
-                        $scope.jobs[2].limit++;
-                    }
-                    $scope.jobs[2].enabled = true;
-                    break;
-                }
-                    //Build Tavern
-                case 4: {
-                    $scope.buildings[4].enabled = false;
-                    $scope.upgEnabled = false;
-                    $scope.buildings[9].enabled = true;
-
-                    if ($scope.panelNumber == 19) {
-                        $scope.nextTutorial();
-                    }
-                    break;
-                }
-                    //Build Alchemist
-                case 5: {
-                        if ($scope.buildings[5].count + 1 < $scope.potions.length) {
-                        $scope.potions[$scope.buildings[5].count-1].enabled = true;
-                    }
-                    else {
-                        $scope.potions[$scope.buildings[5].count].enabled = true;
-                        $scope.buildings[5].enabled = false;
-                    }
-                    if($scope.buildings[5].count % 3 == 0){
-                        $scope.jobs[1].limit++;
-                    }
-
-                    break;
-                }
-                    //Build Dungeon
-                case 6: {
-                    if ($scope.dungeons.length < 14) {
-                        $scope.activateDungeon();
-                        if ($scope.panelNumber == 11) {
-                            $scope.nextTutorial();
-                        }
-                    }
-                    else {
-                        
-                        $scope.activateDungeon();
-                        $scope.activateBlueprint(4);
-                        $scope.buildings[6].enabled = false;
-                    }
-                    break;
-                }
-                    //Build Bestiary
-                case 7: {
-                    $scope.buildings[7].enabled = false;
-                }
-                case 9: {
-                    $("#dialog2").dialog("open");
-                }
-            }
-
-
-        }
-        else {
-            $scope.showError("You do not have enough Resources");
-        }
-    }
+        BuildingService.incrBuilding($scope, building);
+    };
 
     $scope.incrBlueprint = function (blueprint) {
-        if (EconomyService.decGold(blueprint.cost)) {
-            blueprint.enabled = false;
-            if (blueprint.buildingID > 0) {
-                $scope.buildings[blueprint.buildingID].enabled = true;
-                blueprint.cost = 0;
-                if ($scope.panelNumber == 14) {
-                    $scope.nextTutorial();
-                }
-            }
-            else {
-                switch (blueprint.buildingID) {
-                    case -1: {
-                        
-                    }
-                    case -2: {
-                        $scope.bestiary = true;
-                        $scope.beastEnabled = false;
-                        break;
-                    }
-                }
-            }
-        }
-        else {
-            $scope.showError("You do not have enough Gold");
-        }
-    }
+        BuildingService.incrBlueprint($scope, blueprint);
+    };
 
 
 
 
     $scope.purchaseWeapon = function (weapon) {
-        if ($scope.weapons[weapon].count + $scope.weapons[weapon].working < $scope.weapons[weapon].maxCount) {
-            if ($scope.resources >= $scope.weapons[weapon].cost) {
-                $('#w'+ weapon).attr('disabled','disabled');
-                EconomyService.decResources($scope.weapons[weapon].cost);
-                $scope.weapons[weapon].working++;
-
-                if ($scope.panelNumber == 16) {
-                    $scope.nextTutorial();
-                }
-                if ($scope.buildings[0].tier == 1) {
-                    $scope.upgrades[1].enabled = true;
-                }
-                if (!($scope.gameStats.weaponsManual[weapon] >= 0)) {
-                    $scope.gameStats.weaponsManual[weapon] = 0;
-                }
-                $scope.gameStats.weaponsManual[weapon]++;
-                $scope.buyWeapon(weapon, true, 0);
-            }
-            else {
-                $scope.showError("You do not have enough Resources.");
-            }
-        }
-    }
+        ProductionService.purchaseWeapon($scope, weapon);
+    };
 
     $scope.create = function (itemID) {
-        if (itemID == -1) {
-            if ($scope.potion.count + $scope.potion.working < $scope.potion.maxCount) {
-
-                if (EconomyService.decResources($scope.potion.cost)) {
-                    if ($scope.panelNumber == 7) {
-                        $scope.nextTutorial();
-                    }
-                    $('#potionButt').attr('disabled', 'disabled');
-                    $scope.potion.working++;
-                    $scope.createPotion(true, 0);
-                }
-                else {
-                    $scope.showError("You do not have enough Resources.");
-                }
-            }
-
-        }
-        else {
-            if ($scope.potions[itemID].count + $scope.potions[itemID].working < $scope.potions[itemID].maxCount) {
-                if (EconomyService.decResources($scope.potions[itemID].cost)) {
-                    $('#a' + itemID).attr('disabled', 'disabled');
-                    $scope.potions[itemID].working++;
-                    $scope.createPotions(itemID, true, 0);
-                }
-                else {
-                    $scope.showError("You do not have enough Resources.");
-                }
-            }
-        }
-
-    }
+        ProductionService.create($scope, itemID);
+    };
 
     $scope.activateDungeon = function () {
         DungeonService.activateDungeon($scope);
     };
 
     $scope.heroProfession = function (selectedJobID, heroID) {
-        
-
-        if ($scope.heroList.filter((hero) => hero.job.id == selectedJobID).length < $scope.jobs[selectedJobID].limit) {
-            $scope.jobs[selectedJobID].current++;
-            $scope.heroList[heroID].progress = "Idle";
-            switch (selectedJobID) {
-                case 0: {
-                    $scope.heroList[heroID].job = $scope.jobs[0];
-                    break;
-                }
-                case 1: {
-                    $scope.heroList[heroID].job = $scope.jobs[1];
-                    break;
-                }
-                case 2: {
-                    $scope.heroList[heroID].job = $scope.jobs[2];
-                    break;
-                }
-                case 3: {
-                    $scope.heroList[heroID].job = $scope.jobs[3];
-                    break;
-                }
-            }
-        }
-        else {
-            $scope.showError("You can not have another hero doing " + $scope.jobs[selectedJobID].name + ".");
-        }
-    }
+        HeroService.heroProfession($scope, selectedJobID, heroID);
+    };
 
     $scope.heroClassChange = function (selectedClassID, heroID) {
-        $scope.tempClass = $scope.heroClass[selectedClassID];
-        $scope.tempHero = heroID;
+        HeroService.heroClassChange($scope, selectedClassID, heroID);
         $("#confirm").dialog("open");
-
-        
-    }
+    };
 
     $scope.confirmClass = function () {
-        $scope.heroList[$scope.tempHero].academy = $scope.tempClass;
-        if ($scope.tempClass.id === GameConfig.heroClasses[1].id) {
-            $scope.heroList[$scope.tempHero].progress = 'Idle';
-        }
-        $scope.tempClass = null;
-        $scope.tempHero = null;
-    }
+        HeroService.confirmClass($scope);
+    };
 
     $scope.randomEvent = function (type) {
         $scope.randomEventTimer = 600000 + Math.floor(Math.random() * 600000);
@@ -584,136 +352,8 @@ app.controller("MainController", function ($scope, $interval, $timeout, $http, $
     }
 
     $scope.nextTutorial = function () {
-
-        switch ($scope.panelNumber) {
-            case 0: {
-                $scope.panel = ["You have been granted control of a new town in an unexplored region of the world. Your job is to attract heroes from all over the land to adventure, work and more importantly spend their gold."];
-                $scope.panelNumber++;
-                break;
-            }
-            case 1: {
-                $scope.panel = ["To start off you need to begin by gathering the initial resources so that you can build a Tent to attract your first hero. Click the 'Gather' button until you have enough resources to buy a tent. (5 resources)"];
-                $scope.panelNumber++;
-                $scope.showTutorial = false;
-                break;
-            }
-            case 2: {
-                $scope.panel = ["Alright, now click the 'Improve Tent' button to purchase a tent and unlock your first hero. Your heroes name does not affect their playstyle, feel free to name them whatever you want or just keep the default name."];
-                $scope.panelNumber++;
-                break;
-            }
-            case 3: {
-                $scope.panel = ["Congratulations! You now have your first hero, You can check on your hero by clicking on the newly unlocked 'Hero' tab. This page gives you a quick summary of your heroes. Here you can see their level, health, XP, inventory, location and adventure status. Later you can also see thier profession."];
-                $scope.showTutorial = true;
-                $scope.panelNumber++;
-                break;
-            }
-            case 4: {
-                $scope.panel = ["You may notice that your hero has earnt some gold. If not, they will gain some as they defeat enemies. Unfortunately, your hero is rather reluctant to give you their gold and as a result you need to create items or provide services to encourage them to spend their gold."];
-                $scope.panelNumber++;
-                break;
-            }
-            case 5: {
-                $scope.panel = ["But, before we get to taking gold from the hero we need the room to store it. For this we need to expand the Stockpile, gather the required resources (25) and press the 'Improve Stockpile' button."];
-                $scope.showTutorial = false;
-                $scope.panelNumber++;
-                break;
-            }
-            case 6: {
-                $scope.panel = ["Alright, the stockpile has room for 5 gold and thankfully also unlocks the first item you can produce for a hero, the potion. Once more you will need to gather the required resources (25) head over to the new 'Production' tab and click on the 'Create Potion' button"];
-                $scope.panelNumber++;
-                break;
-            }
-            case 7: {
-                $scope.panel = ["The timer will count down the 5 seconds of production time and your first potion will then be created. Once your hero next returns home from an adventure, if they has taken some damage they will purchase the potion for 1 gold. This will heal them for 20% health, but more importanly deposit that gold into your towns inventory."];
-                $scope.panelNumber++;
-                break;
-            }
-            case 8: {
-                $scope.panel = ["You now have your first gold, I would recommend using it to purchase the first upgrade 'Bonus Resources' which will allow you to gain 2 resources per click instead of 1. This upgrade is located in the 'Upgrades' panel and is purchased by clicking on it. Purchase the 'Bonus Resources' upgrade"];
-                $scope.panelNumber++;
-                break;
-            }
-            case 9: {
-                $scope.panel = ["Nice work! Purchasing upgrades costs gold and provide a permenant bonus for the game. It is recommended you keep an eye on the available upgrades"];
-                $scope.showTutorial = true;
-                $scope.panelNumber++;
-                break;
-            }
-            case 10: {
-                $scope.panel = ["By now your hero might be close to level 3 and as such has stopped gaining any experience. To fix this he needs to fight in stronger dungeons, back on the 'Town' tab you can see you have a building called 'Dungeons', once again gather the resources required (25) and click the 'Improve Dungeons' button."];
-                $scope.showTutorial = false;
-                $scope.panelNumber++;
-                break;
-            }
-            case 11: {
-                $scope.panel = ["The new dungeon should be visible on the 'Town' tab, your hero will adventure in this dungeon once he has had enough successes in the previous dungeon. It is important to keep upgrading dungeons so that you are able to keep your heroes earning experience."];
-                $scope.showTutorial = true;
-                $scope.panelNumber++;
-                break;
-            }
-            case 12: {
-                $scope.panel = ["Unfortunately, the stronger dungeons are more of a challenge to adventurers and they will have some trouble completing them without a better weapon. So for that we need a 'Blacksmith', but we cant do that at this time first we need a 'Market'. Gather the required resources (40) and click 'Improve Market'."];
-                $scope.showTutorial = false;
-                $scope.panelNumber++;
-                break;
-            }
-            case 13: {
-                $scope.panel = ["Alright, the market unlocks the ability to purchase blueprints for new buildings allowing you to construct them. Head over to the 'Production' tab and you should see the 'Blacksmith Blueprint' is available for 1 gold. If you havn't already, create another potion for your hero to purchase then click 'Buy Blacksmith Blueprint'. While you wait you can create another tent for a second hero."];
-                $scope.panelNumber++;
-                break;
-            }
-            case 14: {
-                $scope.panel = ["Good Job, you have now unlocked the Blacksmith. Head over to the 'Town' tab and you should now see the Blacksmith listed under buildings. This one is more expensive but certainly worth it. But first, you will need to improve the Stockpile, once you have done that gather the required resources (100) and click 'Improve Blacksmith'."];
-                $scope.panelNumber++;
-                break;
-            }
-            case 15: {
-                $scope.panel = ["The Blacksmith unlocks weapons for your hero to purchase, head over to the 'Production' tab and you should see the 'Dagger' is now available. Gather the required 15 resources and click 'Create Dagger'."];
-                $scope.panelNumber++;
-                break;
-            }
-            case 16: {
-                $scope.panel = ["Weapons are required for heroes to be able to clear stronger dungeons, while the dagger is not much better than your fist now later on you can equip weapons that allow to you instantly kill some of the strongest monsters. It is worth noticing that weapons have a durability and every time they strike an enemy it loses one of its durability. If a weapon breaks while a hero is in a dungeon he will only have his fist left to kill the remaining enemies."];
-                $scope.showTutorial = true;
-                $scope.panelNumber++;
-                break;
-            }
-            case 17: {
-                $scope.panel = ["You may have also noticed by now a message appearing that informs you that your hero has lost a fight. Currently when a hero loses they will have to start again from level 1, while it is not a huge issue at the moment at higher levels it can be quite annoying. Fortunately the 'Save Point' upgrade exists, this allows heroes to keep their experience and gold when they lose. Use potions and weapons to earn 3 gold and purchase this upgrade."];
-                $scope.showTutorial = false;
-                $scope.panelNumber++;
-                break;
-            }
-            case 18: {
-                $scope.panel = ["By now you are probably starting to wish there was a better way to collect resources than gathering and I am here to tell you that there is. Once a hero reaches level 5 a new blueprint appears, this is the Tavern blueprint and it unlocks the first tier of classes for your hero 'Adventurer' and 'Labourer'. This Blueprint costs 5 gold, but while you wait you can get more heroes by upgrading the Tent, or more weapons through the Blacksmith. Purchase the Tavern blueprint and then click 'Improve Tavern' (150) on the 'Town' tab."];
-                $scope.panelNumber++;
-                break;
-            }
-            case 19: {
-                $scope.panel = ["The Tavern unlocks the 'Professions' tab. If you click over to it you will see a list of available professions (Adventurer/Labourer) and any hero you have over level 3 who does not have a profession. If you upgraded the blacksmith you may have noticed there is a profession requirement for the next weapon. If you upgrade your hero to an 'Adventurer' they will be able to equip the new weapon, but more importantly at the moment is the 'Labourer', this allows them to work for your town."];
-                $scope.showTutorial = true;
-                $scope.panelNumber++;
-                break;
-            }
-            case 20: {
-                $scope.panel = ["The labourer will gather resources while idle in town as well as be employed to work for the town and produce items in the 'Production' tab. A labourer can NOT adventure and the change is permenant, so it is recommended to not make all your heroes Labourers. You will gain access to more classes at level 10 with the Academy, each has its own benefits and drawbacks which will be listed on the 'Professions' tab."];
-                $scope.panelNumber++;
-                break;
-            }
-            case 21: {
-                $scope.panel = ["This is the end of the tutorial for the game. This screen will be replaced by a game log which will display some of the recent game events. There are many more features to unlock and more being added all the time. Enjoy!"];
-                $scope.panelNumber++;
-                break;
-            }
-            case 22: {
-                $scope.panel = [""];
-                $scope.startInfo();
-                $scope.showTutorial = false;
-            }
-        }
-        
-    }
+        UiService.nextTutorial($scope);
+    };
 
     $scope.$watch("resources", function (newValue, oldValue) {
         if ($scope.resources == 10 && $scope.panelNumber == 2) {
@@ -741,144 +381,12 @@ app.controller("MainController", function ($scope, $interval, $timeout, $http, $
     }, $scope.randomEventTimer);
 
     $scope.rest = function () {
-
-        for (let i = 0; i < $scope.heroList.length; i++) {
-            let hero = $scope.heroList[i];
-            let weapon = hero.equip.weapon;
-            if (hero.location == 'Home') {
-                    if (hero.equip.gold > 0) {
-                        // Upgrade Weapon
-                        if ($scope.buildings[3].count > hero.equip.weapon.id) {
-                            for (let j = $scope.buildings[3].count; j > hero.equip.weapon.id; j--) {
-                                if ($scope.meetRequirements(hero, $scope.weapons[j])) {
-
-                                        if (hero.equip.gold >= $scope.weapons[j].sellPrice && $scope.weapons[j].count > 0) {
-                                            hero.equip.gold -= $scope.weapons[j].sellPrice;
-                                            $scope.weapons[j].count--;
-                                            $scope.incGold($scope.weapons[j].sellPrice);
-                                            hero.equip.weapon = $.extend(true, {}, $scope.weapons[j]);
-                                            j = 0;
-                                        }
-
-                                }
-                                else {
-                                    $scope.debugLog("Not Allowed");
-                                }
-                                
-                            }
-                        }
-                        // Buy Replacement
-                        if ((weapon.durability <= ($scope.weapons[weapon.id].durability*.2) || weapon.minDamage < $scope.weapons[weapon.id].minDamage) && hero.equip.gold >= weapon.sellPrice && $scope.weapons[weapon.id].count > 0) {
-                            hero.equip.gold -= $scope.weapons[weapon.id].sellPrice;
-                            $scope.weapons[weapon.id].count--;
-                            hero.equip.weapon = $.extend(true, {}, $scope.weapons[weapon.id]);
-                        }
-
-                        // Buy Potion
-                        for (let j = 0; j < $scope.potions.length; j++) {
-                            let equiped = false;
-                            for (let k = 0; k < hero.equip.potions.length; k++) {
-                                if (hero.equip.potions[k].count < $scope.potions[k].maxHero && hero.equip.gold >= $scope.potions[k].sellPrice && $scope.potions[k].count > 0) {
-                                    hero.equip.gold -= $scope.potions[k].sellPrice;
-                                    $scope.incGold($scope.potions[k].sellPrice);
-                                    $scope.potions[k].count--;
-                                    hero.equip.potions[k].count++;
-                                }
-                            }
-
-                        }
-                        // Heal with Potion
-                        if ((hero.health - hero.currHealth) >= $scope.potion.healing && $scope.potion.count > 0 && ($scope.gold + $scope.potion.sellPrice) <= $scope.maxGold && hero.equip.gold >= $scope.potion.sellPrice) {
-
-                            hero.equip.gold -= $scope.potion.sellPrice;
-                            $scope.incGold($scope.potion.sellPrice);
-                            $scope.potion.count--;
-                            heal(i, $scope.potion.healing, 1);
-
-
-                        }
-
-                    }
-                    // Heal the hero "i" for 2% health
-                    heal(i, 2, 1);
-                    if (hero.currHealth == hero.health && (hero.academy.id === GameConfig.heroClasses[0].id || hero.academy.id === GameConfig.heroClasses[2].id)) {
-                        let u = [hero]
-                        $scope.attemptDungeon(hero.dungeon, u);
-                        hero.location = $scope.dungeons[hero.dungeon].name;
-                    }
-                    else if(hero.progress == 'Idle'){
-                        $scope.incrRes(Math.ceil($scope.heroList[i].level / 4)^2);
-                    }
-                    
-                
-            }
-
-        }
-    }
+        HeroService.rest($scope);
+    };
 
     $scope.work = function () {
-        for (let i = 0; i < $scope.heroList.length; i++) {
-            switch ($scope.heroList[i].job.id) {
-                case 0: {
-                    break;
-                }
-                case 1: {
-                    if (($scope.potion.count + $scope.potion.working) < $scope.potion.maxCount && $scope.heroList[i].progress == "Idle") {
-
-                        if (EconomyService.decResources($scope.potion.cost)) {
-                            $scope.potion.working++;
-                            if (!($scope.heroList[i].academy.id === GameConfig.heroClasses[1].id)) {
-                                $scope.createPotion(false, Math.floor((($scope.heroList[i].level) * .05)*$scope.potion.prodTime), i);
-                            }
-                            else {
-                                $scope.gainExp($scope.heroList[i], Math.ceil($scope.potion.prodTime/2));
-                                $scope.createPotion(false, Math.floor((($scope.heroList[i].level) * .05) * $scope.potion.prodTime), i);
-                            }
-                        }
-                    }
-                    for (j = 0; j < $scope.potions.length; j++) {
-                        if ($scope.potions[j].enabled && ($scope.potions[j].count + $scope.potions[j].working) < $scope.potions[j].maxCount && $scope.heroList[i].progress == "Idle") {
-                            if (EconomyService.decResources($scope.potions[j].cost)) {
-                                $scope.potions[j].working++;
-                                if (!($scope.heroList[i].academy.id === GameConfig.heroClasses[1].id)) {
-                                    $scope.createPotions(j, false, (Math.floor((($scope.heroList[i].level) * .05) * $scope.potions[j].prodTime)), i);
-                                }
-                                else {
-                                    $scope.gainExp($scope.heroList[i], Math.ceil($scope.potions[j].prodTime / 2));
-                                    $scope.createPotions(j, false, (Math.floor((($scope.heroList[i].level) * .05) * $scope.potions[j].prodTime)), i);
-                                }
-                            }
-                        }
-                    }
-                    break;
-                }
-                case 2: {
-                    for (j = 0; j < $scope.weapons.length; j++) {
-                        if ($scope.weapons[j].enabled && ($scope.weapons[j].count + $scope.weapons[j].working) < $scope.weapons[j].maxCount && $scope.heroList[i].progress == "Idle") {
-                            if (EconomyService.decResources($scope.weapons[j].cost)) {
-                                $scope.weapons[j].working++;
-                                if (!($scope.heroList[i].academy.id === GameConfig.heroClasses[1].id)) {
-                                    $scope.gameStats.weaponsAuto++;
-                                    $scope.buyWeapon(j, false, (Math.floor((($scope.heroList[i].level) * .05)*$scope.weapons[j].prodTime)), i);
-                                }
-                                else {
-                                    $scope.gainExp($scope.heroList[i], Math.ceil($scope.weapons[j].prodTime/2));
-                                    $scope.gameStats.weaponsAuto++;
-                                    $scope.buyWeapon(j, false, (Math.floor((($scope.heroList[i].level) * .05) * $scope.weapons[j].prodTime)), i);
-                                }
-                            }
-                        }
-                    }
-
-                    break;
-                }
-                case 3: {
-                    
-                    break;
-                }
-            }
-        }
-    }
+        HeroService.work($scope);
+    };
 
     //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     // Technical/ and Initialization --------------------------------------------------------------------------------------------------------------------------------//
@@ -937,18 +445,9 @@ app.controller("MainController", function ($scope, $interval, $timeout, $http, $
         }
     });
 
-    $scope.showError = function(message) {
-        document.getElementById("errorDialog").innerHTML = message;
-        setTimeout(function () { document.getElementById("errorDialog").innerHTML = "<br />" }, 3000);
-        if ($scope.panelInfo) {
-            let d = new Date();
-            //$scope.panel.unshift(d.getHours() + ":" + d.getMinutes() + ":" + d.getSeconds() + " : " + message);
-            $scope.panel.unshift(d.toTimeString().slice(0, 8) + " : " + message);
-            if ($scope.panel.length > 10) {
-                $scope.panel.pop();
-            }
-        }
-    }
+    $scope.showError = function (message) {
+        UiService.showError($scope, message);
+    };
 
     $scope.debugLog = function(value) {
         if ($scope.debugging) {
@@ -961,13 +460,12 @@ app.controller("MainController", function ($scope, $interval, $timeout, $http, $
     }
 
     $scope.skipTut = function () {
-        $scope.panelNumber = 22;
-        $scope.nextTutorial();
-    }
+        UiService.skipTut($scope);
+    };
 
     $scope.startInfo = function () {
-        $scope.panelInfo = true;
-    }
+        UiService.startInfo($scope);
+    };
 
     // Defer dialog init so jQuery UI doesn't move DOM nodes during Angular's link phase (avoids childNodes undefined error)
     $timeout(function () {
@@ -1108,131 +606,17 @@ app.controller("MainController", function ($scope, $interval, $timeout, $http, $
     // Array/ Generation --------------------------------------------------------------------------------------------------------------------------------------------//
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////  
 
-    $scope.addHero = function(heroName) {
-        let hero = $scope.heroList;
-        hero[hero.length] =
-            {
-                id: hero.length,
-                name: heroName,
-                currHealth: 100,
-                health: 100,
-                level: 1,
-                experience: 0,
-                next: 50,
-                equip: {
-                    weapon: $.extend(true, {}, $scope.weapons[0]),
-                    potions: [
-                        {
-                            id: 0,
-                            name: "Regeneration",
-                            count: 0,
-                        },
-                        {
-                            id: 1,
-                            name: "Power",
-                            count: 0,
-                        },
-                        {
-                            id: 2,
-                            name: "Health",
-                            count: 0
-                        },
-                        {
-                            id: 3,
-                            name: "Good Health",
-                            count: 0
-                        },
-                        {
-                            id: 4,
-                            name: "Great Health",
-                            count: 0
-                        }
-                    ],
-                    gold: 0,
-                    scrap: 0,
-                },
-                location: 'Home',
-                progress: 0,
-                dungeon: 0,
-                clearCount: 0,
-                working: false,
-                job: $scope.jobs[0],
-                academy: $scope.heroClass[2],
-                party: false
-            }
-    }  
-    $scope.addWorker = function(heroName) {
-        let hero = $scope.heroList;
-        hero[hero.length] =
-            {
-                id: hero.length,
-                name: heroName,
-                currHealth: 100,
-                health: 100,
-                level: 1,
-                experience: 0,
-                next: 50,
-                equip: {
-                    weapon: $.extend(true, {}, $scope.weapons[0]),
-                    potions: [
-                        {
-                            id: 0,
-                            name: "Regeneration",
-                            count: 0,
-                        },
-                        {
-                            id: 1,
-                            name: "Power",
-                            count: 0,
-                        },
-                        {
-                            id: 2,
-                            name: "Health",
-                            count: 0
-                        },
-                        {
-                            id: 3,
-                            name: "Good Health",
-                            count: 0
-                        },
-                        {
-                            id: 4,
-                            name: "Great Health",
-                            count: 0
-                        }
-                    ],
-                    gold: 0,
-                    scrap: 0,
-                },
-                location: 'Home',
-                progress: 0,
-                dungeon: 0,
-                clearCount: 0,
-                working: false,
-                job: $scope.jobs[0],
-                academy: $scope.heroClass[1],
-                party: false
-            }
-    } 
+    $scope.addHero = function (heroName) {
+        HeroService.addHero($scope, heroName);
+    };
+
+    $scope.addWorker = function (heroName) {
+        HeroService.addWorker($scope, heroName);
+    };
 
     $scope.newHeroName = function () {
-        let randFirst = Math.floor(Math.random() * $scope.heroName.first.length);
-        let newName = $scope.heroName.first[randFirst];
-        newName += " ";
-        let randTitle = Math.floor(Math.random() * $scope.heroName.title.length);
-        newName += $scope.heroName.title[randTitle];
-        $scope.debugLog(newName);
-        let exist = false;
-        for (let i = 0; i < $scope.heroList.length; i++) {
-            if ($scope.heroList[i].name == newName) {
-                exist = true;
-            }
-        }
-        if (exist) {
-            newName = $scope.newHeroName();
-        }
-        return newName
-    }
+        return HeroService.newHeroName($scope);
+    };
 
     $scope.createMonster = function (level) {
         DungeonService.createMonster($scope, level);
@@ -1254,120 +638,21 @@ app.controller("MainController", function ($scope, $interval, $timeout, $http, $
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////  
 
     
-    $scope.attemptDungeon = function(dungeonID, hero) {
-        let dungeon = $scope.dungeons[dungeonID]
-        let journey = {
-            hero: hero,
-            dungeon: dungeon,
-            steps: 0
-        }
-        // 1 second delay for travelling through dungeon
-        $timeout(function () { $scope.travel(journey); }, $scope.gameLoop);
+    $scope.attemptDungeon = function (dungeonID, hero) {
+        DungeonService.attemptDungeon($scope, dungeonID, hero);
+    };
 
-    }
-
-
-    // function/ invoked on each "step" through a dungeon
-    $scope.travel = function(journey) {
-
-        $scope.debugLog("steps:" + journey.steps);
-
-        // if/ steps are at the end of the dungeon fight a boss.
-        if (journey.steps == journey.dungeon.steps) {
-            for (let i = 0; i < journey.hero.length;i++){
-                journey.hero[i].progress = "Fighting Boss!";
-            }            
-            $scope.bossFight(journey);
-        }
-        else {
-            // Roll/ for encounter
-            let roll = Math.floor((Math.random() * 100) + 1);
-            if (roll < journey.dungeon.encounterRate) {
-
-                $scope.debugLog("Encounter Forming");
-
-                // Form/ an encounter of $scope.monsters below "encounter level"
-
-                $scope.monsterFight(journey);
-                for (let i = 0; i < journey.hero.length; i++) {
-                    journey.hero[i].progress = "Fighting Encounter!";
-                }
-
-            }
-            else {
-                // if/ there is no fight for that step, take another step and update progress.
-                journey.steps++;
-                for (let i = 0; i < journey.hero.length; i++) {
-                    journey.hero[i].progress = Math.round((journey.steps / journey.dungeon.steps) * 100) + "%" + " Complete";
-                }
-                $timeout(function () { $scope.travel(journey) }, $scope.gameLoop);
-            }
-        }
-
-    }
+    $scope.travel = function (journey) {
+        DungeonService.travel($scope, journey);
+    };
 
     $scope.monsterFight = function (journey) {
-        let eLevel = journey.dungeon.encounterLevel;
-        let validMonsters = [];
-        let encounterMonsters = [];
-        let monsterCount = 0;
-        let currentMonster;
-        let currLevel = 0;
-        let copyMonsters = $scope.monsters.slice();
-        $scope.debugLog("Encounter Level= " + eLevel);
-        for (let i = 0; i < copyMonsters.length; i++) {
-            if (copyMonsters[i].value >= Math.floor(eLevel / 4) && copyMonsters[i].value <= eLevel) {
-                validMonsters[validMonsters.length] = copyMonsters[i];
-            }
-        }
-        while (monsterCount < 4 && currLevel < eLevel && (eLevel - currLevel) >= Math.floor(eLevel / 4)) {
-            let reducedMonster = [];
-            for (let i = 0; i < validMonsters.length; i++) {
-                if (validMonsters[i].value <= (eLevel - currLevel)) {
-                    reducedMonster[reducedMonster.length] = validMonsters[i];
+        DungeonService.monsterFight($scope, journey);
+    };
 
-                }
-            }
-            currentMonster = Math.floor(Math.random() * reducedMonster.length);
-            let multi = 1;
-            if (journey.hero.length > 1) {
-                multi = 10;
-            }
-            encounterMonsters[encounterMonsters.length] = {
-                id: encounterMonsters.length,              
-                name: reducedMonster[currentMonster].name,
-                value: reducedMonster[currentMonster].value * multi,
-                minDamage: reducedMonster[currentMonster].minDamage * multi,
-                maxDamage: reducedMonster[currentMonster].maxDamage * multi,
-                health: reducedMonster[currentMonster].health * multi,
-                maxHealth: reducedMonster[currentMonster].health * multi,
-                low: "Junk;j;" + parseInt(reducedMonster[currentMonster].value * 3 * multi),
-                high: "Gold;g;" + parseInt(reducedMonster[currentMonster].value * multi)
-            }
-            monsterCount++;
-            currLevel += reducedMonster[currentMonster].value;
-        }
-        $scope.startFight(encounterMonsters, journey, false);
-    }
-
-    $scope.bossFight = function(journey) {
-        let bossID = journey.dungeon.bossID;
-        let multi = 1;
-        if (journey.hero.length > 1) {
-            multi = 10;
-        }       
-        let bossBattle = [{
-            name: $scope.bosses[bossID].name,
-            value: $scope.bosses[bossID].value * multi,
-            minDamage: $scope.bosses[bossID].minDamage * multi,
-            maxDamage: $scope.bosses[bossID].maxDamage * multi,
-            health: $scope.bosses[bossID].health * multi,
-            maxHealth: $scope.bosses[bossID].health * multi,
-            high: "Junk;j;" + parseInt($scope.bosses[bossID].value * multi * 3),
-            low: "Gold;g;" + parseInt($scope.bosses[bossID].value * multi)
-        }]
-        $scope.startFight(bossBattle.slice(), journey, true);      
-    }
+    $scope.bossFight = function (journey) {
+        DungeonService.bossFight($scope, journey);
+    };
 
     $scope.startFight = function(monList, journey, boss) {
         CombatService.startFight($scope, monList, journey, boss);
@@ -1409,9 +694,9 @@ app.controller("MainController", function ($scope, $interval, $timeout, $http, $
         CombatService.addLoot($scope, item, hero);
     };
 
-    $scope.changeTheme = function(){
-        $scope.dark=!$scope.dark;
-    }                          
+    $scope.changeTheme = function () {
+        UiService.changeTheme($scope);
+    };                          
 
 
     
@@ -1421,147 +706,30 @@ app.controller("MainController", function ($scope, $interval, $timeout, $http, $
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
     $scope.createPotion = function (button, start, heroID) {
-        if (heroID != 0) {
-            heroID = heroID || -1;
-        }
+        ProductionService.createPotion($scope, button, start, heroID, function () {
+            $('#potionButt').removeAttr('disabled');
+        });
+    };
 
-        if ($scope.potion.prodTime > start) {
-            if (button) {
-                $scope.potion.progress = ($scope.potion.prodTime - start).toString().toHHMMSS();
-            }
-            else if (heroID >= 0) {
-                $scope.heroList[heroID].progress = ($scope.potion.prodTime - start).toString().toHHMMSS();
-            }
-            let caller = arguments.callee;
-            setTimeout(function () { caller(button, start + 1, heroID); }, $scope.gameLoop);
-        }
-        else {
-            $scope.potion.working--;
-            $scope.potion.count++;
-            if (button) {
-                $scope.potion.progress = "Create Potion"; 
-                $('#potionButt').removeAttr('disabled');
-            }
-            else if (heroID >= 0) {
-                $scope.heroList[heroID].progress = "Idle";
-            }
+    $scope.createPotions = function (potionID, button, start, heroID) {
+        ProductionService.createPotions($scope, potionID, button, start, heroID, function () {
+            $('#a' + potionID).removeAttr('disabled');
+        });
+    };
 
-        }
-    }
+    $scope.buyWeapon = function (weaponID, button, start, heroID) {
+        ProductionService.buyWeapon($scope, weaponID, button, start, heroID, function () {
+            $('#w' + weaponID).removeAttr('disabled');
+        });
+    };
 
-    $scope.createPotions = function(potionID, button, start, heroID) {
-        if (heroID != 0) {
-            heroID = heroID || -1;
-        }
-        let acc = $scope.potions[potionID];
-        if (acc.prodTime > start) {
-            if (button) {
-                acc.progress = (acc.prodTime - start).toString().toHHMMSS();
-            }
-            else if (heroID >= 0) {
-                $scope.heroList[heroID].progress = (acc.prodTime - start).toString().toHHMMSS();
-            }
-            let caller = arguments.callee;
-            setTimeout(function () { caller(potionID, button, start + 1, heroID); }, $scope.gameLoop);
-        }
-        else {
-            acc.count++;
-            acc.working--;
-            if (button) {
-                acc.progress = "Create " + acc.name; 
-                $('#a' + potionID).removeAttr('disabled');
-            }
-            else if (heroID >= 0) {
-                $scope.heroList[heroID].progress = "Idle"; }
-            }
-        }
+    $scope.buyUpgrade = function (upgradeID) {
+        ProductionService.buyUpgrade($scope, upgradeID);
+    };
 
-
-    
-
-    $scope.buyWeapon = function(weaponID, button, start, heroID) {
-        if (heroID != 0) {
-            heroID = heroID || -1;
-        }
-        if ($scope.weapons[weaponID].prodTime > start) {
-            if (button) {
-                $scope.weapons[weaponID].progress = ($scope.weapons[weaponID].prodTime - start).toString().toHHMMSS();
-            }
-            else if (heroID >= 0) {
-                $scope.heroList[heroID].progress = ($scope.weapons[weaponID].prodTime - start).toString().toHHMMSS();
-            }
-            let caller = arguments.callee;
-            setTimeout(function () { caller(weaponID, button, start + 1, heroID); }, $scope.gameLoop);
-        }
-        else {
-            $scope.weapons[weaponID].count++;
-            $scope.weapons[weaponID].working--;
-            if (button) {
-                $scope.weapons[weaponID].progress = "Create " + $scope.weapons[weaponID].name;
-                $('#w' + weaponID).removeAttr('disabled');
-            }
-            else if (heroID >= 0) {
-                $scope.heroList[heroID].progress = "Idle";
-            }
-        }
-    }
-
-    $scope.buyUpgrade = function(upgradeID) {
-        if ($scope.upgrades[upgradeID].price <= $scope.gold) {
-            $scope.decGold($scope.upgrades[upgradeID].price);
-            $scope.upgrades[upgradeID].enabled = false;
-                switch (upgradeID) {
-                    case 0: {
-                        $scope.incr++;                        
-                        if ($scope.panelNumber == 9) {
-                            $scope.nextTutorial();
-                        }
-                        $scope.upgrades[2].enabled = true;
-                        break;
-                    }
-                    case 1: {
-                        $scope.buildings[0].tier++;
-                        $scope.buildings[0].name = 'Campsite';
-                        $scope.restAmount += 3;
-                        
-                        if ($scope.panelNumber == 18) {
-                            $scope.nextTutorial();
-                        }
-                        break;
-                    }
-                    case 2:
-                    case 3:
-                    case 4:
-                    case 5:
-                    case 6:
-                    case 7:
-                    case 8:
-                    case 9:
-                     {
-                        $scope.incr = $scope.incr*2;
-                        $scope.upgrades[upgradeID+1].enabled = true;
-                        break;
-                    }
-                    case 10:
-                    {
-                        $scope.incr = $scope.incr*2;
-                        break;
-                    }
-                }
-            
-
-        }
-        else {
-            $scope.showError("You do not have enough Gold");
-        }
-
-    }
-
-    $scope.activateBlueprint = function(value) {
-        if(!$scope.blueprints[value].enabled && !$scope.blueprints[value].cost == 0){
-            $scope.blueprints[value].enabled = true;
-        }
-    }
+    $scope.activateBlueprint = function (value) {
+        ProductionService.activateBlueprint($scope, value);
+    };
 
 
 
@@ -1574,54 +742,13 @@ app.controller("MainController", function ($scope, $interval, $timeout, $http, $
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
     $scope.gainExp = function (hero, amount) {
-        hero.experience += amount;
-        if (hero.experience >= hero.next) {
-            hero.level++
-            hero.next += hero.level * 25;
-            hero.health += 50;
-            hero.experience = 0;
-            
-            if (hero.level >= 3 && $scope.buildings[4].count == 0 && !($scope.buildings[4].enabled)) {
-                $scope.activateBlueprint(2);
-            }
-            if (hero.level >= 10 && $scope.buildings[7].count == 0 && !($scope.buildings[7].enabled)) {
-               // $scope.activateBlueprint(5);
-            }
-        }
-    }
+        HeroService.gainExp($scope, hero, amount);
+    };
 
-    function heal(heroID, amount, flag) {
+    $scope.heal = function (heroID, amount, flag) {
+        HeroService.heal($scope, heroID, amount, flag);
+    };
 
-        let hero = $scope.heroList[heroID];
-
-        if (flag == 1) {
-            amount = Math.floor((hero.health / 100) * amount);
-        }
-
-        if ((hero.currHealth + amount) < hero.health) {
-            hero.currHealth += amount;
-        }
-        else {
-            hero.currHealth = hero.health;
-        }
-
-    }
-    $scope.heal = heal;
-
-    $scope.greaterThan = function (prop, val) {
-        return function (item) {
-            if (item[prop] > val) return true;
-        }
-    }
-
-    $scope.meetRequirements = function (hero, weapon) {
-        let result = false;
-        for (var i = 0; i < weapon.heroClass.length; i++) {
-            if (weapon.heroClass[i] == hero.academy.id) {
-                result = true;
-            }
-        }
-        return result
-    }
-
+    $scope.greaterThan = UtilService.greaterThan;
+    $scope.meetRequirements = UtilService.meetRequirements;
 });

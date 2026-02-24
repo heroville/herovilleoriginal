@@ -1,8 +1,9 @@
 /**
- * Dungeon, monster, and boss creation. Used by MainController; receives scope for state and callbacks.
+ * Dungeon, monster, boss creation, and journey flow (attemptDungeon, travel, monsterFight, bossFight).
+ * Used by MainController; receives scope for state and callbacks.
  */
 
-function DungeonServiceFactory() {
+function DungeonServiceFactory($timeout) {
     function dungeonName(scope) {
         if (!scope.dungeonNames || !scope.dungeonNames.dungeons) return 'Dungeon';
         const dList = scope.dungeonNames.dungeons.slice();
@@ -98,11 +99,101 @@ function DungeonServiceFactory() {
         createBoss(scope, scope.dungeons.length - 1);
     }
 
+    function attemptDungeon(scope, dungeonID, hero) {
+        const dungeon = scope.dungeons[dungeonID];
+        const journey = { hero, dungeon, steps: 0 };
+        $timeout(function () { travel(scope, journey); }, scope.gameLoop);
+    }
+
+    function travel(scope, journey) {
+        if (typeof scope.debugLog === 'function') scope.debugLog('steps:' + journey.steps);
+        if (journey.steps === journey.dungeon.steps) {
+            for (let i = 0; i < journey.hero.length; i++) {
+                journey.hero[i].progress = 'Fighting Boss!';
+            }
+            bossFight(scope, journey);
+        } else {
+            const roll = Math.floor((Math.random() * 100) + 1);
+            if (roll < journey.dungeon.encounterRate) {
+                if (typeof scope.debugLog === 'function') scope.debugLog('Encounter Forming');
+                monsterFight(scope, journey);
+                for (let i = 0; i < journey.hero.length; i++) {
+                    journey.hero[i].progress = 'Fighting Encounter!';
+                }
+            } else {
+                journey.steps++;
+                for (let i = 0; i < journey.hero.length; i++) {
+                    journey.hero[i].progress = Math.round((journey.steps / journey.dungeon.steps) * 100) + '%' + ' Complete';
+                }
+                $timeout(function () { travel(scope, journey); }, scope.gameLoop);
+            }
+        }
+    }
+
+    function monsterFight(scope, journey) {
+        const eLevel = journey.dungeon.encounterLevel;
+        const validMonsters = [];
+        const encounterMonsters = [];
+        let monsterCount = 0;
+        let currLevel = 0;
+        const copyMonsters = scope.monsters.slice();
+        if (typeof scope.debugLog === 'function') scope.debugLog('Encounter Level= ' + eLevel);
+        for (let i = 0; i < copyMonsters.length; i++) {
+            if (copyMonsters[i].value >= Math.floor(eLevel / 4) && copyMonsters[i].value <= eLevel) {
+                validMonsters.push(copyMonsters[i]);
+            }
+        }
+        while (monsterCount < 4 && currLevel < eLevel && (eLevel - currLevel) >= Math.floor(eLevel / 4)) {
+            const reducedMonster = [];
+            for (let i = 0; i < validMonsters.length; i++) {
+                if (validMonsters[i].value <= (eLevel - currLevel)) {
+                    reducedMonster.push(validMonsters[i]);
+                }
+            }
+            const currentMonster = Math.floor(Math.random() * reducedMonster.length);
+            const multi = journey.hero.length > 1 ? 10 : 1;
+            encounterMonsters.push({
+                id: encounterMonsters.length,
+                name: reducedMonster[currentMonster].name,
+                value: reducedMonster[currentMonster].value * multi,
+                minDamage: reducedMonster[currentMonster].minDamage * multi,
+                maxDamage: reducedMonster[currentMonster].maxDamage * multi,
+                health: reducedMonster[currentMonster].health * multi,
+                maxHealth: reducedMonster[currentMonster].health * multi,
+                low: 'Junk;j;' + parseInt(reducedMonster[currentMonster].value * 3 * multi),
+                high: 'Gold;g;' + parseInt(reducedMonster[currentMonster].value * multi)
+            });
+            monsterCount++;
+            currLevel += reducedMonster[currentMonster].value;
+        }
+        scope.startFight(encounterMonsters, journey, false);
+    }
+
+    function bossFight(scope, journey) {
+        const bossID = journey.dungeon.bossID;
+        const multi = journey.hero.length > 1 ? 10 : 1;
+        const bossBattle = [{
+            name: scope.bosses[bossID].name,
+            value: scope.bosses[bossID].value * multi,
+            minDamage: scope.bosses[bossID].minDamage * multi,
+            maxDamage: scope.bosses[bossID].maxDamage * multi,
+            health: scope.bosses[bossID].health * multi,
+            maxHealth: scope.bosses[bossID].health * multi,
+            high: 'Junk;j;' + parseInt(scope.bosses[bossID].value * multi * 3),
+            low: 'Gold;g;' + parseInt(scope.bosses[bossID].value * multi)
+        }];
+        scope.startFight(bossBattle.slice(), journey, true);
+    }
+
     return {
         activateDungeon,
         createMonster,
         createBoss,
-        dungeonName
+        dungeonName,
+        attemptDungeon,
+        travel,
+        monsterFight,
+        bossFight
     };
 }
 

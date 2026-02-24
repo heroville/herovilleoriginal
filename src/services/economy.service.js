@@ -63,12 +63,19 @@ function EconomyServiceFactory() {
         return false;
     }
 
+    function incrRes(multi) {
+        var state = getState();
+        if (state.gameStats) state.gameStats.clicks++;
+        incResources(Number(multi) || 1);
+    }
+
     return {
         bindState: bindState,
         incResources: incResources,
         decResources: decResources,
         incGold: incGold,
         decGold: decGold,
+        incrRes: incrRes,
         getState: getState
     };
 }

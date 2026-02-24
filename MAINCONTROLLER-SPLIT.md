@@ -22,9 +22,9 @@ This document defines **small, testable phases** for splitting `maincontroller.j
 | **3** | DungeonService | `createMonster`, `createBoss`, `activateDungeon`, `dungeonName` | `src/services/dungeon.service.js` | Unit tests (optional) + Activate dungeon, check list |
 | **4** | HeroService | `addHero`, `addWorker`, `heroProfession`, `heroClassChange`, `confirmClass`, `newHeroName`, `gainExp`, `heal` | `src/services/hero.service.js` | Add hero, change class/job |
 | **5** | ProductionService | `createPotion`, `createPotions`, `buyWeapon`, `buyUpgrade`, `activateBlueprint` | `src/services/production.service.js` | Create potion, buy weapon/upgrade |
-| **6** | (Optional) UI / Tutorial | `nextTutorial`, `skipTut`, `startInfo`, `showError`, `changeTheme` | `src/services/ui.service.js` or keep in controller | Tutorial + theme + errors |
+| **6** | (Optional) UI / Tutorial ✓ | `nextTutorial`, `skipTut`, `startInfo`, `showError`, `changeTheme` | `src/services/ui.service.js` | Tutorial + theme + errors |
 
-Phases 1–5 align with MODERNIZATION.md §1.3. Phase 6 can be done later or skipped.
+Phases 1–5 align with MODERNIZATION.md §1.3. Phase 6 is optional and has been completed.
 
 ---
 
@@ -79,11 +79,19 @@ For every phase:
 
 ---
 
-## Phase 5: ProductionService
+## Phase 5: ProductionService ✓
 
-- **Extract:** `createPotion`, `createPotions`, `buyWeapon`, `buyUpgrade`, `activateBlueprint`. Timers and progress can stay in controller initially or move into the service if they only touch production state.
+- **Extract:** `createPotion`, `createPotions`, `buyWeapon`, `buyUpgrade`, `activateBlueprint`. Timers and progress live in the service; controller passes `onDone` callbacks for DOM (e.g. re-enable buttons).
 - **Controller:** Delegates to ProductionService; scope still holds potions, weapons, upgrades, blueprints.
-- **Verification:** Create a potion, buy a weapon, buy an upgrade, activate a blueprint.
+- **Verification:** E2E test “Production tab shows potion UI after Stockpile (ProductionService)” — build Tent, then Stockpile, open Production tab, assert Healing Herbs and Create Potion. Manual: create a potion, buy a weapon, buy an upgrade, activate a blueprint.
+
+---
+
+## Phase 6: UiService (Optional) ✓
+
+- **Extract:** `nextTutorial`, `skipTut`, `startInfo`, `showError`, `changeTheme` into `src/services/ui.service.js`. Tutorial copy lives in the service; `showError` updates `errorDialog` DOM and optionally `scope.panel` when `panelInfo` is true.
+- **Controller:** Delegates to UiService with `$scope`; `$watch` on resources/gold still call `$scope.nextTutorial()` (delegate).
+- **Verification:** Manual: skip/step tutorial, show error (e.g. not enough gold), change theme. Existing E2E (tutorial flows during play) continues to pass.
 
 ---
 

@@ -24,9 +24,14 @@ import './analytics.js';
 import app from './app.js';
 import './controllers/gameConfig.constant.js';
 import './controllers/economy.service.js';
+import './controllers/util.service.js';
+import './controllers/building.service.js';
 import './controllers/saveLoad.service.js';
 import './controllers/combat.service.js';
 import './controllers/dungeon.service.js';
+import './controllers/hero.service.js';
+import './controllers/production.service.js';
+import './controllers/ui.service.js';
 import './controllers/maincontroller.js';
 
 // Ensure jQuery is still on window for code that uses $ (e.g. maincontroller dialogs)
