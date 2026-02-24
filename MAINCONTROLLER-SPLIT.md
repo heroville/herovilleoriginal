@@ -37,7 +37,7 @@ For every phase:
 3. **Register the service** in `src/app.js` (or a small `src/services/index.js` that app imports) so MainController can inject it.
 4. **In MainController** – replace the inlined logic with a call to the service; pass `$scope` (or the needed slice) so the service can read/write the same state.
 5. **Run** `npm run test`.
-6. **Run** `npm run dev` and go through the **Manual verification checklist** (full or the relevant slice).
+6. **Run** `npm run test:e2e` (and/or `npm run dev` + manual checklist).
 7. **Commit** (e.g. `git add -A && git commit -m "Phase 1.3.N: Extract XxxService"`).
 
 ---
@@ -116,8 +116,49 @@ If any step fails, fix before moving to the next phase (or revert the last commi
 
 ---
 
+## Process improvements
+
+### 1. E2E smoke tests (Playwright)
+
+The repo includes a minimal Playwright setup:
+
+- **Install (once):** `npm install` then `npx playwright install` (installs Chromium for test runs).
+- **Run:** `npm run test:e2e` — builds the app, starts `vite preview`, and runs `e2e/smoke.spec.js` (app loads, Gather increases resources, Save shows confirmation).
+- **Config:** `playwright.config.js` (webServer runs preview on port 4173; one Chromium project).
+- **Add more tests:** add files under `e2e/` with `*.spec.js` and use `test()` / `expect()` from `@playwright/test`.
+
+After each phase, run `npm run test:e2e` to reduce manual verification.
+
+### 2. Agent strategy: one agent in order vs new agent per phase (see below)
+
+**Recommendation:** Prefer **one agent working through the phases in order** so the “manual” checklist can be run automatically after each phase.
+
+- **Playwright** is a good fit: one `npm install`, runs against your dev server or `npm run preview`, and can drive the same flows (click resources, buy building, save, reload, load, add hero, etc.). You get a small `e2e/` or `tests/e2e/` folder and a script (e.g. `npm run test:e2e`) that starts the server, runs the tests, then exits.
+- **Scope:** Start with 3–5 critical flows that map to the checklist (e.g. “resources click → save → reload → load → state matches”, “add hero”, “start dungeon”). Add more as you do later phases. You don’t need to automate every checklist item on day one.
+- **When to run:** After each phase: `npm run test` (unit) then `npm run test:e2e` (browser). If both pass, you can skip or shorten manual verification.
+- **Lighter option:** If you want minimal setup, use the **cursor-ide-browser** MCP (or a single Playwright script that only does “open app, click until resources increase, then save and reload”) as a smoke test. That already reduces manual intervention.
+
+### 3. Agent strategy: one agent in order vs new agent per phase
+
+**Recommendation:** Prefer **one agent working through the phases in order** for this refactor.
+
+- **Why:** The work is all against the **same file** (`maincontroller.js`) and the same pattern (extract → service → delegate). Context from Phase 1 (where things live, how `$scope` and services interact, EconomyService/SaveLoadService patterns) directly helps Phases 2–5. A new agent each time would have to re-read the controller and the plan.
+- **When to start a new agent:** If the controller file or the plan gets too large to work with in one thread, or you switch to a different kind of task (e.g. “add Playwright” or “do Phase 1.4 cleanup”). Then a fresh agent with a narrow prompt (“Implement Phase 2 per MAINCONTROLLER-SPLIT.md; run unit and E2E tests”) is fine.
+- **Context tips:** Keep MAINCONTROLLER-SPLIT.md and VERIFICATION-CHECKLIST.md as the single source of truth. Each phase prompt can be: “Continue with Phase N (XxxService) per MAINCONTROLLER-SPLIT.md; run tests and the checklist/E2E.”
+
+### 3. Lessons from Phase 1 (SaveLoadService) to carry forward
+
+- **Registration pattern:** New service = `src/services/<name>.service.js` (logic) + `src/controllers/<name>.service.js` (import + `app.factory(...)`). MainController injects the service and replaces inlined logic with one-line delegates. Reuse this for Combat, Dungeon, Hero, Production.
+- **Scope vs dependencies:** Services that need `GameConfig` take it via Angular injection (factory argument). Services that need to call back into the UI (e.g. `showError`, `nextTutorial`) receive `scope` and call `scope.showError(...)`. Keep that pattern so the controller stays the single owner of `$scope`.
+- **DOM and globals:** The controller should do any jQuery that touches the DOM (e.g. `$("#showOld").prop(...)`, `$("#loading").dialog("open")`) and pass only data into the service. That keeps services testable without a browser and avoids “shouldLoad is not defined”–style bugs from legacy globals.
+- **Unit tests:** For each new service, add a small test (like `saveLoad.test.js`) that builds a mock scope, calls the service, and asserts on state. You don’t need full coverage; a single round-trip or key path per service is enough to catch regressions.
+- **Edge cases:** Phase 1 showed that “Reset” and “version mismatch” need explicit handling in the service so the right modal (or none) is shown. For later phases, document similar edge cases (e.g. “what if hero list is empty when starting a fight?”) in the plan or in the service file so the next step doesn’t reintroduce bugs.
+
+---
+
 ## Summary
 
 - Implement **one phase at a time** (SaveLoad → Combat → Dungeon → Hero → Production).
-- After each phase: **run tests**, **run the app**, **do the checklist**, **commit**.
-- This gives you small sections for testing and a clear way to review that changes are working after each update.
+- After each phase: **run tests**, **run the app** (or E2E), **do the checklist**, **commit**.
+- Use **one agent in order** for Phases 2–5; add **Playwright (or similar) E2E** to automate the checklist and reduce manual runs.
+- Reuse the **registration pattern**, **scope + injection pattern**, and **unit-test pattern** from Phase 1 for each new service.

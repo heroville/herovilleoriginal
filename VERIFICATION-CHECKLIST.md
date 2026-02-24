@@ -14,6 +14,6 @@ Use after each phase of the maincontroller split. Run `npm run dev`, open the ap
 - [ ] **Theme** – Change theme (if applicable); no errors
 - [ ] **Tutorial** – Skip or step through tutorial; panels advance; no errors
 
-**Tests:** `npm run test` must pass after every phase.
+**Tests:** `npm run test` must pass after every phase. **E2E:** Run `npm run test:e2e` (after `npx playwright install` once) to run browser smoke tests.
 
 See **MAINCONTROLLER-SPLIT.md** for full phase order and per-phase verification.
