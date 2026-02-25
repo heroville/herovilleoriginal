@@ -5,19 +5,19 @@
                 Sort <span class="caret down"></span>
             </button>
             <ul class="uib-dropdown-menu" role="menu">
-                <li><a href="" ng-click="sorting.heroTable = 'name'; reverse=!reverse"><u>Name</u></a></li>
-                <li><a href="" ng-click="sorting.heroTable = ['level','experience']; reverse=!reverse"><u>Level</u></a></li>
-                <li><a href="" ng-click="sorting.heroTable = 'equip.gold'; reverse=!reverse"><u>Gold</u></a></li>
-                <li><a href="" ng-click="sorting.heroTable = 'equip.scrap'; reverse=!reverse"><u>Resources</u></a></li>
-                <li><a href="" ng-click="sorting.heroTable = 'equip.weapon.id'; reverse=!reverse"><u>Weapon</u></a></li>
-                <li><a href="" ng-click="sorting.heroTable = 'equip.accessory.length'; reverse=!reverse"><u>Accessory</u></a></li>
-                <li><a href="" ng-click="sorting.heroTable = 'currHealth'; reverse=!reverse"><u>Health</u></a></li>
-                <li><a href="" ng-click="sorting.heroTable = 'experience'; reverse=!reverse"><u>Experience</u></a></li>
-                <li><a href="" ng-click="sorting.heroTable = 'dungeon'; reverse=!reverse"><u>Location</u></a></li>
+                <li><a href="" ng-click="state.sorting.heroTable = 'name'; reverse=!reverse"><u>Name</u></a></li>
+                <li><a href="" ng-click="state.sorting.heroTable = ['level','experience']; reverse=!reverse"><u>Level</u></a></li>
+                <li><a href="" ng-click="state.sorting.heroTable = 'equip.gold'; reverse=!reverse"><u>Gold</u></a></li>
+                <li><a href="" ng-click="state.sorting.heroTable = 'equip.scrap'; reverse=!reverse"><u>Resources</u></a></li>
+                <li><a href="" ng-click="state.sorting.heroTable = 'equip.weapon.id'; reverse=!reverse"><u>Weapon</u></a></li>
+                <li><a href="" ng-click="state.sorting.heroTable = 'equip.accessory.length'; reverse=!reverse"><u>Accessory</u></a></li>
+                <li><a href="" ng-click="state.sorting.heroTable = 'currHealth'; reverse=!reverse"><u>Health</u></a></li>
+                <li><a href="" ng-click="state.sorting.heroTable = 'experience'; reverse=!reverse"><u>Experience</u></a></li>
+                <li><a href="" ng-click="state.sorting.heroTable = 'dungeon'; reverse=!reverse"><u>Location</u></a></li>
             </ul>
         </div>
-        <input ng-model="hFilterString.name">
-        <ul id="heroList" ng-repeat="hero in filteredheroList = (heroList | heroAdventure | orderBy:sorting.heroTable:reverse | filter:hFilterString)" ng-hide="showHeroTable.enabled">
+        <input ng-model="state.hFilterString.name">
+        <ul id="heroList" ng-repeat="hero in filteredheroList = (state.heroList | heroAdventure | orderBy:state.sorting.heroTable:reverse | filter:state.hFilterString)" ng-hide="state.showHeroTable.enabled">
             <li>
                 <table class="table table-bordered" id="heroTable">
                     <tr>
@@ -71,7 +71,7 @@
                 </table>
             </li>
         </ul>
-        <table id="oldheroTable" class="table table-bordered" ng-show="showHeroTable.enabled">
+        <table id="oldheroTable" class="table table-bordered" ng-show="state.showHeroTable.enabled">
             <tr>
                 <td><u><b>Heroes</b></u></td>
             </tr>
@@ -85,7 +85,7 @@
                 <td><u>Location</u></td>
                 <td><u>Progress</u></td>
             </tr>
-            <tr ng-repeat="hero in filteredheroList = (heroList | orderBy:sorting.heroTable:reverse | filter:hFilterString | filter:!party)">
+            <tr ng-repeat="hero in filteredheroList = (state.heroList | orderBy:state.sorting.heroTable:reverse | filter:state.hFilterString | filter:!state.party)">
                 <td>
                     {{hero.name}}
                 </td>
@@ -125,12 +125,12 @@
                 <td><u>Progress</u></td>
                 <td><u>Job</u></td>
             </tr>
-            <tr ng-repeat="heroWork in filteredWorkheroList = (heroList | heroWorker | orderBy:sorting.heroWork:reverse)">
+            <tr ng-repeat="heroWork in filteredWorkheroList = (state.heroList | heroWorker | orderBy:state.sorting.heroWork:reverse)">
                 <td>{{heroWork.name}}</td>
                 <td>{{heroWork.level}} ({{heroWork.experience}}/{{heroWork.next}})</td>
                 <td>{{heroWork.location}} - {{heroWork.job.name}}</td>
                 <td>{{heroWork.progress}}</td>
-                <td><select class="span17" ng-init="selectedJob = jobs[1]" ng-model='selectedJob' ng-options="job.name for job in jobs | filter:{enabled:true}"></select></td>
+                <td><select class="span17" ng-init="selectedJob = state.jobs[1]" ng-model='selectedJob' ng-options="job.name for job in state.jobs | filter:{enabled:true}"></select></td>
                 <td>
                     <button ng-click="heroProfession(selectedJob.id, heroWork.id)">Change</button>
                 </td>

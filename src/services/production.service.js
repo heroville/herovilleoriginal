@@ -3,47 +3,49 @@
  * Used by MainController; receives scope for state; controller provides onDone for DOM (e.g. button enable).
  */
 
-function ProductionServiceFactory(EconomyService) {
+function ProductionServiceFactory(EconomyService, GameUiService) {
 
-    function createPotion(scope, button, start, heroID, onDone) {
+    function createPotion(button, start, heroID, onDone) {
+        const s = EconomyService.getState();
         if (heroID !== 0) {
             heroID = heroID || -1;
         }
-        if (scope.potion.prodTime > start) {
+        if (s.potion.prodTime > start) {
             if (button) {
-                scope.potion.progress = (scope.potion.prodTime - start).toString().toHHMMSS();
+                s.potion.progress = (s.potion.prodTime - start).toString().toHHMMSS();
             } else if (heroID >= 0) {
-                scope.heroList[heroID].progress = (scope.potion.prodTime - start).toString().toHHMMSS();
+                s.heroList[heroID].progress = (s.potion.prodTime - start).toString().toHHMMSS();
             }
             setTimeout(function () {
-                createPotion(scope, button, start + 1, heroID, onDone);
-            }, scope.gameLoop);
+                createPotion(button, start + 1, heroID, onDone);
+            }, s.gameLoop);
         } else {
-            scope.potion.working--;
-            scope.potion.count++;
+            s.potion.working--;
+            s.potion.count++;
             if (button) {
-                scope.potion.progress = "Create Potion";
+                s.potion.progress = "Create Potion";
                 if (onDone) onDone();
             } else if (heroID >= 0) {
-                scope.heroList[heroID].progress = "Idle";
+                s.heroList[heroID].progress = "Idle";
             }
         }
     }
 
-    function createPotions(scope, potionID, button, start, heroID, onDone) {
+    function createPotions(potionID, button, start, heroID, onDone) {
+        const s = EconomyService.getState();
         if (heroID !== 0) {
             heroID = heroID || -1;
         }
-        const acc = scope.potions[potionID];
+        const acc = s.potions[potionID];
         if (acc.prodTime > start) {
             if (button) {
                 acc.progress = (acc.prodTime - start).toString().toHHMMSS();
             } else if (heroID >= 0) {
-                scope.heroList[heroID].progress = (acc.prodTime - start).toString().toHHMMSS();
+                s.heroList[heroID].progress = (acc.prodTime - start).toString().toHHMMSS();
             }
             setTimeout(function () {
-                createPotions(scope, potionID, button, start + 1, heroID, onDone);
-            }, scope.gameLoop);
+                createPotions(potionID, button, start + 1, heroID, onDone);
+            }, s.gameLoop);
         } else {
             acc.count++;
             acc.working--;
@@ -51,25 +53,26 @@ function ProductionServiceFactory(EconomyService) {
                 acc.progress = "Create " + acc.name;
                 if (onDone) onDone();
             } else if (heroID >= 0) {
-                scope.heroList[heroID].progress = "Idle";
+                s.heroList[heroID].progress = "Idle";
             }
         }
     }
 
-    function buyWeapon(scope, weaponID, button, start, heroID, onDone) {
+    function buyWeapon(weaponID, button, start, heroID, onDone) {
+        const s = EconomyService.getState();
         if (heroID !== 0) {
             heroID = heroID || -1;
         }
-        const weapon = scope.weapons[weaponID];
+        const weapon = s.weapons[weaponID];
         if (weapon.prodTime > start) {
             if (button) {
                 weapon.progress = (weapon.prodTime - start).toString().toHHMMSS();
             } else if (heroID >= 0) {
-                scope.heroList[heroID].progress = (weapon.prodTime - start).toString().toHHMMSS();
+                s.heroList[heroID].progress = (weapon.prodTime - start).toString().toHHMMSS();
             }
             setTimeout(function () {
-                buyWeapon(scope, weaponID, button, start + 1, heroID, onDone);
-            }, scope.gameLoop);
+                buyWeapon(weaponID, button, start + 1, heroID, onDone);
+            }, s.gameLoop);
         } else {
             weapon.count++;
             weapon.working--;
@@ -77,30 +80,31 @@ function ProductionServiceFactory(EconomyService) {
                 weapon.progress = "Create " + weapon.name;
                 if (onDone) onDone();
             } else if (heroID >= 0) {
-                scope.heroList[heroID].progress = "Idle";
+                s.heroList[heroID].progress = "Idle";
             }
         }
     }
 
-    function buyUpgrade(scope, upgradeID) {
-        if (scope.upgrades[upgradeID].price <= scope.gold) {
-            scope.decGold(scope.upgrades[upgradeID].price);
-            scope.upgrades[upgradeID].enabled = false;
+    function buyUpgrade(upgradeID) {
+        const s = EconomyService.getState();
+        if (s.upgrades[upgradeID].price <= s.gold) {
+            EconomyService.decGold(s.upgrades[upgradeID].price);
+            s.upgrades[upgradeID].enabled = false;
             switch (upgradeID) {
                 case 0: {
-                    scope.incr++;
-                    if (scope.panelNumber === 9) {
-                        scope.nextTutorial();
+                    s.incr++;
+                    if (s.panelNumber === 9) {
+                        GameUiService.nextTutorial();
                     }
-                    scope.upgrades[2].enabled = true;
+                    s.upgrades[2].enabled = true;
                     break;
                 }
                 case 1: {
-                    scope.buildings[0].tier++;
-                    scope.buildings[0].name = 'Campsite';
-                    scope.restAmount += 3;
-                    if (scope.panelNumber === 18) {
-                        scope.nextTutorial();
+                    s.buildings[0].tier++;
+                    s.buildings[0].name = 'Campsite';
+                    s.restAmount += 3;
+                    if (s.panelNumber === 18) {
+                        GameUiService.nextTutorial();
                     }
                     break;
                 }
@@ -112,64 +116,75 @@ function ProductionServiceFactory(EconomyService) {
                 case 7:
                 case 8:
                 case 9: {
-                    scope.incr = scope.incr * 2;
-                    scope.upgrades[upgradeID + 1].enabled = true;
+                    s.incr = s.incr * 2;
+                    s.upgrades[upgradeID + 1].enabled = true;
                     break;
                 }
                 case 10: {
-                    scope.incr = scope.incr * 2;
+                    s.incr = s.incr * 2;
                     break;
                 }
             }
         } else {
-            scope.showError("You do not have enough Gold");
+            GameUiService.showError("You do not have enough Gold");
         }
     }
 
-    function activateBlueprint(scope, value) {
-        if (!scope.blueprints[value].enabled && !scope.blueprints[value].cost == 0) {
-            scope.blueprints[value].enabled = true;
+    function activateBlueprint(value) {
+        const s = EconomyService.getState();
+        if (!s.blueprints[value].enabled && !s.blueprints[value].cost == 0) {
+            s.blueprints[value].enabled = true;
         }
     }
 
-    function create(scope, itemID) {
+    /**
+     * Start potion/potions production (entry point). Uses explicit state and actions.
+     * @param {{ potion: object, potions: array, resources: number, panelNumber: number }} state
+     * @param {{ decResources: function(number): boolean, showError: function(string), nextTutorial: function(), disablePotionButton: function(number), startCreatePotion: function(), startCreatePotions: function(number) }} actions
+     */
+    function create(state, actions, itemID) {
         if (itemID === -1) {
-            if (scope.potion.count + scope.potion.working >= scope.potion.maxCount) return;
-            if (!EconomyService.decResources(scope.potion.cost)) {
-                scope.showError("You do not have enough Resources.");
+            if (state.potion.count + state.potion.working >= state.potion.maxCount) return;
+            if (!actions.decResources(state.potion.cost)) {
+                actions.showError("You do not have enough Resources.");
                 return;
             }
-            if (scope.panelNumber === 7) scope.nextTutorial();
-            if (scope.disablePotionButton) scope.disablePotionButton(-1);
-            scope.potion.working++;
-            scope.createPotion(true, 0);
+            if (state.panelNumber === 7) actions.nextTutorial();
+            if (actions.disablePotionButton) actions.disablePotionButton(-1);
+            state.potion.working++;
+            actions.startCreatePotion();
         } else {
-            if (scope.potions[itemID].count + scope.potions[itemID].working >= scope.potions[itemID].maxCount) return;
-            if (!EconomyService.decResources(scope.potions[itemID].cost)) {
-                scope.showError("You do not have enough Resources.");
+            if (state.potions[itemID].count + state.potions[itemID].working >= state.potions[itemID].maxCount) return;
+            if (!actions.decResources(state.potions[itemID].cost)) {
+                actions.showError("You do not have enough Resources.");
                 return;
             }
-            if (scope.disablePotionButton) scope.disablePotionButton(itemID);
-            scope.potions[itemID].working++;
-            scope.createPotions(itemID, true, 0);
+            if (actions.disablePotionButton) actions.disablePotionButton(itemID);
+            state.potions[itemID].working++;
+            actions.startCreatePotions(itemID);
         }
     }
 
-    function purchaseWeapon(scope, weaponID) {
-        const w = scope.weapons[weaponID];
+    /**
+     * Start weapon production (entry point). Uses explicit state and actions.
+     * @param {{ weapons: array, resources: number, buildings: array, upgrades: array, gameStats: object, panelNumber: number }} state
+     * @param {{ decResources: function(number): boolean, showError: function(string), nextTutorial: function(), disableWeaponButton: function(number), startBuyWeapon: function(number) }} actions
+     */
+    function purchaseWeapon(state, actions, weaponID) {
+        const w = state.weapons[weaponID];
         if (w.count + w.working >= w.maxCount) return;
-        if (scope.resources < w.cost) {
-            scope.showError("You do not have enough Resources.");
+        if (state.resources < w.cost) {
+            actions.showError("You do not have enough Resources.");
             return;
         }
-        if (scope.disableWeaponButton) scope.disableWeaponButton(weaponID);
-        EconomyService.decResources(w.cost);
+        if (actions.disableWeaponButton) actions.disableWeaponButton(weaponID);
+        actions.decResources(w.cost);
         w.working++;
-        if (scope.panelNumber === 16) scope.nextTutorial();
-        if (scope.buildings[0].tier === 1) scope.upgrades[1].enabled = true;
-        if (!(scope.gameStats.weaponsManual[weaponID] >= 0)) scope.gameStats.weaponsManual[weaponID] = 0;
-        scope.gameStats.weaponsManual[weaponID]++;
-        scope.buyWeapon(weaponID, true, 0);
+        if (state.panelNumber === 16) actions.nextTutorial();
+        if (state.buildings[0].tier === 1) state.upgrades[1].enabled = true;
+        if (!(state.gameStats.weaponsManual[weaponID] >= 0)) state.gameStats.weaponsManual[weaponID] = 0;
+        state.gameStats.weaponsManual[weaponID]++;
+        actions.startBuyWeapon(weaponID);
     }
 
     return {

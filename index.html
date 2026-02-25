@@ -19,15 +19,15 @@
                     <div class="panel-body">
                         <ul id="panelList">
                             <li>
-                                <b>{{panel[0]}}</b>
+                                <b>{{state.panel[0]}}</b>
                                 <hr />
                             </li>
-                            <li ng-repeat="lines in panel track by $index" ng-if="panel.indexOf(lines) > 0">
+                            <li ng-repeat="lines in state.panel track by $index" ng-if="state.panel.indexOf(lines) > 0">
                                 {{lines}}
                             </li>
                         </ul>
                         <br />
-                        <div id="infoButtonDiv"><div id="infobutton" ng-click="nextTutorial()" ng-show="showTutorial">Next</div></div>
+                        <div id="infoButtonDiv"><div id="infobutton" ng-click="nextTutorial()" ng-show="state.showTutorial">Next</div></div>
                     </div>
                 </div>
             </div>
@@ -38,7 +38,7 @@
                 <div class="panel panel-default">
                     <div class="panel-heading">Upgrades</div>
                     <div class="panel-body">
-                        <ul id="upgradeList" ng-repeat="upgrade in filteredUpgrades = (upgrades | filter:{enabled:true})">
+                        <ul id="upgradeList" ng-repeat="upgrade in filteredUpgrades = (state.upgrades | filter:{enabled:true})">
                             <li>
                                 <button ng-click="buyUpgrade(upgrade.id)">
                                     {{upgrade.name}} <br />
@@ -53,33 +53,38 @@
 
         <div class="row">
             <div id="resources">
-                {{resources | number}}/{{maxResources | number}}
+                {{state.resources | number}}/{{state.maxResources | number}}
                 <img src="images/I_Chest01.png" />
-                {{gold | number}}/{{maxGold | number}}
+                {{state.gold | number}}/{{state.maxGold | number}}
                 <img src="images/I_GoldBar.png" />
-                <img ng-hide="gameLoop == 1000" ng-src="images/S_Buff11.png" title="Doubles the game speed" />
-                <img ng-hide="damageMulti == 1" ng-src="images/S_Shadow07.png" title="Doubles your heroes damage" />
-                <img ng-hide="goldMulti == 1" src="images/E_Gold02.png" title="Doubles the gold gained from sales" />
+                <img ng-hide="state.gameLoop == 1000" ng-src="images/S_Buff11.png" title="Doubles the game speed" />
+                <img ng-hide="state.damageMulti == 1" ng-src="images/S_Shadow07.png" title="Doubles your heroes damage" />
+                <img ng-hide="state.goldMulti == 1" src="images/E_Gold02.png" title="Doubles the gold gained from sales" />
             </div>
-            <div id="gatherButton" ng-click="incrRes(incr)">Gather</div>
-            <div id="gatherButton" ng-click="testing2()" ng-show="debugging">Button</div>
+            <div id="gatherButton" ng-click="incrRes(state.incr)">Gather</div>
             <div id="errorDialog" title="Error"><br /></div>
         </div>
 
         <uib-tabset id="gameTabs">
             <uib-tab heading="Town" id="town">
-                <ng-include src="'partials/town.html'"></ng-include>
+                <div ng-controller="BuildingController">
+                    <ng-include src="'partials/town.html'"></ng-include>
+                </div>
             </uib-tab>
-            <uib-tab heading="Hero" id="hero" disabled="heroEnabled">
-                <ng-include src="'partials/hero.html'"></ng-include>
+            <uib-tab heading="Hero" id="hero" disabled="state.heroEnabled">
+                <div ng-controller="HeroController">
+                    <ng-include src="'partials/hero.html'"></ng-include>
+                </div>
             </uib-tab>
-            <uib-tab heading="Production" disabled="prodEnabled">
-                <ng-include src="'partials/production.html'"></ng-include>
+            <uib-tab heading="Production" disabled="state.prodEnabled">
+                <div ng-controller="ProductionController">
+                    <ng-include src="'partials/production.html'"></ng-include>
+                </div>
             </uib-tab>
-            <uib-tab heading="Professions" disabled="upgEnabled">
+            <uib-tab heading="Professions" disabled="state.upgEnabled">
                 <ng-include src="'partials/professions.html'"></ng-include>
             </uib-tab>
-            <uib-tab heading="Bestiary" disabled="beastEnabled">
+            <uib-tab heading="Bestiary" disabled="state.beastEnabled">
                 <ng-include src="'partials/bestiary.html'"></ng-include>
             </uib-tab>
             <uib-tab heading="Options/Help" id="options">
@@ -105,7 +110,7 @@
 
         <div class="footer navbar-fixed-bottom">
             <div class="container" id="support">
-                <a href="" ng-click="showVersion()">Version {{version}}</a>
+                <a href="" ng-click="showVersion()">Version {{state.version}}</a>
                 Meredori &copy; 2017
                 <a id="paypal" href="https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=KWC55P8UFP3AN" target="_blank">
                     <img src="images/paypal.png" style="width:35px" />

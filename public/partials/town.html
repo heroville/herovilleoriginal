@@ -9,7 +9,7 @@
                 <th><u>Level</u></th>
                 <th><u>Cost</u></th>
             </tr>
-            <tr ng-repeat="building in buildings" ng-show="building.enabled == true">
+            <tr ng-repeat="building in state.buildings" ng-show="building.enabled == true">
                 <td ng-attr-title="{{building.description}}">{{building.name}}</td>
                 <td>{{building.count | number}}</td>
                 <td>{{building.cost | number}}</td>
@@ -29,10 +29,10 @@
                 <td><u>Length</u></td>
                 <td><u>Encounter Rate</u></td>
             </tr>
-            <tr ng-repeat="dungeon in filteredDungeons = (dungeons | filter:{enabled:true})">
+            <tr ng-repeat="dungeon in filteredDungeons = (state.dungeons | filter:{enabled:true})">
                 <td>{{dungeon.name}}</td>
                 <td>{{dungeon.level}}</td>
-                <td>{{bosses[dungeon.bossID].name}}</td>
+                <td>{{state.bosses[dungeon.bossID].name}}</td>
                 <td>{{dungeon.steps}}</td>
                 <td>{{dungeon.encounterRate}}%</td>
             </tr>

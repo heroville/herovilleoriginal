@@ -8,7 +8,7 @@
                 <td><u>Name</u></td>
                 <td><u>Description</u></td>
             </tr>
-            <tr ng-repeat="job in filteredJobs = (jobs | filter:{enabled:true})">
+            <tr ng-repeat="job in filteredJobs = (state.jobs | filter:{enabled:true})">
                 <td>{{job.name}}</td>
                 <td>{{job.description}}</td>
             </tr>

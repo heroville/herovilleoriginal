@@ -1,6 +1,6 @@
 /**
  * Hero and worker creation, profession/class changes, XP, healing, name generation.
- * Used by MainController; receives scope for state and callbacks.
+ * Uses GameStateService, GameUiService, DungeonService, ProductionService, UtilService, EconomyService (no scope param).
  */
 
 const DEFAULT_POTIONS = [
@@ -11,20 +11,22 @@ const DEFAULT_POTIONS = [
     { id: 4, name: 'Great Health', count: 0, active: false }
 ];
 
-function HeroServiceFactory(GameConfig, EconomyService) {
+function HeroServiceFactory(GameConfig, EconomyService, GameStateService, GameUiService, DungeonService, ProductionService, UtilService) {
     const HERO_CLASSES = GameConfig.heroClasses || [];
 
-    function defaultEquip(scope) {
+    function defaultEquip() {
+        const s = GameStateService.getState();
         return {
-            weapon: JSON.parse(JSON.stringify(scope.weapons[0])),
+            weapon: JSON.parse(JSON.stringify(s.weapons[0])),
             potions: JSON.parse(JSON.stringify(DEFAULT_POTIONS)),
             gold: 0,
             scrap: 0
         };
     }
 
-    function addHero(scope, heroName) {
-        const hero = scope.heroList;
+    function addHero(heroName) {
+        const s = GameStateService.getState();
+        const hero = s.heroList;
         hero[hero.length] = {
             id: hero.length,
             name: heroName,
@@ -33,20 +35,21 @@ function HeroServiceFactory(GameConfig, EconomyService) {
             level: 1,
             experience: 0,
             next: 50,
-            equip: defaultEquip(scope),
+            equip: defaultEquip(),
             location: 'Home',
             progress: 'Idle',
             dungeon: 0,
             clearCount: 0,
             working: false,
-            job: scope.jobs[0],
-            academy: scope.heroClass[2],
+            job: s.jobs[0],
+            academy: s.heroClass[2],
             party: false
         };
     }
 
-    function addWorker(scope, heroName) {
-        const hero = scope.heroList;
+    function addWorker(heroName) {
+        const s = GameStateService.getState();
+        const hero = s.heroList;
         hero[hero.length] = {
             id: hero.length,
             name: heroName,
@@ -55,80 +58,83 @@ function HeroServiceFactory(GameConfig, EconomyService) {
             level: 1,
             experience: 0,
             next: 50,
-            equip: defaultEquip(scope),
+            equip: defaultEquip(),
             location: 'Home',
             progress: 'Idle',
             dungeon: 0,
             clearCount: 0,
             working: false,
-            job: scope.jobs[0],
-            academy: scope.heroClass[1],
+            job: s.jobs[0],
+            academy: s.heroClass[1],
             party: false
         };
     }
 
-    function newHeroName(scope) {
-        if (!scope.heroName || !scope.heroName.first || !scope.heroName.title) {
-            return 'Hero ' + scope.heroList.length;
+    function newHeroName() {
+        const s = GameStateService.getState();
+        if (!s.heroName || !s.heroName.first || !s.heroName.title) {
+            return 'Hero ' + s.heroList.length;
         }
-        let randFirst = Math.floor(Math.random() * scope.heroName.first.length);
-        let newName = scope.heroName.first[randFirst] + ' ';
-        let randTitle = Math.floor(Math.random() * scope.heroName.title.length);
-        newName += scope.heroName.title[randTitle];
-        if (typeof scope.debugLog === 'function') scope.debugLog(newName);
-        const exist = scope.heroList.some((h) => h.name === newName);
-        if (exist) return newHeroName(scope);
+        let randFirst = Math.floor(Math.random() * s.heroName.first.length);
+        let newName = s.heroName.first[randFirst] + ' ';
+        let randTitle = Math.floor(Math.random() * s.heroName.title.length);
+        newName += s.heroName.title[randTitle];
+        const exist = s.heroList.some((h) => h.name === newName);
+        if (exist) return newHeroName();
         return newName;
     }
 
-    function heroProfession(scope, selectedJobID, heroID) {
-        const count = scope.heroList.filter((h) => h.job.id === selectedJobID).length;
-        if (count >= (scope.jobs[selectedJobID] && scope.jobs[selectedJobID].limit)) {
-            if (typeof scope.showError === 'function') {
-                scope.showError("You can not have another hero doing " + scope.jobs[selectedJobID].name + ".");
-            }
+    function heroProfession(selectedJobID, heroID) {
+        const s = GameStateService.getState();
+        const count = s.heroList.filter((h) => h.job.id === selectedJobID).length;
+        if (count >= (s.jobs[selectedJobID] && s.jobs[selectedJobID].limit)) {
+            GameUiService.showError("You can not have another hero doing " + s.jobs[selectedJobID].name + ".");
             return;
         }
-        scope.jobs[selectedJobID].current++;
-        scope.heroList[heroID].progress = 'Idle';
-        scope.heroList[heroID].job = scope.jobs[selectedJobID];
+        s.jobs[selectedJobID].current++;
+        s.heroList[heroID].progress = 'Idle';
+        s.heroList[heroID].job = s.jobs[selectedJobID];
     }
 
-    function heroClassChange(scope, selectedClassID, heroID) {
-        scope.tempClass = scope.heroClass[selectedClassID];
-        scope.tempHero = heroID;
+    function heroClassChange(selectedClassID, heroID) {
+        const s = GameStateService.getState();
+        s.tempClass = s.heroClass[selectedClassID];
+        s.tempHero = heroID;
     }
 
-    function confirmClass(scope) {
-        const hero = scope.heroList[scope.tempHero];
-        const cls = scope.tempClass;
+    function confirmClass() {
+        const s = GameStateService.getState();
+        const hero = s.heroList[s.tempHero];
+        const cls = s.tempClass;
         if (!hero || !cls) return;
         hero.academy = cls;
         if (HERO_CLASSES[1] && cls.id === HERO_CLASSES[1].id) {
             hero.progress = 'Idle';
         }
-        scope.tempClass = null;
-        scope.tempHero = null;
+        s.tempClass = null;
+        s.tempHero = null;
     }
 
-    function gainExp(scope, hero, amount) {
+    function gainExp(hero, amount) {
+        const s = GameStateService.getState();
         hero.experience += amount;
         if (hero.experience >= hero.next) {
             hero.level++;
             hero.next += hero.level * 25;
             hero.health += 50;
             hero.experience = 0;
-            if (scope.buildings[4] && hero.level >= 3 && scope.buildings[4].count === 0 && !scope.buildings[4].enabled) {
-                if (typeof scope.activateBlueprint === 'function') scope.activateBlueprint(2);
+            if (s.buildings[4] && hero.level >= 3 && s.buildings[4].count === 0 && !s.buildings[4].enabled) {
+                ProductionService.activateBlueprint(2);
             }
-            if (scope.buildings[7] && hero.level >= 10 && scope.buildings[7].count === 0 && !scope.buildings[7].enabled) {
-                // scope.activateBlueprint(5);
+            if (s.buildings[7] && hero.level >= 10 && s.buildings[7].count === 0 && !s.buildings[7].enabled) {
+                // ProductionService.activateBlueprint(5);
             }
         }
     }
 
-    function heal(scope, heroID, amount, flag) {
-        const hero = scope.heroList[heroID];
+    function heal(heroID, amount, flag) {
+        const s = GameStateService.getState();
+        const hero = s.heroList[heroID];
         if (!hero) return;
         if (flag === 1) {
             amount = Math.floor((hero.health / 100) * amount);
@@ -140,82 +146,84 @@ function HeroServiceFactory(GameConfig, EconomyService) {
         }
     }
 
-    function rest(scope) {
-        for (let i = 0; i < scope.heroList.length; i++) {
-            const hero = scope.heroList[i];
+    function rest() {
+        const s = GameStateService.getState();
+        for (let i = 0; i < s.heroList.length; i++) {
+            const hero = s.heroList[i];
             const weapon = hero.equip.weapon;
             if (hero.location !== 'Home') continue;
             if (hero.equip.gold > 0) {
-                if (scope.buildings[3].count > hero.equip.weapon.id) {
-                    for (let j = scope.buildings[3].count; j > hero.equip.weapon.id; j--) {
-                        if (scope.meetRequirements(hero, scope.weapons[j])) {
-                            if (hero.equip.gold >= scope.weapons[j].sellPrice && scope.weapons[j].count > 0) {
-                                hero.equip.gold -= scope.weapons[j].sellPrice;
-                                scope.weapons[j].count--;
-                                scope.incGold(scope.weapons[j].sellPrice);
-                                hero.equip.weapon = JSON.parse(JSON.stringify(scope.weapons[j]));
+                if (s.buildings[3].count > hero.equip.weapon.id) {
+                    for (let j = s.buildings[3].count; j > hero.equip.weapon.id; j--) {
+                        if (UtilService.meetRequirements(hero, s.weapons[j])) {
+                            if (hero.equip.gold >= s.weapons[j].sellPrice && s.weapons[j].count > 0) {
+                                hero.equip.gold -= s.weapons[j].sellPrice;
+                                s.weapons[j].count--;
+                                EconomyService.incGold(s.weapons[j].sellPrice);
+                                hero.equip.weapon = JSON.parse(JSON.stringify(s.weapons[j]));
                                 j = 0;
                             }
                         }
                     }
                 }
-                if ((weapon.durability <= (scope.weapons[weapon.id].durability * 0.2) || weapon.minDamage < scope.weapons[weapon.id].minDamage) && hero.equip.gold >= weapon.sellPrice && scope.weapons[weapon.id].count > 0) {
-                    hero.equip.gold -= scope.weapons[weapon.id].sellPrice;
-                    scope.weapons[weapon.id].count--;
-                    hero.equip.weapon = JSON.parse(JSON.stringify(scope.weapons[weapon.id]));
+                if ((weapon.durability <= (s.weapons[weapon.id].durability * 0.2) || weapon.minDamage < s.weapons[weapon.id].minDamage) && hero.equip.gold >= weapon.sellPrice && s.weapons[weapon.id].count > 0) {
+                    hero.equip.gold -= s.weapons[weapon.id].sellPrice;
+                    s.weapons[weapon.id].count--;
+                    hero.equip.weapon = JSON.parse(JSON.stringify(s.weapons[weapon.id]));
                 }
                 for (let k = 0; k < hero.equip.potions.length; k++) {
-                    if (scope.potions[k] && hero.equip.potions[k].count < scope.potions[k].maxHero && hero.equip.gold >= scope.potions[k].sellPrice && scope.potions[k].count > 0) {
-                        hero.equip.gold -= scope.potions[k].sellPrice;
-                        scope.incGold(scope.potions[k].sellPrice);
-                        scope.potions[k].count--;
+                    if (s.potions[k] && hero.equip.potions[k].count < s.potions[k].maxHero && hero.equip.gold >= s.potions[k].sellPrice && s.potions[k].count > 0) {
+                        hero.equip.gold -= s.potions[k].sellPrice;
+                        EconomyService.incGold(s.potions[k].sellPrice);
+                        s.potions[k].count--;
                         hero.equip.potions[k].count++;
                     }
                 }
-                if ((hero.health - hero.currHealth) >= scope.potion.healing && scope.potion.count > 0 && (scope.gold + scope.potion.sellPrice) <= scope.maxGold && hero.equip.gold >= scope.potion.sellPrice) {
-                    hero.equip.gold -= scope.potion.sellPrice;
-                    scope.incGold(scope.potion.sellPrice);
-                    scope.potion.count--;
-                    scope.heal(i, scope.potion.healing, 1);
+                if ((hero.health - hero.currHealth) >= s.potion.healing && s.potion.count > 0 && (s.gold + s.potion.sellPrice) <= s.maxGold && hero.equip.gold >= s.potion.sellPrice) {
+                    hero.equip.gold -= s.potion.sellPrice;
+                    EconomyService.incGold(s.potion.sellPrice);
+                    s.potion.count--;
+                    heal(i, s.potion.healing, 1);
                 }
             }
-            scope.heal(i, 2, 1);
+            heal(i, 2, 1);
             if (hero.currHealth === hero.health && (hero.academy.id === HERO_CLASSES[0].id || hero.academy.id === HERO_CLASSES[2].id)) {
-                scope.attemptDungeon(hero.dungeon, [hero]);
-                hero.location = scope.dungeons[hero.dungeon].name;
+                DungeonService.attemptDungeon(hero.dungeon, [hero]);
+                hero.location = s.dungeons[hero.dungeon].name;
             } else if (hero.progress === 'Idle') {
-                scope.incrRes(Math.ceil(scope.heroList[i].level / 4) ^ 2);
+                EconomyService.incrRes(Math.ceil(s.heroList[i].level / 4) ^ 2);
             }
         }
     }
 
-    function work(scope) {
-        for (let i = 0; i < scope.heroList.length; i++) {
-            const hero = scope.heroList[i];
+    function work() {
+        const s = GameStateService.getState();
+        for (let i = 0; i < s.heroList.length; i++) {
+            const hero = s.heroList[i];
             switch (hero.job.id) {
                 case 0:
                     break;
                 case 1: {
-                    if ((scope.potion.count + scope.potion.working) < scope.potion.maxCount && hero.progress === 'Idle') {
-                        if (EconomyService.decResources(scope.potion.cost)) {
-                            scope.potion.working++;
+                    if ((s.potion.count + s.potion.working) < s.potion.maxCount && hero.progress === 'Idle') {
+                        if (EconomyService.decResources(s.potion.cost)) {
+                            s.potion.working++;
                             if (hero.academy.id !== HERO_CLASSES[1].id) {
-                                scope.createPotion(false, Math.floor((hero.level * 0.05) * scope.potion.prodTime), i);
+                                ProductionService.createPotion(false, Math.floor((hero.level * 0.05) * s.potion.prodTime), i);
                             } else {
-                                scope.gainExp(hero, Math.ceil(scope.potion.prodTime / 2));
-                                scope.createPotion(false, Math.floor((hero.level * 0.05) * scope.potion.prodTime), i);
+                                gainExp(hero, Math.ceil(s.potion.prodTime / 2));
+                                ProductionService.createPotion(false, Math.floor((hero.level * 0.05) * s.potion.prodTime), i);
                             }
                         }
                     }
-                    for (let j = 0; j < scope.potions.length; j++) {
-                        if (scope.potions[j].enabled && (scope.potions[j].count + scope.potions[j].working) < scope.potions[j].maxCount && hero.progress === 'Idle') {
-                            if (EconomyService.decResources(scope.potions[j].cost)) {
-                                scope.potions[j].working++;
+                    for (let j = 0; j < s.potions.length; j++) {
+                        if (s.potions[j].enabled && (s.potions[j].count + s.potions[j].working) < s.potions[j].maxCount && hero.progress === 'Idle') {
+                            if (EconomyService.decResources(s.potions[j].cost)) {
+                                s.potions[j].working++;
                                 if (hero.academy.id !== HERO_CLASSES[1].id) {
-                                    scope.createPotions(j, false, Math.floor((hero.level * 0.05) * scope.potions[j].prodTime), i);
+                                    ProductionService.createPotions(j, false, Math.floor((hero.level * 0.05) * s.potions[j].prodTime), i);
                                 } else {
-                                    scope.gainExp(hero, Math.ceil(scope.potions[j].prodTime / 2));
-                                    scope.createPotions(j, false, Math.floor((hero.level * 0.05) * scope.potions[j].prodTime), i);
+                                    gainExp(hero, Math.ceil(s.potions[j].prodTime / 2));
+                                    ProductionService.createPotions(j, false, Math.floor((hero.level * 0.05) * s.potions[j].prodTime), i);
                                 }
                             }
                         }
@@ -223,17 +231,17 @@ function HeroServiceFactory(GameConfig, EconomyService) {
                     break;
                 }
                 case 2: {
-                    for (let j = 0; j < scope.weapons.length; j++) {
-                        if (scope.weapons[j].enabled && (scope.weapons[j].count + scope.weapons[j].working) < scope.weapons[j].maxCount && hero.progress === 'Idle') {
-                            if (EconomyService.decResources(scope.weapons[j].cost)) {
-                                scope.weapons[j].working++;
+                    for (let j = 0; j < s.weapons.length; j++) {
+                        if (s.weapons[j].enabled && (s.weapons[j].count + s.weapons[j].working) < s.weapons[j].maxCount && hero.progress === 'Idle') {
+                            if (EconomyService.decResources(s.weapons[j].cost)) {
+                                s.weapons[j].working++;
                                 if (hero.academy.id !== HERO_CLASSES[1].id) {
-                                    scope.gameStats.weaponsAuto++;
-                                    scope.buyWeapon(j, false, Math.floor((hero.level * 0.05) * scope.weapons[j].prodTime), i);
+                                    s.gameStats.weaponsAuto++;
+                                    ProductionService.buyWeapon(j, false, Math.floor((hero.level * 0.05) * s.weapons[j].prodTime), i);
                                 } else {
-                                    scope.gainExp(hero, Math.ceil(scope.weapons[j].prodTime / 2));
-                                    scope.gameStats.weaponsAuto++;
-                                    scope.buyWeapon(j, false, Math.floor((hero.level * 0.05) * scope.weapons[j].prodTime), i);
+                                    gainExp(hero, Math.ceil(s.weapons[j].prodTime / 2));
+                                    s.gameStats.weaponsAuto++;
+                                    ProductionService.buyWeapon(j, false, Math.floor((hero.level * 0.05) * s.weapons[j].prodTime), i);
                                 }
                             }
                         }

@@ -1,16 +1,16 @@
 /**
- * Dungeon, monster, boss creation, and journey flow (attemptDungeon, travel, monsterFight, bossFight).
- * Used by MainController; receives scope for state and callbacks.
+ * Dungeon, monster, boss creation, and journey flow.
+ * Uses GameStateService; calls CombatService.startFight and $timeout directly (no scope/AppActions).
  */
 
-function DungeonServiceFactory($timeout) {
-    function dungeonName(scope) {
-        if (!scope.dungeonNames || !scope.dungeonNames.dungeons) return 'Dungeon';
-        const dList = scope.dungeonNames.dungeons.slice();
-        for (let i = 0; i < scope.dungeons.length; i++) {
+function DungeonServiceFactory(GameStateService, $timeout, $injector) {
+    function dungeonName() {
+        const s = GameStateService.getState();
+        if (!s.dungeonNames || !s.dungeonNames.dungeons) return 'Dungeon';
+        const dList = s.dungeonNames.dungeons.slice();
+        for (let i = 0; i < s.dungeons.length; i++) {
             for (let j = 0; j < dList.length; j++) {
-                if (dList[j] === scope.dungeons[i].name) {
-                    if (typeof scope.debugLog === 'function') scope.debugLog('Removed ' + dList[j]);
+                if (dList[j] === s.dungeons[i].name) {
                     dList.splice(j, 1);
                 }
             }
@@ -20,12 +20,13 @@ function DungeonServiceFactory($timeout) {
         return dList[random];
     }
 
-    function createMonster(scope, level) {
-        if (!scope.monsterList || !scope.monsterList.monsters) return;
-        const monsterList = scope.monsterList.monsters;
-        for (let i = 0; i < scope.monsters.length; i++) {
+    function createMonster(level) {
+        const s = GameStateService.getState();
+        if (!s.monsterList || !s.monsterList.monsters) return;
+        const monsterList = s.monsterList.monsters;
+        for (let i = 0; i < s.monsters.length; i++) {
             for (let j = 0; j < monsterList.length; j++) {
-                if (monsterList[j].name === scope.monsters[i].name) {
+                if (monsterList[j].name === s.monsters[i].name) {
                     monsterList.splice(j, 1);
                 }
             }
@@ -37,8 +38,8 @@ function DungeonServiceFactory($timeout) {
             const randomMin = Math.ceil(Math.random() * randomMax);
             const averagedmg = Math.ceil((randomMax + randomMin) / 2);
             const mobHealth = Math.floor(((5 * level) / averagedmg) * (level * level));
-            scope.monsters[scope.monsters.length] = {
-                id: scope.monsters.length,
+            s.monsters[s.monsters.length] = {
+                id: s.monsters.length,
                 name: monsterList[random].name,
                 value: level,
                 minDamage: randomMin,
@@ -47,18 +48,18 @@ function DungeonServiceFactory($timeout) {
                 low: 'Junk;j;' + (level * 3),
                 high: 'Gold;g;' + level
             };
-            if (typeof scope.debugLog === 'function') scope.debugLog('Created ' + scope.monsters[scope.monsters.length - 1].name);
             monsterList.splice(random, 1);
         }
     }
 
-    function createBoss(scope, level) {
-        if (!scope.monsterList || !scope.monsterList.monsters) return;
+    function createBoss(level) {
+        const s = GameStateService.getState();
+        if (!s.monsterList || !s.monsterList.monsters) return;
         level += 2;
-        const monsterList = scope.monsterList.monsters;
-        for (let i = 0; i < scope.bosses.length; i++) {
+        const monsterList = s.monsterList.monsters;
+        for (let i = 0; i < s.bosses.length; i++) {
             for (let j = 0; j < monsterList.length; j++) {
-                if (monsterList[j].name === scope.bosses[i].name) {
+                if (monsterList[j].name === s.bosses[i].name) {
                     monsterList.splice(j, 1);
                 }
             }
@@ -69,8 +70,8 @@ function DungeonServiceFactory($timeout) {
         const randomMin = Math.ceil(Math.random() * randomMax);
         const averagedmg = Math.ceil((randomMax + randomMin) / 2);
         const mobHealth = Math.floor(((5 * level) / averagedmg) * (level * level));
-        scope.bosses[scope.bosses.length] = {
-            id: scope.bosses.length,
+        s.bosses[s.bosses.length] = {
+            id: s.bosses.length,
             name: monsterList[random].name,
             value: level,
             minDamage: randomMin,
@@ -79,44 +80,43 @@ function DungeonServiceFactory($timeout) {
             low: 'Junk;j;' + (level * 3),
             high: 'Gold;g;' + level
         };
-        if (typeof scope.debugLog === 'function') scope.debugLog('Created ' + scope.bosses[scope.bosses.length - 1].name);
         monsterList.splice(random, 1);
     }
 
-    function activateDungeon(scope) {
-        scope.dungeons[scope.dungeons.length] = {
-            id: scope.dungeons.length,
-            name: dungeonName(scope),
-            level: scope.dungeons.length + 1,
-            steps: 15 * (scope.dungeons.length + 1),
+    function activateDungeon() {
+        const s = GameStateService.getState();
+        s.dungeons[s.dungeons.length] = {
+            id: s.dungeons.length,
+            name: dungeonName(),
+            level: s.dungeons.length + 1,
+            steps: 15 * (s.dungeons.length + 1),
             encounterRate: 15 + Math.floor(Math.random() * 6),
-            encounterLevel: scope.dungeons.length + 2,
-            bossID: scope.dungeons.length,
+            encounterLevel: s.dungeons.length + 2,
+            bossID: s.dungeons.length,
             enabled: true,
-            reward: 'Gold;g;' + (scope.dungeons.length + 1)
+            reward: 'Gold;g;' + (s.dungeons.length + 1)
         };
-        createMonster(scope, scope.dungeons.length);
-        createBoss(scope, scope.dungeons.length - 1);
+        createMonster(s.dungeons.length);
+        createBoss(s.dungeons.length - 1);
     }
 
-    function attemptDungeon(scope, dungeonID, hero) {
-        const dungeon = scope.dungeons[dungeonID];
+    function attemptDungeon(dungeonID, hero) {
+        const s = GameStateService.getState();
+        const dungeon = s.dungeons[dungeonID];
         const journey = { hero, dungeon, steps: 0 };
-        $timeout(function () { travel(scope, journey); }, scope.gameLoop);
+        $timeout(function () { travel(journey); }, s.gameLoop);
     }
 
-    function travel(scope, journey) {
-        if (typeof scope.debugLog === 'function') scope.debugLog('steps:' + journey.steps);
+    function travel(journey) {
         if (journey.steps === journey.dungeon.steps) {
             for (let i = 0; i < journey.hero.length; i++) {
                 journey.hero[i].progress = 'Fighting Boss!';
             }
-            bossFight(scope, journey);
+            bossFight(journey);
         } else {
             const roll = Math.floor((Math.random() * 100) + 1);
             if (roll < journey.dungeon.encounterRate) {
-                if (typeof scope.debugLog === 'function') scope.debugLog('Encounter Forming');
-                monsterFight(scope, journey);
+                monsterFight(journey);
                 for (let i = 0; i < journey.hero.length; i++) {
                     journey.hero[i].progress = 'Fighting Encounter!';
                 }
@@ -125,19 +125,20 @@ function DungeonServiceFactory($timeout) {
                 for (let i = 0; i < journey.hero.length; i++) {
                     journey.hero[i].progress = Math.round((journey.steps / journey.dungeon.steps) * 100) + '%' + ' Complete';
                 }
-                $timeout(function () { travel(scope, journey); }, scope.gameLoop);
+                const s = GameStateService.getState();
+                $timeout(function () { travel(journey); }, s.gameLoop);
             }
         }
     }
 
-    function monsterFight(scope, journey) {
+    function monsterFight(journey) {
+        const s = GameStateService.getState();
         const eLevel = journey.dungeon.encounterLevel;
         const validMonsters = [];
         const encounterMonsters = [];
         let monsterCount = 0;
         let currLevel = 0;
-        const copyMonsters = scope.monsters.slice();
-        if (typeof scope.debugLog === 'function') scope.debugLog('Encounter Level= ' + eLevel);
+        const copyMonsters = s.monsters.slice();
         for (let i = 0; i < copyMonsters.length; i++) {
             if (copyMonsters[i].value >= Math.floor(eLevel / 4) && copyMonsters[i].value <= eLevel) {
                 validMonsters.push(copyMonsters[i]);
@@ -166,23 +167,24 @@ function DungeonServiceFactory($timeout) {
             monsterCount++;
             currLevel += reducedMonster[currentMonster].value;
         }
-        scope.startFight(encounterMonsters, journey, false);
+        $injector.get('CombatService').startFight(encounterMonsters, journey, false);
     }
 
-    function bossFight(scope, journey) {
+    function bossFight(journey) {
+        const s = GameStateService.getState();
         const bossID = journey.dungeon.bossID;
         const multi = journey.hero.length > 1 ? 10 : 1;
         const bossBattle = [{
-            name: scope.bosses[bossID].name,
-            value: scope.bosses[bossID].value * multi,
-            minDamage: scope.bosses[bossID].minDamage * multi,
-            maxDamage: scope.bosses[bossID].maxDamage * multi,
-            health: scope.bosses[bossID].health * multi,
-            maxHealth: scope.bosses[bossID].health * multi,
-            high: 'Junk;j;' + parseInt(scope.bosses[bossID].value * multi * 3),
-            low: 'Gold;g;' + parseInt(scope.bosses[bossID].value * multi)
+            name: s.bosses[bossID].name,
+            value: s.bosses[bossID].value * multi,
+            minDamage: s.bosses[bossID].minDamage * multi,
+            maxDamage: s.bosses[bossID].maxDamage * multi,
+            health: s.bosses[bossID].health * multi,
+            maxHealth: s.bosses[bossID].health * multi,
+            high: 'Junk;j;' + parseInt(s.bosses[bossID].value * multi * 3),
+            low: 'Gold;g;' + parseInt(s.bosses[bossID].value * multi)
         }];
-        scope.startFight(bossBattle.slice(), journey, true);
+        $injector.get('CombatService').startFight(bossBattle.slice(), journey, true);
     }
 
     return {

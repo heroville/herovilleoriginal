@@ -4,7 +4,7 @@ window.app = app;
 app.directive('ngSlider', function () {
     return {
         scope: true,
-        template: "<div class='ng-slider' ng-style='pos' ng-click='randomEvent(randomE.type)' remove-me> <img ng-src='images/{{randomE.image}}' /></div>",
+        template: "<div class='ng-slider' ng-style='pos' ng-click='randomEvent(state.randomE.type)' remove-me> <img ng-src='images/{{state.randomE.image}}' /></div>",
         replace: true,
         controller: function ($scope, $interval) {
 

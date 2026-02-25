@@ -10,9 +10,9 @@
                 <uib-accordion-heading>
                     <div class="noTextSelect">Hero Options</div>
                 </uib-accordion-heading>
-                <div>Format Heroes as Table <input type="checkbox" ng-model="showHeroTable.enabled" id="showOld" name="showHeroTable" /> </div>
-                <div>Successes before moving up dungeon <select id="dungeonCount" ng-model="successCount.amount" ng-options="opt for opt in optionsSuccess"></select></div>
-                <div>Dungeons moved down on loss <select id="dungeonCount" ng-model="lossCount.amount" ng-options="opt for opt in optionsLoss"></select></div>
+                <div>Format Heroes as Table <input type="checkbox" ng-model="state.showHeroTable.enabled" id="showOld" name="showHeroTable" /> </div>
+                <div>Successes before moving up dungeon <select id="dungeonCount" ng-model="state.successCount.amount" ng-options="opt for opt in state.optionsSuccess"></select></div>
+                <div>Dungeons moved down on loss <select id="dungeonCount" ng-model="state.lossCount.amount" ng-options="opt for opt in state.optionsLoss"></select></div>
             </uib-accordion-group>
         </uib-accordion>
     </div>
@@ -27,13 +27,13 @@
             <li>Gold will be used by the hero to purchase items from your town. That gold will then be transfered to the towns gold.</li>
             <li>A Heroes level will increase their effectiveness while working.</li>
         </ul>
-        <ul ng-model="gameStats">
-            <li>Total Battles: {{gameStats.wins + gameStats.losses}}</li>
-            <li>Wins: {{gameStats.wins}}</li>
-            <li>Losses: {{gameStats.losses}}</li>
+        <ul ng-model="state.gameStats">
+            <li>Total Battles: {{state.gameStats.wins + state.gameStats.losses}}</li>
+            <li>Wins: {{state.gameStats.wins}}</li>
+            <li>Losses: {{state.gameStats.losses}}</li>
             <li>Production (Manual)
                 <ul>
-                    <li ng-repeat="weapon in gameStats.weaponsManual track by $index" ng-if="$index > 0">{{weapons[$index].name}} - {{weapon}}</li>
+                    <li ng-repeat="weapon in state.gameStats.weaponsManual track by $index" ng-if="$index > 0">{{state.weapons[$index].name}} - {{weapon}}</li>
                 </ul>
             </li>
         </ul>

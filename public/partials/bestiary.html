@@ -10,7 +10,7 @@
                 <td><b><u>Damage</u></b></td>
                 <td><b><u>Health</u></b></td>
             </tr>
-            <tr ng-repeat="monsterL in monsters | orderBy:sorting.monList:reverse">
+            <tr ng-repeat="monsterL in state.monsters | orderBy:state.sorting.monList:reverse">
                 <td>{{monsterL.name}}</td>
                 <td>{{monsterL.value}}</td>
                 <td>{{monsterL.minDamage}}-{{monsterL.maxDamage}}</td>
@@ -29,9 +29,9 @@
                 <td><b><u>Damage</u></b></td>
                 <td><b><u>Health</u></b></td>
             </tr>
-            <tr ng-repeat="monsterB in bosses | orderBy:sortingbossList:reverse">
+            <tr ng-repeat="monsterB in state.bosses | orderBy:state.sorting.bossList:reverse">
                 <td>{{monsterB.name}}</td>
-                <td><div ng-repeat="dungeona in dungeons | filter:{bossID:monsterB.id}">{{dungeona.name}}</div></td>
+                <td><div ng-repeat="dungeona in state.dungeons | filter:{bossID:monsterB.id}">{{dungeona.name}}</div></td>
                 <td>{{monsterB.minDamage}}-{{monsterB.maxDamage}}</td>
                 <td>{{monsterB.health}}</td>
             </tr>

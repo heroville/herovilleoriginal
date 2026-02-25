@@ -2,7 +2,7 @@
     <div class="col-lg-6">
         <table class="table table-bordered">
             <tr>
-                <td><u><b>{{buildings[1].name}}</b></u></td>
+                <td><u><b>{{state.buildings[1].name}}</b></u></td>
             </tr>
             <tr>
                 <td><u>Item Name</u></td>
@@ -14,15 +14,15 @@
                 <td><u>Produce</u></td>
             </tr>
             <tr>
-                <td><img src="images/P_Red04.png" />{{potion.name}}</td>
-                <td>{{potion.description}}</td>
-                <td>{{potion.count}}/{{potion.maxCount}}</td>
-                <td>{{potion.cost}}</td>
-                <td>{{potion.prodTime}}</td>
-                <td>{{potion.sellPrice}}</td>
-                <td><button ng-click="create(-1)" id="potionButt">{{potion.progress}}</button></td>
+                <td><img src="images/P_Red04.png" />{{state.potion.name}}</td>
+                <td>{{state.potion.description}}</td>
+                <td>{{state.potion.count}}/{{state.potion.maxCount}}</td>
+                <td>{{state.potion.cost}}</td>
+                <td>{{state.potion.prodTime}}</td>
+                <td>{{state.potion.sellPrice}}</td>
+                <td><button ng-click="create(-1)" id="potionButt">{{state.potion.progress}}</button></td>
             </tr>
-            <tr ng-repeat="acc in filteredAcc = (potions | filter:{enabled:true})">
+            <tr ng-repeat="acc in filteredAcc = (state.potions | filter:{enabled:true})">
                 <td><img ng-src="images/{{acc.image}}" />{{acc.name}}</td>
                 <td>{{acc.description}}</td>
                 <td>{{acc.count}}/{{acc.maxCount}}</td>
@@ -34,7 +34,7 @@
         </table>
         <table class="table table-bordered" ng-hide="!filteredWeapons.length">
             <tr>
-                <td><b><u>{{buildings[3].name}}</u></b></td>
+                <td><b><u>{{state.buildings[3].name}}</u></b></td>
             </tr>
             <tr>
                 <td><u>Name</u></td>
@@ -47,10 +47,10 @@
                 <td><u>Sell Price (Gold)</u></td>
                 <td><u>Produce</u></td>
             </tr>
-            <tr ng-repeat="weapon in filteredWeapons = (weapons | filter:{enabled:true})">
+            <tr ng-repeat="weapon in filteredWeapons = (state.weapons | filter:{enabled:true})">
                 <td><img ng-src="images/{{weapon.image}}" />{{weapon.name}}</td>
                 <td>{{weapon.minDamage}}-{{weapon.maxDamage}}</td>
-                <td><span ng-repeat-start="wepclass in weapon.heroClass" ng-if="!$last">{{heroClass[wepclass].name}}, </span><span ng-repeat-end ng-if="$last">{{heroClass[wepclass].name}}</span></td>
+                <td><span ng-repeat-start="wepclass in weapon.heroClass" ng-if="!$last">{{state.heroClass[wepclass].name}}, </span><span ng-repeat-end ng-if="$last">{{state.heroClass[wepclass].name}}</span></td>
                 <td>{{weapon.durability}}</td>
                 <td>{{weapon.count}}/{{weapon.maxCount}}</td>
                 <td>{{weapon.cost}}</td>
@@ -63,13 +63,13 @@
     <div class="col-lg-6">
         <table class="table table-bordered" ng-hide="!filteredBlueprint.length">
             <tr>
-                <td><b><u>{{buildings[2].name}}</u></b></td>
+                <td><b><u>{{state.buildings[2].name}}</u></b></td>
             </tr>
             <tr>
                 <td><u>Name</u></td>
                 <td><u>Cost (gold)</u></td>
             </tr>
-            <tr ng-repeat="blueprint in filteredBlueprint = (blueprints | filter:{enabled:true})">
+            <tr ng-repeat="blueprint in filteredBlueprint = (state.blueprints | filter:{enabled:true})">
                 <td ng-attr-title="{{blueprint.description}}">{{blueprint.name}}</td>
                 <td>{{blueprint.cost | number}}</td>
                 <td><button ng-click="incrBlueprint(blueprint)" ng-attr-title="{{blueprint.description}}">Buy {{blueprint.name}}</button></td>
