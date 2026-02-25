@@ -18,6 +18,17 @@ function GameUiServiceFactory() {
         if (_scope && typeof _scope.nextTutorial === 'function') _scope.nextTutorial();
     }
 
+    /**
+     * Call after state.resources or state.gold may have changed; advances tutorial when thresholds are met.
+     * Replaces $scope.$watch on state.resources / state.gold in MainController.
+     * @param {{ resources: number, gold: number, panelNumber: number }} state
+     */
+    function checkTutorialProgress(state) {
+        if (!state) return;
+        if (state.resources === 10 && state.panelNumber === 2) nextTutorial();
+        else if (state.gold === 1 && state.panelNumber === 8) nextTutorial();
+    }
+
     function openHeroDialog() {
         if (_scope && typeof _scope.openHeroDialog === 'function') _scope.openHeroDialog();
     }
@@ -30,6 +41,7 @@ function GameUiServiceFactory() {
         register,
         showError,
         nextTutorial,
+        checkTutorialProgress,
         openHeroDialog,
         openWorkerDialog
     };

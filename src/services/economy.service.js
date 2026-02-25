@@ -5,7 +5,7 @@ function ensureState(state) {
     return state;
 }
 
-function EconomyServiceFactory() {
+function EconomyServiceFactory(GameUiService) {
     var boundState = null;
 
     function getState() {
@@ -15,6 +15,12 @@ function EconomyServiceFactory() {
     function bindState(state) {
         boundState = state;
         return boundState;
+    }
+
+    function checkTutorialAfterUpdate() {
+        if (GameUiService && typeof GameUiService.checkTutorialProgress === 'function') {
+            GameUiService.checkTutorialProgress(getState());
+        }
     }
 
     function incResources(value) {
@@ -27,6 +33,7 @@ function EconomyServiceFactory() {
         else {
             state.resources = state.maxResources;
         }
+        checkTutorialAfterUpdate();
         return state.resources;
     }
 
@@ -35,6 +42,7 @@ function EconomyServiceFactory() {
         var amount = Number(value) || 0;
         if (state.resources >= amount) {
             state.resources -= amount;
+            checkTutorialAfterUpdate();
             return true;
         }
         return false;
@@ -50,6 +58,7 @@ function EconomyServiceFactory() {
         else {
             state.gold = state.maxGold;
         }
+        checkTutorialAfterUpdate();
         return state.gold;
     }
 
@@ -58,6 +67,7 @@ function EconomyServiceFactory() {
         var amount = Number(value) || 0;
         if (state.gold >= amount) {
             state.gold -= amount;
+            checkTutorialAfterUpdate();
             return true;
         }
         return false;

@@ -1,71 +1,67 @@
 # Heroville Modernization Roadmap
 
-This document outlines the plan to bring Heroville to a clean, maintainable codebase and eventually to a modern framework. **Phase 1 is complete.**
+This document describes the migration from AngularJS to **React**, keeping game logic in existing plain JS services and replacing only the view layer. Unit and E2E tests are added as we go; each migration step is verified by E2E before and after.
 
 ---
 
-## Current State Summary (Post–Phase 1)
+## Current State Summary
 
 | Area | Current state |
 |------|----------------|
 | **HTML** | Shell `index.html` with layout and `ng-include`; tab/section partials in `public/partials/` (town, hero, production, professions, bestiary, options, dialogs); popover templates (showEquip, showBattle) as separate partials; GA in `src/analytics.js`. |
 | **JS** | **MainController** (~380 lines) is a thin orchestrator: binds shared state, registers GameUiService, exposes only what templates need. **Domain services** in `src/services/`: SaveLoadService, GameStateService, GameUiService, DungeonService, CombatService, HeroService, ProductionService, BuildingService, EconomyService, UiService, UtilService. **Tab controllers**: BuildingController (town), HeroController (hero), ProductionController (production); they inherit scope from MainController and add tab-specific actions. |
 | **Libraries** | From npm: jquery, jquery-ui-dist, bootstrap, angular, angular-animate, angular-ui-bootstrap, angulartics, angulartics-google-analytics. Load order in `src/vendor/jquery-global.js` and `src/main.js`. |
-| **Styles** | Bootstrap, jQuery UI custom, `newStyle.css`, `darkStyle.css` in `public/styles/` (or `styles/` as per layout). |
+| **Styles** | Bootstrap, jQuery UI custom, `newStyle.css`, `darkStyle.css` in `public/styles/`. |
 | **Build** | Vite with ng-annotate; entry is `src/main.js`. Run `npm run dev` or `npm run build` + `npm run preview`. Node 18+ (see `.nvmrc` for 20). |
 
-**Architecture:**  
-- Single shared state via **GameStateService**; EconomyService binds to it.  
-- **GameUiService** holds the registered scope for UI callbacks (showError, nextTutorial, open dialogs); services use it instead of receiving scope.  
-- No AppActions layer; combat/dungeon/hero/production/building logic lives in services and calls each other or GameUiService where needed.
+**Architecture:**
+- Single shared state via **GameStateService**; EconomyService binds to it.
+- **GameUiService** holds the registered scope for UI callbacks (showError, nextTutorial, open dialogs); services use it instead of receiving scope.
+- Game logic lives in plain JS services; the React app will replace only the view and orchestrator (controllers → components + hooks).
 
 ---
 
-## Phase 1: Completed
+## Framework: React
 
-Phase 1 aimed at the same game behavior with a maintainable structure. All steps are done.
-
-### 1.1 Split `index.html` — **Done**
-
-- Tab/section markup in `public/partials/` (town, hero, production, professions, bestiary, options, dialogs).
-- Inline `ng-template` scripts extracted to `partials/showEquip.html` and `partials/showBattle.html`.
-- GA moved to `src/analytics.js`; single entry `index.html` is layout/shell only.
-
-### 1.2 Move Libraries to npm — **Done**
-
-- jQuery, jQuery UI, Bootstrap, Angular 1.8, angular-animate, angular-ui-bootstrap, angulartics, angulartics-google-analytics are npm dependencies.
-- Load order enforced in `src/vendor/jquery-global.js` and `src/main.js`; `src/lib/` no longer used by the bundle.
-
-### 1.3 Split the Monolithic Controller — **Done**
-
-- Domain logic extracted into services: SaveLoad, GameState, GameUi, Dungeon, Combat, Hero, Production, Building, Economy, Ui, Util.
-- MainController is a thin orchestrator; tab-specific controllers (Building, Hero, Production) own only their tab’s actions.
-- Scope is used only for real UI needs; services use GameStateService and GameUiService instead of scope.
-
-### 1.4 General Project Cleanup — **Done**
-
-- Structure: `src/controllers/`, `src/services/`, `src/constants/`, etc.; one main file per feature with consistent suffixes.
-- Dead code removed: `$scope.debugging`, `$scope.debugLog`, `$scope.testing`, `$scope.testing2`, and the debug-only UI button.
-- Duplicate scope bindings removed (e.g. `heroProfession` only on HeroController; MainController no longer exposes service-only methods).
-- ProductionController uses GameUiService for showError/nextTutorial instead of scope.
-- This roadmap updated; see README for how to run and build.
+Migration target is **React**. Game logic stays in `src/services/`; React components and hooks call these services. No framework-specific rewrite of domain logic.
 
 ---
 
-## Phase 2: Framework Migration (AngularJS → Modern Framework)
+## Testing Strategy
 
-Goal: Replace AngularJS with a supported framework (Angular, React, Vue, or Svelte) without changing game behavior.
+- **Regression:** Always run **E2E** for regression. Use `npm test` (builds then runs Playwright). E2E is the source of truth for “nothing broke.”
+- **E2E (Playwright):** For each area we migrate, we **verify existing functionality with E2E first**, then **migrate the component**, then **rerun E2E** to confirm behavior is unchanged. Existing tests cover: load, gather, Town (Tent, hero dialog), Hero tab, Production, Options/save, combat flow.
+- **Unit tests:** Legacy unit tests were removed; add or extend unit tests as part of migration when touching services. We do not block migration on full coverage.
+- **Per-step flow:** (1) Add or run E2E for the area. (2) Implement the React component calling the same services. (3) Switch the app to use the new component for that area. (4) Rerun E2E. (5) Remove the old partial and any Angular-only code for that area.
 
-- **Prerequisites (from Phase 1):**  
-  - Small, domain-focused services (save/load, combat, production, etc.).  
-  - Clear data flow and minimal orchestrator controller.  
-  - HTML in small partials and templates.
+---
 
-- **Migration approach (high level):**  
-  1. **Choose framework** (Angular / React / Vue / Svelte) based on team and long-term maintenance.  
-  2. **Reuse Phase 1 services** where possible: keep game logic in plain JS services; the new app only replaces the view layer and the orchestrator (controller → components + hooks).  
-  3. **Replace UI piece by piece** (e.g. tab by tab): one route or component at a time, calling the same services and state, with a shared state store if needed.  
-  4. **Replace Angular-specific pieces**: directives → framework components; filters → pipes or helper functions; `$scope`/two-way binding → component state + events or one-way binding.  
-  5. **Remove AngularJS and old dependencies** once all views and behaviors are reimplemented.
+## Pre-migration Refactors (Optional)
 
-Phase 2 can be broken into a separate, more detailed plan (e.g. component map, state design, migration order) once the framework is chosen.
+These reduce migration risk without changing behavior. Do them when convenient before or during the relevant step.
+
+1. **Filters → plain functions** — Replace `heroBattle`, `heroWorker`, `heroAdventure` (and template `| filter:...`) with plain JS functions; call from controllers and expose results. React then calls the same functions.
+2. **ngSlider** — Remove `$compile` usage: reimplement as a small component or static template + `setInterval` in the controller.
+3. **$scope.$watch** — Replace the two MainController watchers (resources/gold → tutorial/panel) with explicit calls from the game loop or from the code that updates state.
+4. **jQuery UI dialogs** — Replace with React modals when we migrate the tabs that use them.
+5. **jQuery** — Migrate away from jQuery over the course of the React migration: replace jQuery UI dialogs with React modals when migrating each tab; replace remaining jQuery DOM usage (e.g. `#showOld` checkbox, button disabled, analytics click handlers) with vanilla JS or React. Remove `jquery` and `jquery-ui-dist` once no longer used (see Phase 2 step 4/5).
+
+Avoid large structural refactors in the same change as the framework switch. Fix bugs in services when touching them; do not mix big game-design or balance changes with migration.
+
+---
+
+## Phase 2: Order of Work
+
+1. **Pre-migration refactors (optional but recommended)**  
+   Replace the three filters with plain functions; remove `$compile` for ngSlider; replace `$watch`-based tutorial/panel logic with explicit calls from the game loop or state-update code.
+
+2. **Set up React** in the same repo (e.g. React entry alongside current one, or new app importing `src/services/`). Ensure the React shell can render one tab or route and call GameStateService and GameUiService.
+
+3. **Migrate tab by tab.** For each tab: run/add E2E for existing behavior → implement React view → switch shell to new view → rerun E2E → remove old partial and Angular-only code.  
+   **Order:** Town → Hero → Production → Professions → Bestiary → Options/Help → Dialogs and shared UI (header, resources, upgrades, random event).
+
+4. **Replace remaining Angular pieces.** Move MainController responsibilities (game loop, save/load, random event, dialogs) into the React app’s root or layout and services. Remove AngularJS, angular-ui-bootstrap, ng-animate; replace any remaining jQuery UI dialogs with React modals. **jQuery migration:** Replace any remaining jQuery DOM usage (e.g. `#showOld`, button disabled, analytics) with vanilla JS or React; then remove `jquery` and `jquery-ui-dist` from dependencies.
+
+5. **Cleanup.** Remove Angular entry points, ng-annotate, and dual-build complexity. Single app, single framework.
+
+A **component map** (partial → React component, services used) and **state contract** (what the root/store exposes to tabs) can be added to this doc or `PHASE2-MIGRATION.md` as the migration progresses.

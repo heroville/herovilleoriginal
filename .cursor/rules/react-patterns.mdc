@@ -1,0 +1,39 @@
+---
+description: React patterns for Heroville — components, hooks, and consistency with migration
+globs: "**/*.jsx,**/*.tsx"
+alwaysApply: false
+---
+
+# React Patterns (Heroville)
+
+Use these patterns so new React code stays consistent with the migration and existing rules.
+
+## Components and hooks
+
+- **Functional components only.** Use hooks for state and effects; no class components.
+- **One component per file.** File name matches the component (e.g. `TownTab.jsx` → `export default function TownTab()`).
+- **Logic stays in services.** Components and hooks call `src/services/` (e.g. GameStateService, BuildingService); they do not reimplement game rules, formulas, or progression. See heroville-migration rule.
+
+## Structure and naming
+
+- **Components:** PascalCase. Prefer named exports for components that are tested or reused; default export is fine for a single top-level component per file.
+- **Hooks:** camelCase, prefix with `use` (e.g. `useGameState`). Put shared hooks in `src/hooks/`; tab-specific hooks can live next to the component or in a `hooks` subfolder.
+- **Props:** Use clear, explicit prop names. Avoid spreading large objects as props when a few explicit props would be clearer for readability and review.
+
+## Lists and keys
+
+- Use a **stable unique key** for list items (e.g. `id` from data). Avoid array index as key when the list can be reordered, filtered, or items added/removed; index is acceptable for static lists that never change order.
+
+## Accessibility and markup
+
+- Prefer **semantic HTML** (e.g. `button` for actions, `nav` for tab navigation, `main` for main content). Ensure interactive elements are focusable and have visible focus where appropriate.
+- For **forms and controls:** associate labels with inputs (e.g. `<label htmlFor="...">` and `id` on the input), so the E2E and a11y stay robust.
+
+## State and data flow
+
+- **Shared game state:** Read from and update via existing services (GameStateService, GameUiService, etc.). Do not duplicate game state in React state unless it is purely local UI state (e.g. “panel open”, “selected tab”).
+- **Local UI state:** Use `useState` for tab visibility, modal open/closed, form draft, etc. Keep it minimal.
+
+## Comments and readability
+
+- Follow the **readability and [TUTORIAL] comment** guidance in the heroville-migration rule. Comment non-obvious “why” and “what”; use `[TUTORIAL]` for one-off notes the author can delete after reading.

@@ -1,0 +1,20 @@
+---
+description: Where to put new code and how to write stable E2E tests
+alwaysApply: true
+---
+
+# Project Structure and Test Conventions
+
+## Where to put new code
+
+- **React components:** `src/components/` (e.g. `TownTab.jsx`, `HeroList.jsx`). Group by feature if it grows (e.g. `src/components/town/`, `src/components/hero/`).
+- **React hooks:** `src/hooks/` for shared hooks (e.g. `useGameState.js`). Hook files are camelCase; they import from `src/services/` and expose state/actions to components.
+- **React app entry / shell:** Alongside or under `src/` (e.g. `src/App.jsx`, `src/main-react.jsx`) per MODERNIZATION.md setup step. Do not put game logic in the shell; it should wire services and render the tab/route tree.
+- **Game logic:** Only in `src/services/`. No new game logic in React components or hooks.
+- **Tests:** **Regression is E2E only:** run `npm test` (builds then runs Playwright). E2E lives in `e2e/`. Unit tests were removed; add them in `tests/` as part of migration when touching services (see MODERNIZATION.md).
+
+## E2E tests (Playwright)
+
+- **Stable selectors:** Prefer `data-testid` for elements that tests need to click or assert on (e.g. `data-testid="gather-button"`, `data-testid="town-tab"`). This keeps tests from breaking when copy or CSS classes change.
+- **When adding new UI:** Add a `data-testid` on key interactive elements and use it in E2E. Reserve testids for “contract” points (main actions, tab areas, key headings); don’t add them to every node.
+- **Existing tests:** Current E2E use roles, text, and IDs (e.g. `#gatherButton`, `#resources`). When migrating a section to React, keep or add testids so the same E2E flow still works; update selectors only when the DOM structure intentionally changes.

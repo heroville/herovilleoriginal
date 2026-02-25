@@ -9,8 +9,8 @@
     "dev": "vite",
     "build": "vite build",
     "preview": "vite preview",
-    "test": "node tests/runAllTests.js",
-    "test:e2e": "npm run build && playwright test"
+    "test": "npm run build && playwright test",
+    "test:e2e": "npm run test"
   },
   "dependencies": {
     "angular": "1.8.3",

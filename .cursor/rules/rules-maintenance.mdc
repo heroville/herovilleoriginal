@@ -1,0 +1,32 @@
+---
+description: Maintain and improve project rules — suggest updates, new rules, or removal of obsolete rules
+alwaysApply: true
+---
+
+# Rules Maintenance
+
+When appropriate, suggest **changes to existing rules**, **new rules**, or **removal/trimming of rules**. Do not edit rules without the user approving; present suggestions clearly so they can accept, modify, or decline.
+
+## When to suggest adding or changing rules
+
+- **Feedback in your instructions or responses:** If you provide guidance that corrects or refines how work should be done (e.g. "always do X" or "don’t do Y here"), and it would help future sessions to follow that consistently, suggest adding it to a relevant rule or creating a new rule.
+- **Patterns discovered during work:** If you had to follow a non-obvious pattern, search in a specific way, or do something repeatedly to get the right result (e.g. where to find a thing, how to run a command, a convention the codebase uses), suggest capturing that in a rule so the same work can be done more quickly next time.
+- **Decisions you correct:** If you correct a decision the AI made and that correction should apply going forward, suggest a rule (or rule change) that would have led to the right behavior (e.g. a convention, a "don’t assume X" or "always check Y").
+
+Present suggestions concisely: which rule file, what to add or change, and why. The user can then approve, edit, or ignore.
+
+## When to suggest deleting or modifying rules
+
+- **A rule no longer fits the project phase or stack:** For example:
+  - **After migration is complete:** Migration-specific rules (e.g. "don’t change game logic during migration", "run E2E before/after migrating a tab") may no longer apply. Suggest deleting those rules or rewriting them for the post-migration reality (e.g. "don’t change game logic unless asked" might stay; "migrate tab by tab" can go).
+  - **When the project is entirely React:** Rules that mention AngularJS, MainController, `$scope`, or ng-* only for migration context become noise. Suggest either deleting the rule or modifying it to remove Angular/legacy references and keep only what still applies (e.g. game architecture rule keeping "Target (React + Redux)" and dropping or archiving the "Current (AngularJS)" section).
+- **Redundant or outdated content:** If a rule repeats something that’s elsewhere, or describes a process that’s no longer used, suggest trimming or merging.
+
+When suggesting removal or changes, say which rule (and section if relevant), what to remove or reword, and why (e.g. "Migration complete; Angular references no longer needed").
+
+## How to offer suggestions
+
+- **Inline:** When something in the conversation naturally triggers a rules suggestion (e.g. you had to hunt for a pattern, or the user corrects a decision), briefly suggest the rule change or new rule in your response.
+- **End of task:** After finishing a multi-step task, you can add a short "Rules suggestion" note if you noticed something that would improve future work (e.g. "Consider adding to project-structure: …").
+
+The goal is to keep rules useful, up to date, and free of obsolete migration or stack references once the project has moved on.

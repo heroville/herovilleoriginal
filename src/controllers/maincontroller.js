@@ -1,6 +1,6 @@
 import app from '../app.js';
 
-app.controller("MainController", function ($scope, $interval, $timeout, $http, $compile, GameConfig, GameStateService, EconomyService, SaveLoadService, CombatService, DungeonService, HeroService, ProductionService, UiService, UtilService, BuildingService, GameUiService) {
+app.controller("MainController", function ($scope, $interval, $timeout, $http, GameConfig, GameStateService, EconomyService, SaveLoadService, CombatService, DungeonService, HeroService, ProductionService, UiService, UtilService, BuildingService, GameUiService) {
     $scope.dark = false;
     $scope.forceReset = true;
 
@@ -104,7 +104,6 @@ app.controller("MainController", function ($scope, $interval, $timeout, $http, $
         }
         $timeout(function () {
             s.randomE = s.events[Math.floor(Math.random() * s.events.length)];
-            angular.element(document.getElementById('randomTrigger')).append($compile("<div ng-slider remove></div>")($scope));
         }, s.randomEventTimer);
     };
 
@@ -112,17 +111,7 @@ app.controller("MainController", function ($scope, $interval, $timeout, $http, $
         UiService.nextTutorial($scope);
     };
 
-    $scope.$watch("state.resources", function (newValue, oldValue) {
-        if ($scope.state.resources === 10 && $scope.state.panelNumber === 2) {
-            $scope.nextTutorial();
-        }
-    });
-
-    $scope.$watch("state.gold", function (newValue, oldValue) {
-        if ($scope.state.gold === 1 && $scope.state.panelNumber === 8) {
-            $scope.nextTutorial();
-        }
-    });
+    // Tutorial progress is now driven by GameUiService.checkTutorialProgress() from EconomyService when resources/gold change.
 
     $interval(function () { $scope.work(); $scope.rest(); }, $scope.state.gameLoop);
 
@@ -131,8 +120,12 @@ app.controller("MainController", function ($scope, $interval, $timeout, $http, $
     $timeout(function () {
         const s = $scope.state;
         s.randomE = s.events[Math.floor(Math.random() * s.events.length)];
-        angular.element(document.getElementById('randomTrigger')).append($compile("<div ng-slider remove></div>")($scope));
     }, $scope.state.randomEventTimer);
+
+    $scope.randomSliderPos = { top: Math.random() * 100 + "%", left: Math.random() * 100 + "%" };
+    $interval(function () {
+        $scope.randomSliderPos = { top: Math.random() * 100 + "%", left: Math.random() * 100 + "%" };
+    }, 2000);
 
     $scope.rest = HeroService.rest;
     $scope.work = HeroService.work;
