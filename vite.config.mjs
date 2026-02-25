@@ -7,7 +7,8 @@ export default defineConfig({
     dedupe: ['jquery']
   },
   esbuild: {
-    minifyIdentifiers: false
+    minifyIdentifiers: false,
+    jsx: 'automatic'
   },
   base: './',
   build: {

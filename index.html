@@ -67,9 +67,7 @@
 
         <uib-tabset id="gameTabs">
             <uib-tab heading="Town" id="town">
-                <div ng-controller="BuildingController">
-                    <ng-include src="'partials/town.html'"></ng-include>
-                </div>
+                <div id="town-react-root"></div>
             </uib-tab>
             <uib-tab heading="Hero" id="hero" disabled="state.heroEnabled">
                 <div ng-controller="HeroController">

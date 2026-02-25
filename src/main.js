@@ -34,7 +34,6 @@ import './controllers/dungeon.service.js';
 import './controllers/hero.service.js';
 import './controllers/production.service.js';
 import './controllers/ui.service.js';
-import './controllers/building.controller.js';
 import './controllers/hero.controller.js';
 import './controllers/production.controller.js';
 import './controllers/maincontroller.js';

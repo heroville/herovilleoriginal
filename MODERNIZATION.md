@@ -55,10 +55,12 @@ Avoid large structural refactors in the same change as the framework switch. Fix
 1. **Pre-migration refactors (optional but recommended)**  
    Replace the three filters with plain functions; remove `$compile` for ngSlider; replace `$watch`-based tutorial/panel logic with explicit calls from the game loop or state-update code.
 
-2. **Set up React** in the same repo (e.g. React entry alongside current one, or new app importing `src/services/`). Ensure the React shell can render one tab or route and call GameStateService and GameUiService.
+2. **Set up React** in the same repo (e.g. React entry alongside current one, or new app importing `src/services/`). Ensure the React shell can render one tab or route and call GameStateService and GameUiService.  
+   **Done:** React + ReactDOM added; `src/App.jsx` renders a small shell (resources/gold + Test GameUiService button); Angular sets `window.__HEROVILLE_BRIDGE__` (getState, gameUi) and MainController dynamically imports `bootstrapReact.js` to mount React on `#react-root`. E2E passes.
 
 3. **Migrate tab by tab.** For each tab: run/add E2E for existing behavior → implement React view → switch shell to new view → rerun E2E → remove old partial and Angular-only code.  
-   **Order:** Town → Hero → Production → Professions → Bestiary → Options/Help → Dialogs and shared UI (header, resources, upgrades, random event).
+   **Order:** Town → Hero → Production → Professions → Bestiary → Options/Help → Dialogs and shared UI (header, resources, upgrades, random event).  
+   **Done – Town:** React `TownTab` in `src/components/TownTab.jsx`; bridge has `town.incrBuilding(building)`; Town tab mounts `#town-react-root`; removed `public/partials/town.html` and `BuildingController`. E2E (8 tests) pass.
 
 4. **Replace remaining Angular pieces.** Move MainController responsibilities (game loop, save/load, random event, dialogs) into the React app’s root or layout and services. Remove AngularJS, angular-ui-bootstrap, ng-animate; replace any remaining jQuery UI dialogs with React modals. **jQuery migration:** Replace any remaining jQuery DOM usage (e.g. `#showOld`, button disabled, analytics) with vanilla JS or React; then remove `jquery` and `jquery-ui-dist` from dependencies.
 

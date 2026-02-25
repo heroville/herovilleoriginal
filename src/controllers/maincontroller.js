@@ -10,6 +10,21 @@ app.controller("MainController", function ($scope, $interval, $timeout, $http, G
 
     GameUiService.register($scope);
 
+    // Bridge for React shell (Phase 2 setup): state, UI callbacks, and tab actions for migration
+    window.__HEROVILLE_BRIDGE__ = {
+        getState: function () { return GameStateService.getState(); },
+        gameUi: GameUiService,
+        town: {
+            incrBuilding: function (building) {
+                const { state, actions } = BuildingService.buildStateAndActions({
+                    decResources: function (v) { return EconomyService.decResources(v); },
+                    decGold: function (v) { return EconomyService.decGold(v); }
+                });
+                BuildingService.incrBuilding(state, actions, building);
+            }
+        }
+    };
+
     $scope.incGold = EconomyService.incGold;
     $scope.decGold = EconomyService.decGold;
     $scope.incResources = EconomyService.incResources;
@@ -344,4 +359,9 @@ app.controller("MainController", function ($scope, $interval, $timeout, $http, G
 
     $scope.greaterThan = UtilService.greaterThan;
     $scope.meetRequirements = UtilService.meetRequirements;
+
+    // Mount React shell after first digest (Phase 2 setup)
+    $timeout(function () {
+        import('../bootstrapReact.js').then(function (m) { m.default(); });
+    }, 100);
 });

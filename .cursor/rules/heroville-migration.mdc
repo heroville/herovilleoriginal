@@ -15,9 +15,7 @@ Follow MODERNIZATION.md for the migration plan. These rules apply to all work on
 
 ## Testing After Work
 
-- **After any change**, run **unit tests** and **E2E tests** and fix failures before considering the work done.
-  - Unit: `npm run test` (or `node tests/runAllTests.js`)
-  - E2E: `npm run test:e2e` (build + Playwright)
+- **After any change**, run **E2E** for regression and fix failures before considering the work done. Use `npm test` (build + Playwright). Unit tests are re-added during migration.
 - When migrating a tab or feature: run E2E to verify current behavior first, then implement the React piece, then rerun E2E to confirm behavior is unchanged.
 
 ## Readability and Comments
