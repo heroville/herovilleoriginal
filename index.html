@@ -92,7 +92,11 @@
             </uib-tab>
         </uib-tabset>
 
-        <div id="randomTrigger"></div>
+        <div id="randomTrigger">
+            <div class="ng-slider" ng-if="state.randomE" ng-style="randomSliderPos" ng-click="randomEvent(state.randomE.type); state.randomE = null">
+                <img ng-src="images/{{state.randomE.image}}" />
+            </div>
+        </div>
 
         <!-- Dialogs must be in the DOM when MainController runs so jQuery UI .dialog() can initialize and hide them -->
         <div id="dialog" title="New Hero"><div id="error"></div>Enter a name for the hero. <input type="text" name="name" id="name"/></div>
