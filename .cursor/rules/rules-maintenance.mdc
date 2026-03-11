@@ -23,12 +23,12 @@ Present suggestions concisely: which rule file, what to add or change, and why. 
 
 ## When to suggest deleting or modifying rules
 
-- **A rule no longer fits the project phase or stack:** For example:
-  - **After migration is complete:** Migration-specific rules (e.g. "don’t change game logic during migration", "run E2E before/after migrating a tab") may no longer apply. Suggest deleting those rules or rewriting them for the post-migration reality (e.g. "don’t change game logic unless asked" might stay; "migrate tab by tab" can go).
-  - **When the project is entirely React:** Rules that mention AngularJS, MainController, `$scope`, or ng-* only for migration context become noise. Suggest either deleting the rule or modifying it to remove Angular/legacy references and keep only what still applies (e.g. game architecture rule keeping "Target (React + Redux)" and dropping or archiving the "Current (AngularJS)" section).
+- **A rule no longer fits the project phase or stack:** If a rule describes a process that's no longer used or references an old stack, suggest trimming or rewriting to match the current React + Redux setup. For example:
+  - **Obsolete migration/stack:** Migration-specific rules (e.g. "don’t change game logic during migration", "run E2E before/after migrating a tab") may no longer apply. Suggest deleting those rules or rewriting them for the post-migration reality (e.g. "don’t change game logic unless asked" might stay; "migrate tab by tab" can go).
+  - Rules that mention a previous stack or process can be updated to describe only the current React + Redux setup.
 - **Redundant or outdated content:** If a rule repeats something that’s elsewhere, or describes a process that’s no longer used, suggest trimming or merging.
 
-When suggesting removal or changes, say which rule (and section if relevant), what to remove or reword, and why (e.g. "Migration complete; Angular references no longer needed").
+When suggesting removal or changes, say which rule (and section if relevant), what to remove or reword, and why.
 
 ## How to offer suggestions
 

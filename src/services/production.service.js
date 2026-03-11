@@ -1,9 +1,23 @@
 /**
  * Production: potions, weapons, upgrades, blueprints.
- * Used by MainController; receives scope for state; controller provides onDone for DOM (e.g. button enable).
+ * When store is bound via bindStore(store), dispatches REPLACE_STATE after create, purchaseWeapon,
+ * buyUpgrade, activateBlueprint and when async production (createPotion/createPotions/buyWeapon) completes.
  */
+import { REPLACE_STATE } from '../store/sliceState.js';
 
 function ProductionServiceFactory(EconomyService, GameUiService) {
+    var _dispatch = null;
+
+    function bindStore(store) {
+        if (store) _dispatch = store.dispatch;
+    }
+
+    function syncStoreIfBound() {
+        if (_dispatch) {
+            const flat = EconomyService.getState();
+            _dispatch({ type: REPLACE_STATE, payload: JSON.parse(JSON.stringify(flat)) });
+        }
+    }
 
     function createPotion(button, start, heroID, onDone) {
         const s = EconomyService.getState();
@@ -28,6 +42,7 @@ function ProductionServiceFactory(EconomyService, GameUiService) {
             } else if (heroID >= 0) {
                 s.heroList[heroID].progress = "Idle";
             }
+            syncStoreIfBound();
         }
     }
 
@@ -55,6 +70,7 @@ function ProductionServiceFactory(EconomyService, GameUiService) {
             } else if (heroID >= 0) {
                 s.heroList[heroID].progress = "Idle";
             }
+            syncStoreIfBound();
         }
     }
 
@@ -82,6 +98,7 @@ function ProductionServiceFactory(EconomyService, GameUiService) {
             } else if (heroID >= 0) {
                 s.heroList[heroID].progress = "Idle";
             }
+            syncStoreIfBound();
         }
     }
 
@@ -123,9 +140,10 @@ function ProductionServiceFactory(EconomyService, GameUiService) {
                 case 10: {
                     s.incr = s.incr * 2;
                     break;
-                }
             }
-        } else {
+            syncStoreIfBound();
+        }
+    } else {
             GameUiService.showError("You do not have enough Gold");
         }
     }
@@ -134,6 +152,7 @@ function ProductionServiceFactory(EconomyService, GameUiService) {
         const s = EconomyService.getState();
         if (!s.blueprints[value].enabled && !s.blueprints[value].cost == 0) {
             s.blueprints[value].enabled = true;
+            syncStoreIfBound();
         }
     }
 
@@ -163,6 +182,7 @@ function ProductionServiceFactory(EconomyService, GameUiService) {
             state.potions[itemID].working++;
             actions.startCreatePotions(itemID);
         }
+        syncStoreIfBound();
     }
 
     /**
@@ -185,9 +205,11 @@ function ProductionServiceFactory(EconomyService, GameUiService) {
         if (!(state.gameStats.weaponsManual[weaponID] >= 0)) state.gameStats.weaponsManual[weaponID] = 0;
         state.gameStats.weaponsManual[weaponID]++;
         actions.startBuyWeapon(weaponID);
+        syncStoreIfBound();
     }
 
     return {
+        bindStore,
         createPotion,
         createPotions,
         buyWeapon,

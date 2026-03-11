@@ -1,10 +1,23 @@
 /**
  * Combat/battle resolution: turns, damage, loot, potions.
- * Uses GameStateService, HeroService, DungeonService, GameUiService (no scope param).
+ * When store is bound via bindStore(store), dispatches REPLACE_STATE after takeTurn mutations (battles, heroes, gameStats).
  */
+import { REPLACE_STATE } from '../store/sliceState.js';
 
 function CombatServiceFactory(GameStateService, HeroService, DungeonService, GameUiService, GameConfig, $timeout) {
     const HERO_CLASSES = GameConfig.heroClasses || [];
+    var _dispatch = null;
+
+    function bindStore(store) {
+        if (store) _dispatch = store.dispatch;
+    }
+
+    function syncStoreIfBound() {
+        if (_dispatch) {
+            const flat = GameStateService.getState();
+            _dispatch({ type: REPLACE_STATE, payload: JSON.parse(JSON.stringify(flat)) });
+        }
+    }
 
     function activatePotions(hero) {
         for (let i = 0; i < hero.length; i++) {
@@ -199,6 +212,7 @@ function CombatServiceFactory(GameStateService, HeroService, DungeonService, Gam
                 HeroService.gainExp(hero[i], battle.experience);
             }
             s.battles.splice(s.battles.indexOf(battle), 1);
+            syncStoreIfBound();
         } else if (enemyTurn(hero, monstersList)) {
             s.battles.splice(s.battles.indexOf(battle), 1);
             s.gameStats.losses++;
@@ -222,7 +236,9 @@ function CombatServiceFactory(GameStateService, HeroService, DungeonService, Gam
                     GameUiService.showError('A hero lost a fight, he has respawned in town and must heal before fighting.');
                 }
             }
+            syncStoreIfBound();
         } else {
+            syncStoreIfBound();
             $timeout(function () {
                 takeTurn(battle, journey);
             }, s.gameLoop);
@@ -244,6 +260,7 @@ function CombatServiceFactory(GameStateService, HeroService, DungeonService, Gam
     }
 
     return {
+        bindStore,
         startFight,
         activatePotions,
         takeTurn,

@@ -5,126 +5,13 @@
     <link rel="icon" href="./favicon.ico" type="image/x-icon" />
     <link href="./styles/jquery-ui-1.10.0.custom.css" rel="stylesheet" />
     <link href="./styles/bootstrap.min.css" rel="stylesheet" />
+    <link href="./styles/newStyle.css" rel="stylesheet" />
     <link href='https://fonts.googleapis.com/css?family=Droid+Sans' rel='stylesheet' type='text/css'>
     <script type="module" src="/src/main.js"></script>
 </head>
 <body>
-    <div ng-app="Incremental" id="wrap" ng-controller="MainController" class="page-wrap">
-        <link href="./styles/newStyle.css" rel="stylesheet" />
-        <link ng-href="./styles/darkStyle.css" ng-if="dark" rel="stylesheet" />
-
-        <div class="row">
-            <div class="col-lg-4">
-                <div class="panel panel-default">
-                    <div class="panel-body">
-                        <ul id="panelList">
-                            <li>
-                                <b>{{state.panel[0]}}</b>
-                                <hr />
-                            </li>
-                            <li ng-repeat="lines in state.panel track by $index" ng-if="state.panel.indexOf(lines) > 0">
-                                {{lines}}
-                            </li>
-                        </ul>
-                        <br />
-                        <div id="infoButtonDiv"><div id="infobutton" ng-click="nextTutorial()" ng-show="state.showTutorial">Next</div></div>
-                    </div>
-                </div>
-            </div>
-            <div class="col-lg-4">
-                <img src="images/heroville-logo.png" width="100%"/>
-            </div>
-            <div class="col-lg-4">
-                <div class="panel panel-default">
-                    <div class="panel-heading">Upgrades</div>
-                    <div class="panel-body">
-                        <ul id="upgradeList" ng-repeat="upgrade in filteredUpgrades = (state.upgrades | filter:{enabled:true})">
-                            <li>
-                                <button ng-click="buyUpgrade(upgrade.id)">
-                                    {{upgrade.name}} <br />
-                                    Cost(g): {{upgrade.price}} <br />
-                                </button>
-                            </li>
-                        </ul>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <div class="row">
-            <div id="resources">
-                {{state.resources | number}}/{{state.maxResources | number}}
-                <img src="images/I_Chest01.png" />
-                {{state.gold | number}}/{{state.maxGold | number}}
-                <img src="images/I_GoldBar.png" />
-                <img ng-hide="state.gameLoop == 1000" ng-src="images/S_Buff11.png" title="Doubles the game speed" />
-                <img ng-hide="state.damageMulti == 1" ng-src="images/S_Shadow07.png" title="Doubles your heroes damage" />
-                <img ng-hide="state.goldMulti == 1" src="images/E_Gold02.png" title="Doubles the gold gained from sales" />
-            </div>
-            <div id="gatherButton" ng-click="incrRes(state.incr)">Gather</div>
-            <div id="errorDialog" title="Error"><br /></div>
-        </div>
-
-        <uib-tabset id="gameTabs">
-            <uib-tab heading="Town" id="town">
-                <div id="town-react-root"></div>
-            </uib-tab>
-            <uib-tab heading="Hero" id="hero" disabled="state.heroEnabled">
-                <div ng-controller="HeroController">
-                    <ng-include src="'partials/hero.html'"></ng-include>
-                </div>
-            </uib-tab>
-            <uib-tab heading="Production" disabled="state.prodEnabled">
-                <div ng-controller="ProductionController">
-                    <ng-include src="'partials/production.html'"></ng-include>
-                </div>
-            </uib-tab>
-            <uib-tab heading="Professions" disabled="state.upgEnabled">
-                <ng-include src="'partials/professions.html'"></ng-include>
-            </uib-tab>
-            <uib-tab heading="Bestiary" disabled="state.beastEnabled">
-                <ng-include src="'partials/bestiary.html'"></ng-include>
-            </uib-tab>
-            <uib-tab heading="Options/Help" id="options">
-                <ng-include src="'partials/options.html'"></ng-include>
-            </uib-tab>
-        </uib-tabset>
-
-        <div id="randomTrigger">
-            <div class="ng-slider" ng-if="state.randomE" ng-style="randomSliderPos" ng-click="randomEvent(state.randomE.type); state.randomE = null">
-                <img ng-src="images/{{state.randomE.image}}" />
-            </div>
-        </div>
-
-        <!-- Dialogs must be in the DOM when MainController runs so jQuery UI .dialog() can initialize and hide them -->
-        <div id="dialog" title="New Hero"><div id="error"></div>Enter a name for the hero. <input type="text" name="name" id="name"/></div>
-        <div id="dialog2" title="New Worker"><div id="error"></div>Enter a name for the worker. <input type="text" name="name2" id="name2"/></div>
-        <div id="version" title="Version Information">Current Version: 1.3.2 - 2 Oct 2017 <br />
-            <div id="confirm" title="Confirmation Required">
-                This change is permenant, are you sure this is what you want to do?
-            </div>
-            <ul>
-                <li>Fix issue with new potions not giving gold</li>
-                <li>Added Dark Theme</li>
-            </ul>
-        </div>
-        <div id="loading" title="Old Version">You are loading from an old version, there may be errors. If the game does not load correctly try starting a new game by refreshing the page and canceling this dialog. Do you want to load the old save?</div>
-
-        <div class="footer navbar-fixed-bottom">
-            <div class="container" id="support">
-                <a href="" ng-click="showVersion()">Version {{state.version}}</a>
-                Meredori &copy; 2017
-                <a id="paypal" href="https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=KWC55P8UFP3AN" target="_blank">
-                    <img src="images/paypal.png" style="width:35px" />
-                </a>
-                <a id="reddit" href="http://www.reddit.com/r/heroville/" target="_blank">
-                    <img src="images/reddit.png" style="width:35px" />
-                </a>
-                <a id="patreon" href="http://www.patreon.com/meredori" target="_blank">
-                    <img src="images/patreon.png" style="width:35px" />
-                </a>
-            </div>
-        </div>
+    <div id="wrap" class="page-wrap">
+        <div id="app-root"></div>
     </div>
 </body>
 </html>

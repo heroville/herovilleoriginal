@@ -1,9 +1,23 @@
 /**
  * Dungeon, monster, boss creation, and journey flow.
- * Uses GameStateService; calls CombatService.startFight and $timeout directly (no scope/AppActions).
+ * When store is bound via bindStore(store), dispatches REPLACE_STATE after activateDungeon, travel (progress), and monsterFight.
  */
+import { REPLACE_STATE } from '../store/sliceState.js';
 
 function DungeonServiceFactory(GameStateService, $timeout, $injector) {
+    var _dispatch = null;
+
+    function bindStore(store) {
+        if (store) _dispatch = store.dispatch;
+    }
+
+    function syncStoreIfBound() {
+        if (_dispatch) {
+            const flat = GameStateService.getState();
+            _dispatch({ type: REPLACE_STATE, payload: JSON.parse(JSON.stringify(flat)) });
+        }
+    }
+
     function dungeonName() {
         const s = GameStateService.getState();
         if (!s.dungeonNames || !s.dungeonNames.dungeons) return 'Dungeon';
@@ -98,6 +112,7 @@ function DungeonServiceFactory(GameStateService, $timeout, $injector) {
         };
         createMonster(s.dungeons.length);
         createBoss(s.dungeons.length - 1);
+        syncStoreIfBound();
     }
 
     function attemptDungeon(dungeonID, hero) {
@@ -112,6 +127,7 @@ function DungeonServiceFactory(GameStateService, $timeout, $injector) {
             for (let i = 0; i < journey.hero.length; i++) {
                 journey.hero[i].progress = 'Fighting Boss!';
             }
+            syncStoreIfBound();
             bossFight(journey);
         } else {
             const roll = Math.floor((Math.random() * 100) + 1);
@@ -120,11 +136,13 @@ function DungeonServiceFactory(GameStateService, $timeout, $injector) {
                 for (let i = 0; i < journey.hero.length; i++) {
                     journey.hero[i].progress = 'Fighting Encounter!';
                 }
+                syncStoreIfBound();
             } else {
                 journey.steps++;
                 for (let i = 0; i < journey.hero.length; i++) {
                     journey.hero[i].progress = Math.round((journey.steps / journey.dungeon.steps) * 100) + '%' + ' Complete';
                 }
+                syncStoreIfBound();
                 const s = GameStateService.getState();
                 $timeout(function () { travel(journey); }, s.gameLoop);
             }
@@ -167,6 +185,7 @@ function DungeonServiceFactory(GameStateService, $timeout, $injector) {
             monsterCount++;
             currLevel += reducedMonster[currentMonster].value;
         }
+        syncStoreIfBound();
         $injector.get('CombatService').startFight(encounterMonsters, journey, false);
     }
 
@@ -188,6 +207,7 @@ function DungeonServiceFactory(GameStateService, $timeout, $injector) {
     }
 
     return {
+        bindStore,
         activateDungeon,
         createMonster,
         createBoss,

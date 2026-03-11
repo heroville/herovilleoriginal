@@ -1,71 +1,38 @@
 ---
-description: Heroville game architecture — state, loops, services (current and post-migration React/Redux)
-globs: "**/src/services/**/*.js,**/src/controllers/maincontroller.js,**/src/store/**/*.js,**/src/reducers/**/*.js"
+description: Heroville game architecture — state, loops, services (React + Redux)
+globs: "**/src/services/**/*.js,**/src/store/**/*.js,**/src/bootstrap.js,**/src/gameLoopRunner.js"
 alwaysApply: false
 ---
 
 # Heroville Game Architecture
 
-When touching game logic or app state, follow the model for the **current** phase (AngularJS / during migration) or the **target** phase (React + Redux, post-migration). Do not change game logic unless the user explicitly asks.
+When touching game logic or app state, follow this model. Do not change game logic unless the user explicitly asks.
 
 ---
 
-## Current (AngularJS / during migration)
+## State and store
 
-### Single global state
+- **GameStateService.getState()** returns the **mutable game state object**. Services read and mutate it, then sync to Redux via `syncStoreIfBound()` (REPLACE_STATE) or bootstrap’s `syncStoreFromGameState()`.
+- **Redux store** (`src/store/`) is the source of truth for **React**. Slices: economy, ui, config, buildings, heroes, dungeons, production, jobs, upgrades, gameStats. `stateToSlices` / `selectFullState` convert between flat state and sliced state. Components use `useSelector(selectFullState)`.
+- **EconomyService** is bound to the store and dual-writes: it dispatches slice actions and updates the same state object other services read. **SaveLoadService** loads into and saves from that state and dispatches REPLACE_STATE after load.
 
-- **GameStateService.getState()** returns the **one mutable game state object**. All services that need state call `getState()` and read/write that object.
-- **EconomyService:** MainController calls **EconomyService.bindState(state)** once at startup. EconomyService.incGold, decGold, incResources, decResources then operate on that bound state. Any service that spends or grants resources/gold must use EconomyService (or the bound state).
-- **SaveLoadService** loads into and saves from that same state object (and uses GameUiService for UI like the version-mismatch dialog).
+## Game loop
 
-### Global game loop (MainController)
+- **gameLoopRunner.js** receives `(api, store)` and runs two intervals:
+  - **Tick** (every `state.gameLoop` ms): dispatches a thunk that calls **api.work()** and **api.rest()** (HeroService.work/rest). HeroService mutates state and dispatches REPLACE_STATE.
+  - **Save** (every 30s): dispatches a thunk that calls **api.options.save()**.
+- **Random event** scheduling uses **api.scheduleNextRandomEvent()** and **syncStoreFromGameState()** so the store and UI stay in sync.
 
-- One **$interval** runs every **state.gameLoop** ms (default 1000): it calls **HeroService.work()** then **HeroService.rest()**. That single tick drives:
-  - **Gatherers** (job 0): no-op in work (gathering is manual or handled elsewhere).
-  - **Apothecary / Smith** (jobs 1, 2): ProductionService.createPotion / createWeapon, with timeouts for completion.
-  - **Rest**: heroes at Home rest, heal, and can auto-upgrade weapons from gold.
-- A second **$interval** runs every **30 seconds** and calls **SaveLoadService.save()** (auto-save).
-- **state.gameLoop** can change (e.g. random “Speed” event sets it to 500 ms temporarily). Any new or refactored loop must respect **state.gameLoop** for tick rate where the design says so.
+## Service-level timeouts
 
-## Service-level “loops” (timeouts, not intervals)
+- **Dungeon:** DungeonService travel chain uses **setTimeout**; travel calls CombatService.startFight() for encounters/boss. **Production:** one-off **setTimeout** per potion/weapon. Services that mutate state call **syncStoreIfBound()** after updates.
 
-- **Dungeon:** DungeonService.attemptDungeon() → chain of **$timeout(travel, state.gameLoop)**; travel calls CombatService.startFight() for encounters/boss. **Production:** one-off **$timeout** per potion/weapon. **Random events:** one-off **$timeout** chain from MainController.
+## UI callbacks (GameUiService)
 
-### UI bridge (GameUiService)
+- Bootstrap calls **GameUiService.register(api)** once. Services call **GameUiService.showError()**, **nextTutorial()**, **openHeroDialog()**, **openWorkerDialog()**; they receive state via GameStateService and trigger UI via the registered api.
 
-- MainController calls **GameUiService.register(scope)** once. Services call **GameUiService.showError()**, **nextTutorial()**, **openHeroDialog()**, **openWorkerDialog()**; they never receive scope or view references.
+## Service dependencies (high level)
 
-### Service dependencies (high level)
-
-- **GameStateService:** no dependencies; provides state. **EconomyService:** no deps; must be bound to state by the app shell. **GameUiService:** no deps; holds registered UI callbacks.
-- **HeroService:** uses GameStateService, EconomyService, GameUiService, DungeonService, ProductionService, UtilService. **work()** and **rest()** are the main loop entry points.
-- **DungeonService:** uses GameStateService, $timeout, $injector (to get CombatService). Kicks off travel and combat.
-- **CombatService:** uses GameStateService, HeroService, DungeonService, GameUiService, GameConfig, $timeout. **BuildingService**, **ProductionService**: use GameStateService and GameUiService (and others as in their files). When adding or changing a service, preserve the “no scope in services, use GameUiService for UI” rule.
-
----
-
-## Target (React + Redux / post-migration)
-
-Once migration is complete and a store (e.g. Redux) is in place, the following is the intended architecture. Implement and refactor toward this; do not introduce a second source of truth alongside the store.
-
-### Single global state
-
-- **One store** (e.g. Redux) is the **single source of truth** for game state. No second "global state object" outside the store. GameStateService (if kept) should be a thin wrapper around the store (e.g. `getState()` returns `store.getState().game`), or the store's state shape replaces it.
-- **EconomyService** (if kept) should either: (a) receive **getState / dispatch** and perform reads/writes through the store, or (b) be replaced by **reducers + thunks/actions** that update resources/gold. No separate "bound state" object that isn't the store.
-- **SaveLoadService** should read from and write to the store (e.g. serialize `getState()` and dispatch a restore action). UI for version-mismatch etc. is triggered via dispatch or a registered UI callback, not scope.
-
-### Global game loop
-
-- The **main tick** (work + rest at **state.gameLoop** ms) and **auto-save** (every 30s) should run in the React app (e.g. **useEffect** with **setInterval** in the root/layout, or Redux middleware). The tick reads **state.gameLoop** from the store and calls the same **HeroService.work()** / **HeroService.rest()** (or equivalent in thunks). No duplicate interval outside the app.
-
-### Service-level "loops" (timeouts)
-
-- **Dungeon, production, random events, combat:** Same logical behavior (timeout chains paced by state.gameLoop where applicable). Timers can be started from **thunks** or from the React layer that has access to **getState/dispatch**. Services that use **$timeout** today should receive a **scheduler** (e.g. `setTimeout` + getState/dispatch) so the store is updated when timeouts fire. No service holds a view reference; they use the store and a UI bridge.
-
-### UI bridge (GameUiService or equivalent)
-
-- **One registration** from the React root: e.g. **GameUiService.register({ showError, nextTutorial, openHeroDialog, openWorkerDialog })** where each callback dispatches an action or updates React state. Services continue to call **GameUiService.showError()** etc.; they never receive components or view references. Alternatively the bridge can be "dispatch UI actions" and services receive **dispatch** and call **dispatch(showError(msg))**; either way, single bridge, no view in services.
-
-### Services and the store
-
-- **Game logic** remains in **src/services/**; the store holds state and may expose **getState/dispatch** to services. Services do not duplicate state; they read from and write to the store (or the object returned by a store-backed getState()). Preserve: one source of truth (the store), one global tick driven from the app, timeout chains that update the store, and a single UI bridge with no view references in services.
+- **GameStateService:** provides state. **EconomyService:** bound to state and store; other services use it for resources/gold. **GameUiService:** holds registered UI callbacks.
+- **HeroService:** uses GameStateService, EconomyService, GameUiService, DungeonService, ProductionService. **work()** and **rest()** are the main loop entry points.
+- **DungeonService**, **CombatService**, **BuildingService**, **ProductionService**, **SaveLoadService**, **UiService:** use GameStateService (and others as in their files), call **syncStoreIfBound()** after mutations. UI is triggered via GameUiService; services that need state + callbacks receive an appContext from bootstrap.

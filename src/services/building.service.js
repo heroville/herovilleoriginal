@@ -1,6 +1,8 @@
 /**
  * Building and blueprint upgrades.
  * Uses explicit state (data) and actions (callbacks) for testability; no scope.
+ * When store is bound via bindStore(store), dispatches REPLACE_STATE after incrBuilding/incrBlueprint
+ * so the Redux store is updated from GameStateService.getState().
  *
  * @typedef BuildingState
  * @property {Array} buildings
@@ -30,6 +32,7 @@
  * @property {function(): void} [openHeroDialog]
  * @property {function(): void} [openWorkerDialog]
  */
+import { REPLACE_STATE } from '../store/sliceState.js';
 
 const DEFAULT_JOBS = [
     { id: 0, name: "Gather", current: 0, limit: 100, enabled: true, description: "A Gathering hero will collect resources every second." },
@@ -55,31 +58,48 @@ const DEFAULT_UPGRADES = [
 ];
 
 function BuildingServiceFactory(GameStateService, GameUiService, DungeonService, ProductionService) {
+    var _dispatch = null;
+
+    /** Binds the Redux store; after incrBuilding/incrBlueprint we dispatch REPLACE_STATE so the store stays in sync. */
+    function bindStore(store) {
+        if (store) _dispatch = store.dispatch;
+    }
+
+    function syncStoreIfBound() {
+        if (_dispatch) {
+            const flat = GameStateService.getState();
+            _dispatch({ type: REPLACE_STATE, payload: JSON.parse(JSON.stringify(flat)) });
+        }
+    }
 
     function incrBuilding(state, actions, building) {
         if (!actions.decResources(building.cost)) {
             actions.showError("You do not have enough Resources");
             return;
         }
-        building.count++;
-        building.cost = Math.ceil(building.cost + Math.pow((building.count + 1), building.multiplier));
-        if (building.id === 0 && state.buildings[1].enabled === false) {
+        const bid = Number(building.id);
+        if (Number.isNaN(bid) || bid < 0 || !state.buildings[bid]) return;
+        const stateBuilding = state.buildings[bid];
+        stateBuilding.count++;
+        stateBuilding.cost = Math.ceil(building.cost + Math.pow((stateBuilding.count + 1), building.multiplier));
+        if (bid === 0 && state.buildings[1].enabled === false) {
             state.buildings[1].enabled = true;
             state.buildings[6].enabled = true;
             actions.activateDungeon();
             actions.createMonster(1);
         }
-        switch (building.id) {
+        switch (bid) {
             case 0: {
                 if (actions.openHeroDialog) actions.openHeroDialog();
                 state.heroEnabled = false;
-                if (building.count === 5) actions.activateBlueprint(3);
+                if (state.buildings[0].count === 5) actions.activateBlueprint(3);
                 if (state.panelNumber === 3) actions.nextTutorial();
                 break;
             }
             case 1: {
-                state.maxResources = building.cost + Math.floor(building.cost / 10);
-                state.maxGold = Math.floor(building.cost / 10);
+                // Use updated cost (next upgrade cost) so capacity allows affording the next Stockpile upgrade
+                state.maxResources = stateBuilding.cost + Math.floor(stateBuilding.cost / 10);
+                state.maxGold = Math.floor(stateBuilding.cost / 10);
                 if (state.buildings[2].count === 0) {
                     state.buildings[2].enabled = true;
                     state.prodEnabled = false;
@@ -113,7 +133,7 @@ function BuildingServiceFactory(GameStateService, GameUiService, DungeonService,
             case 4: {
                 state.buildings[4].enabled = false;
                 state.upgEnabled = false;
-                state.buildings[9].enabled = true;
+                if (state.buildings[9]) state.buildings[9].enabled = true;
                 if (state.panelNumber === 19) actions.nextTutorial();
                 break;
             }
@@ -145,6 +165,17 @@ function BuildingServiceFactory(GameStateService, GameUiService, DungeonService,
                 break;
             }
         }
+        // Fallback: enable Blacksmith Blueprint when improving Market (by id or name) so E2E/UI see it regardless of id shape
+        if (state.blueprints && state.blueprints[0] && (bid === 2 || (building.name && building.name.toLowerCase() === 'market'))) {
+            if (!state.buildings[3].enabled) {
+                state.blueprints[0].enabled = true;
+                state.buildings[2].enabled = false;
+            }
+        }
+        if (state.buildings[9] && (bid === 4 || (building.name && building.name.toLowerCase() === 'tavern'))) {
+            state.buildings[9].enabled = true;
+        }
+        syncStoreIfBound();
     }
 
     function incrBlueprint(state, actions, blueprint) {
@@ -167,6 +198,7 @@ function BuildingServiceFactory(GameStateService, GameUiService, DungeonService,
                     break;
             }
         }
+        syncStoreIfBound();
     }
 
     /** Build state and actions for incrBuilding/incrBlueprint. Uses GameStateService, GameUiService, DungeonService, ProductionService (no scope). */
@@ -187,6 +219,7 @@ function BuildingServiceFactory(GameStateService, GameUiService, DungeonService,
     }
 
     return {
+        bindStore,
         buildStateAndActions,
         incrBuilding,
         incrBlueprint

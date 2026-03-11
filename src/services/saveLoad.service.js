@@ -1,12 +1,25 @@
 /**
  * Save/Load/Reset game state to localStorage.
- * Used by MainController; receives scope and mutates it (loadData) or uses it to build payload (save).
+ * When store is bound via bindStore(store), dispatches REPLACE_STATE after loadData so the Redux store stays in sync.
  */
+import { REPLACE_STATE } from '../store/sliceState.js';
 
-function SaveLoadServiceFactory(GameConfig, GameUiService) {
+function SaveLoadServiceFactory(GameConfig, GameUiService, GameStateService) {
     const HERO_CLASSES = GameConfig.heroClasses || [];
+    var _dispatch = null;
 
-    function reset(scope) {
+    function bindStore(store) {
+        if (store) _dispatch = store.dispatch;
+    }
+
+    function syncStoreIfBound() {
+        if (_dispatch) {
+            const flat = GameStateService.getState();
+            _dispatch({ type: REPLACE_STATE, payload: JSON.parse(JSON.stringify(flat)) });
+        }
+    }
+
+    function reset() {
         const raw = localStorage.getItem('data');
         if (!raw) {
             GameUiService.showError('No save data to reset.');
@@ -185,6 +198,7 @@ function SaveLoadServiceFactory(GameConfig, GameUiService) {
             s.showTutorial = data.showTutorial;
             GameUiService.nextTutorial();
         }
+        syncStoreIfBound();
         return true;
     }
 
@@ -220,6 +234,7 @@ function SaveLoadServiceFactory(GameConfig, GameUiService) {
     }
 
     return {
+        bindStore,
         reset,
         save,
         load,

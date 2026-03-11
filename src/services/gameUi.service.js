@@ -1,6 +1,6 @@
 /**
  * Minimal UI callbacks: error toast, tutorial advance, open hero/worker dialogs.
- * MainController registers its scope once; services that need to show errors or open dialogs use this instead of receiving scope.
+ * Bootstrap registers a scope once; services that need to show errors or open dialogs use this.
  */
 
 function GameUiServiceFactory() {
@@ -20,7 +20,6 @@ function GameUiServiceFactory() {
 
     /**
      * Call after state.resources or state.gold may have changed; advances tutorial when thresholds are met.
-     * Replaces $scope.$watch on state.resources / state.gold in MainController.
      * @param {{ resources: number, gold: number, panelNumber: number }} state
      */
     function checkTutorialProgress(state) {

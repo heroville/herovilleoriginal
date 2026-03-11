@@ -1,11 +1,11 @@
 ---
-description: Heroville AngularJS→React migration — game logic, testing, and code clarity
+description: Heroville development — game logic, testing, and code clarity
 alwaysApply: true
 ---
 
-# Heroville Migration Rules
+# Heroville Development Rules
 
-Follow MODERNIZATION.md for the migration plan. These rules apply to all work on this codebase during the migration.
+These rules apply to all work on this codebase.
 
 ## Game Logic
 
@@ -15,14 +15,14 @@ Follow MODERNIZATION.md for the migration plan. These rules apply to all work on
 
 ## Testing After Work
 
-- **After any change**, run **E2E** for regression and fix failures before considering the work done. Use `npm test` (build + Playwright). Unit tests are re-added during migration.
-- When migrating a tab or feature: run E2E to verify current behavior first, then implement the React piece, then rerun E2E to confirm behavior is unchanged.
+- **After any change**, run **E2E** for regression and fix failures before considering the work done. Use `npm test` (build + Playwright).
+- When touching a tab or feature: run E2E to verify current behavior first, then implement the change, then rerun E2E to confirm behavior is unchanged.
 
 ## Readability and Comments
 
 - Prefer **readable code**: clear names, small functions, obvious control flow. Future you (or a human reviewer) should be able to follow the code without guessing.
 - Add **comments** where they help a human reviewer:
-  - **Why** something is done (non-obvious intent, workarounds, migration notes).
+  - **Why** something is done (non-obvious intent, workarounds).
   - **What** a block or function is responsible for when the name isn’t enough.
 - Avoid noise: don’t comment every line; do comment non-obvious “why” and non-obvious “what.”
 
@@ -36,4 +36,4 @@ Follow MODERNIZATION.md for the migration plan. These rules apply to all work on
 - The author may delete all `[TUTORIAL]` comments after they’ve read them; the rest of the comments should remain as ongoing documentation.
 
 **Example:** At the top of a new React component:  
-`// [TUTORIAL] This component renders the Town tab; it calls BuildingService and GameStateService. Delete this line after you've read it.`
+`// [TUTORIAL] This component renders the Town tab; it calls BuildingService and uses useSelector for state. Delete this line after you've read it.`

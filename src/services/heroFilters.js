@@ -1,6 +1,5 @@
 /**
- * Plain JS hero list and battle filters. Used by Angular templates (via app.js filters)
- * and will be used directly by React components after migration.
+ * Plain JS hero list and battle filters. Used by React HeroTab.
  */
 
 /**

@@ -1,6 +1,6 @@
 /**
  * Single source of truth for all mutable game state.
- * Controllers bind scope to getState(); services read/write the same object.
+ * UI and services read/write the same object via getState().
  */
 
 const DEFAULT_JOBS = [

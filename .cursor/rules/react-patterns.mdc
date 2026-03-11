@@ -1,18 +1,18 @@
 ---
-description: React patterns for Heroville — components, hooks, and consistency with migration
+description: React patterns for Heroville — components, hooks, and consistency
 globs: "**/*.jsx,**/*.tsx"
 alwaysApply: false
 ---
 
 # React Patterns (Heroville)
 
-Use these patterns so new React code stays consistent with the migration and existing rules.
+Use these patterns so new React code stays consistent with the codebase and existing rules.
 
 ## Components and hooks
 
 - **Functional components only.** Use hooks for state and effects; no class components.
 - **One component per file.** File name matches the component (e.g. `TownTab.jsx` → `export default function TownTab()`).
-- **Logic stays in services.** Components and hooks call `src/services/` (e.g. GameStateService, BuildingService); they do not reimplement game rules, formulas, or progression. See heroville-migration rule.
+- **Logic stays in services.** Components call the game API via `useGame()` and read state via `useSelector(selectFullState)` or slice selectors; they do not reimplement game rules, formulas, or progression. See Heroville development rules.
 
 ## Structure and naming
 
@@ -31,9 +31,9 @@ Use these patterns so new React code stays consistent with the migration and exi
 
 ## State and data flow
 
-- **Shared game state:** Read from and update via existing services (GameStateService, GameUiService, etc.). Do not duplicate game state in React state unless it is purely local UI state (e.g. “panel open”, “selected tab”).
+- **Shared game state:** Read from the Redux store via `useSelector(selectFullState)` (or slice selectors). Mutations go through the game API (`useGame()`). Do not duplicate game state in React state unless it is purely local UI state (e.g. “panel open”, “selected tab”).
 - **Local UI state:** Use `useState` for tab visibility, modal open/closed, form draft, etc. Keep it minimal.
 
 ## Comments and readability
 
-- Follow the **readability and [TUTORIAL] comment** guidance in the heroville-migration rule. Comment non-obvious “why” and “what”; use `[TUTORIAL]` for one-off notes the author can delete after reading.
+- Follow the **readability and [TUTORIAL] comment** guidance in the Heroville development rules. Comment non-obvious “why” and “what”; use `[TUTORIAL]` for one-off notes the author can delete after reading.

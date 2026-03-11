@@ -1,4 +1,4 @@
-﻿body {
+body {
     font-family: 'Droid Sans', sans-serif;
     text-align:center
 }
@@ -58,8 +58,6 @@ button {
 #Title {
     font-size:x-large;
 }
-
-
 
 h3 {
     text-align: center;
@@ -170,7 +168,7 @@ h3 {
     user-select: none;
 }
 
-.ng-slider {
+.random-event-slider {
   width: 3em;
   height: 3em;
   position: absolute;

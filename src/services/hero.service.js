@@ -1,7 +1,9 @@
 /**
  * Hero and worker creation, profession/class changes, XP, healing, name generation.
  * Uses GameStateService, GameUiService, DungeonService, ProductionService, UtilService, EconomyService (no scope param).
+ * When store is bound via bindStore(store), dispatches REPLACE_STATE after mutations so the Redux store stays in sync.
  */
+import { REPLACE_STATE } from '../store/sliceState.js';
 
 const DEFAULT_POTIONS = [
     { id: 0, name: 'Regeneration', count: 0, active: false },
@@ -13,6 +15,18 @@ const DEFAULT_POTIONS = [
 
 function HeroServiceFactory(GameConfig, EconomyService, GameStateService, GameUiService, DungeonService, ProductionService, UtilService) {
     const HERO_CLASSES = GameConfig.heroClasses || [];
+    let _dispatch = null;
+
+    function bindStore(store) {
+        if (store) _dispatch = store.dispatch;
+    }
+
+    function syncStoreIfBound() {
+        if (_dispatch) {
+            const flat = GameStateService.getState();
+            _dispatch({ type: REPLACE_STATE, payload: JSON.parse(JSON.stringify(flat)) });
+        }
+    }
 
     function defaultEquip() {
         const s = GameStateService.getState();
@@ -45,6 +59,7 @@ function HeroServiceFactory(GameConfig, EconomyService, GameStateService, GameUi
             academy: s.heroClass[2],
             party: false
         };
+        syncStoreIfBound();
     }
 
     function addWorker(heroName) {
@@ -68,6 +83,7 @@ function HeroServiceFactory(GameConfig, EconomyService, GameStateService, GameUi
             academy: s.heroClass[1],
             party: false
         };
+        syncStoreIfBound();
     }
 
     function newHeroName() {
@@ -94,12 +110,14 @@ function HeroServiceFactory(GameConfig, EconomyService, GameStateService, GameUi
         s.jobs[selectedJobID].current++;
         s.heroList[heroID].progress = 'Idle';
         s.heroList[heroID].job = s.jobs[selectedJobID];
+        syncStoreIfBound();
     }
 
     function heroClassChange(selectedClassID, heroID) {
         const s = GameStateService.getState();
         s.tempClass = s.heroClass[selectedClassID];
         s.tempHero = heroID;
+        syncStoreIfBound();
     }
 
     function confirmClass() {
@@ -113,6 +131,7 @@ function HeroServiceFactory(GameConfig, EconomyService, GameStateService, GameUi
         }
         s.tempClass = null;
         s.tempHero = null;
+        syncStoreIfBound();
     }
 
     function gainExp(hero, amount) {
@@ -194,6 +213,7 @@ function HeroServiceFactory(GameConfig, EconomyService, GameStateService, GameUi
                 EconomyService.incrRes(Math.ceil(s.heroList[i].level / 4) ^ 2);
             }
         }
+        syncStoreIfBound();
     }
 
     function work() {
@@ -252,9 +272,11 @@ function HeroServiceFactory(GameConfig, EconomyService, GameStateService, GameUi
                     break;
             }
         }
+        syncStoreIfBound();
     }
 
     return {
+        bindStore,
         addHero,
         addWorker,
         newHeroName,

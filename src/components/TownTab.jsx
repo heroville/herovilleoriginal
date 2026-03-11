@@ -1,25 +1,15 @@
 /**
  * Town tab: buildings list (Improve button), dungeons list.
- * Uses bridge.getState() and bridge.town.incrBuilding(building). E2E expects section#container with "Buildings" and "Dungeons".
+ * E2E expects section#container with "Buildings" and "Dungeons".
+ * Subscribes to Redux store so UI updates immediately when store updates (e.g. after Improve Tavern).
  */
-import { useState, useEffect } from 'react';
+import { useSelector } from 'react-redux';
+import { useGame } from '../contexts/GameContext.jsx';
+import { selectFullState } from '../store/index.js';
 
-export default function TownTab({ bridge }) {
-  const [state, setState] = useState(() => ({ ...(bridge?.getState?.() ?? {}) }));
-
-  useEffect(() => {
-    if (!bridge?.getState) return;
-    const id = setInterval(() => setState({ ...bridge.getState() }), 500);
-    return () => clearInterval(id);
-  }, [bridge]);
-
-  if (!bridge?.town?.incrBuilding) {
-    return (
-      <section id="container" data-testid="town-tab">
-        <p>Town: no bridge</p>
-      </section>
-    );
-  }
+export default function TownTab() {
+  const game = useGame();
+  const state = useSelector(selectFullState);
 
   const buildings = (state.buildings || []).filter((b) => b.enabled === true);
   const dungeons = (state.dungeons || []).filter((d) => d.enabled === true);
@@ -47,7 +37,7 @@ export default function TownTab({ bridge }) {
                   <button
                     type="button"
                     title={building.description}
-                    onClick={() => bridge.town.incrBuilding(building)}
+                    onClick={() => game.town.incrBuilding(building)}
                   >
                     Improve {building.name}
                   </button>

@@ -1,9 +1,22 @@
 /**
  * UI / Tutorial: tutorial steps, error display, theme toggle.
- * Used by MainController; receives scope for panel/state; touches errorDialog DOM for showError.
+ * When store is bound via bindStore(store), dispatches REPLACE_STATE after nextTutorial and showError (when panel mutates).
  */
+import { REPLACE_STATE } from '../store/sliceState.js';
 
-function UiServiceFactory() {
+function UiServiceFactory(GameStateService) {
+    var _dispatch = null;
+
+    function bindStore(store) {
+        if (store) _dispatch = store.dispatch;
+    }
+
+    function syncStoreIfBound() {
+        if (_dispatch) {
+            const flat = GameStateService.getState();
+            _dispatch({ type: REPLACE_STATE, payload: JSON.parse(JSON.stringify(flat)) });
+        }
+    }
 
     function startInfo(scope) {
         if (scope.state) scope.state.panelInfo = true;
@@ -139,15 +152,11 @@ function UiServiceFactory() {
                 break;
             }
         }
+        syncStoreIfBound();
     }
 
     function showError(scope, message) {
-        const el = document.getElementById("errorDialog");
-        if (el) el.innerHTML = message;
-        setTimeout(function () {
-            const clearEl = document.getElementById("errorDialog");
-            if (clearEl) clearEl.innerHTML = "<br />";
-        }, 3000);
+        if (typeof scope.notifyError === 'function') scope.notifyError(message);
         const s = scope.state;
         if (s && s.panelInfo) {
             const d = new Date();
@@ -155,6 +164,7 @@ function UiServiceFactory() {
             if (s.panel.length > 10) {
                 s.panel.pop();
             }
+            syncStoreIfBound();
         }
     }
 
@@ -163,16 +173,12 @@ function UiServiceFactory() {
         nextTutorial(scope);
     }
 
-    function changeTheme(scope) {
-        scope.dark = !scope.dark;
-    }
-
     return {
+        bindStore,
         nextTutorial,
         skipTut,
         startInfo,
-        showError,
-        changeTheme
+        showError
     };
 }
 
