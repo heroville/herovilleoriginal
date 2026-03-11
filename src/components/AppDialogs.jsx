@@ -5,27 +5,7 @@
 import { useState, useEffect } from 'react';
 import { useGame } from '../contexts/GameContext.jsx';
 
-const BACKDROP_STYLE = {
-  position: 'fixed',
-  top: 0,
-  left: 0,
-  right: 0,
-  bottom: 0,
-  backgroundColor: 'rgba(0,0,0,0.5)',
-  zIndex: 1000,
-  display: 'flex',
-  alignItems: 'center',
-  justifyContent: 'center'
-};
-
-const MODAL_STYLE = {
-  backgroundColor: 'white',
-  padding: 20,
-  borderRadius: 8,
-  minWidth: 320,
-  maxWidth: '90%',
-  boxShadow: '0 4px 20px rgba(0,0,0,0.3)'
-};
+/** Backdrop and dialog use CSS classes so modals respect dark theme (--hv-bg, --hv-text, --hv-border). */
 
 export default function AppDialogs() {
   const game = useGame();
@@ -38,6 +18,21 @@ export default function AppDialogs() {
   useEffect(() => {
     return game?.registerDialogListener?.(setDialogState) ?? (() => {});
   }, [game]);
+
+  useEffect(() => {
+    const handleKeyDown = (e) => {
+      if (e.key !== 'Escape') return;
+      if (dialogState.hero) close('hero');
+      else if (dialogState.worker) close('worker');
+      else if (dialogState.version) close('version');
+      else if (dialogState.confirm) close('confirm');
+      else if (dialogState.loading) close('loading');
+    };
+    if (dialogState.hero || dialogState.worker || dialogState.version || dialogState.confirm || dialogState.loading) {
+      window.addEventListener('keydown', handleKeyDown);
+      return () => window.removeEventListener('keydown', handleKeyDown);
+    }
+  }, [dialogState.hero, dialogState.worker, dialogState.version, dialogState.confirm, dialogState.loading]);
 
   useEffect(() => {
     if (dialogState.hero) {
@@ -104,68 +99,68 @@ export default function AppDialogs() {
   return (
     <>
       {dialogState.hero && (
-        <div style={BACKDROP_STYLE} onClick={() => close('hero')} role="presentation">
-          <div className="heroPopup" style={MODAL_STYLE} onClick={(e) => e.stopPropagation()} role="dialog" aria-labelledby="hero-dialog-title">
+        <div className="hv-modal-backdrop" onClick={() => close('hero')} role="presentation">
+          <div className="heroPopup hv-modal-dialog" onClick={(e) => e.stopPropagation()} role="dialog" aria-labelledby="hero-dialog-title">
             <h3 id="hero-dialog-title">New Hero</h3>
-            <div id="error">{heroError && <span style={{ color: 'red' }}>{heroError}</span>}</div>
+            <div id="error">{heroError && <span className="text-danger">{heroError}</span>}</div>
             <p>Enter a name for the hero.</p>
-            <input type="text" id="name" name="name" value={heroName} onChange={(e) => setHeroName(e.target.value)} onKeyDown={(e) => e.key === 'Enter' && handleHeroAccept()} />
+            <input type="text" id="name" name="name" value={heroName} onChange={(e) => setHeroName(e.target.value)} onKeyDown={(e) => e.key === 'Enter' && handleHeroAccept()} className="w-100" />
             <div style={{ marginTop: 12 }}>
-              <button type="button" onClick={handleHeroAccept}>Accept</button>
+              <button type="button" className="hv-btn-primary hv-btn-auto" onClick={handleHeroAccept}>Accept</button>
             </div>
           </div>
         </div>
       )}
 
       {dialogState.worker && (
-        <div style={BACKDROP_STYLE} onClick={() => close('worker')} role="presentation">
-          <div className="workerPopup" style={MODAL_STYLE} onClick={(e) => e.stopPropagation()} role="dialog" aria-labelledby="worker-dialog-title">
+        <div className="hv-modal-backdrop" onClick={() => close('worker')} role="presentation">
+          <div className="workerPopup hv-modal-dialog" onClick={(e) => e.stopPropagation()} role="dialog" aria-labelledby="worker-dialog-title">
             <h3 id="worker-dialog-title">New Worker</h3>
-            <div>{workerError && <span style={{ color: 'red' }}>{workerError}</span>}</div>
+            <div>{workerError && <span className="text-danger">{workerError}</span>}</div>
             <p>Enter a name for the worker.</p>
-            <input type="text" id="name2" name="name2" value={workerName} onChange={(e) => setWorkerName(e.target.value)} onKeyDown={(e) => e.key === 'Enter' && handleWorkerAccept()} />
+            <input type="text" id="name2" name="name2" value={workerName} onChange={(e) => setWorkerName(e.target.value)} onKeyDown={(e) => e.key === 'Enter' && handleWorkerAccept()} className="w-100" />
             <div style={{ marginTop: 12 }}>
-              <button type="button" onClick={handleWorkerAccept}>Accept</button>
+              <button type="button" className="hv-btn-primary hv-btn-auto" onClick={handleWorkerAccept}>Accept</button>
             </div>
           </div>
         </div>
       )}
 
       {dialogState.version && (
-        <div style={BACKDROP_STYLE} onClick={() => close('version')} role="presentation">
-          <div style={MODAL_STYLE} onClick={(e) => e.stopPropagation()} role="dialog" aria-labelledby="version-dialog-title">
+        <div className="hv-modal-backdrop" onClick={() => close('version')} role="presentation">
+          <div className="hv-modal-dialog" onClick={(e) => e.stopPropagation()} role="dialog" aria-labelledby="version-dialog-title">
             <h3 id="version-dialog-title">Version Information</h3>
             <p>Current Version: 1.3.2 - 2 Oct 2017</p>
             <ul>
               <li>Fix issue with new potions not giving gold</li>
               <li>Added Dark Theme</li>
             </ul>
-            <button type="button" onClick={() => close('version')}>Close</button>
+            <button type="button" className="hv-btn-auto" onClick={() => close('version')}>Close</button>
           </div>
         </div>
       )}
 
       {dialogState.confirm && (
-        <div style={BACKDROP_STYLE} onClick={() => close('confirm')} role="presentation">
-          <div style={MODAL_STYLE} onClick={(e) => e.stopPropagation()} role="dialog" aria-labelledby="confirm-dialog-title">
+        <div className="hv-modal-backdrop" onClick={() => close('confirm')} role="presentation">
+          <div className="hv-modal-dialog" onClick={(e) => e.stopPropagation()} role="dialog" aria-labelledby="confirm-dialog-title">
             <h3 id="confirm-dialog-title">Confirmation Required</h3>
             <p>This change is permanent, are you sure this is what you want to do?</p>
             <div style={{ marginTop: 12 }}>
-              <button type="button" onClick={handleConfirmConfirm}>Confirm</button>
-              <button type="button" onClick={() => close('confirm')}>Cancel</button>
+              <button type="button" className="hv-btn-primary hv-btn-auto" onClick={handleConfirmConfirm}>Confirm</button>
+              <button type="button" className="hv-btn-auto" onClick={() => close('confirm')}>Cancel</button>
             </div>
           </div>
         </div>
       )}
 
       {dialogState.loading && (
-        <div style={BACKDROP_STYLE} onClick={() => close('loading')} role="presentation">
-          <div style={MODAL_STYLE} onClick={(e) => e.stopPropagation()} role="dialog" aria-labelledby="loading-dialog-title">
+        <div className="hv-modal-backdrop" onClick={() => close('loading')} role="presentation">
+          <div className="hv-modal-dialog" onClick={(e) => e.stopPropagation()} role="dialog" aria-labelledby="loading-dialog-title">
             <h3 id="loading-dialog-title">Old Version</h3>
             <p>You are loading from an old version, there may be errors. If the game does not load correctly try starting a new game by refreshing the page and canceling this dialog. Do you want to load the old save?</p>
             <div style={{ marginTop: 12 }}>
-              <button type="button" onClick={handleLoadingAccept}>Accept</button>
-              <button type="button" onClick={() => close('loading')}>Cancel</button>
+              <button type="button" className="hv-btn-primary hv-btn-auto" onClick={handleLoadingAccept}>Accept</button>
+              <button type="button" className="hv-btn-auto" onClick={() => close('loading')}>Cancel</button>
             </div>
           </div>
         </div>

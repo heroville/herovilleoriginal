@@ -54,6 +54,7 @@ body {
   min-height: 100vh;
   overflow-x: hidden;
   margin: 0;
+  padding: 0.75rem 1rem;
 }
 
 #error,
@@ -61,8 +62,50 @@ body {
   color: var(--hv-error);
 }
 
+.hv-modal-dialog .text-danger {
+  color: var(--hv-error);
+}
+
+/* Message toast: success (e.g. "Game has saved") vs error */
+.hv-message-toast {
+  margin-top: 0.25rem;
+  padding: 0.35rem 0.75rem;
+  border-radius: 4px;
+  font-size: 0.875rem;
+  min-height: 1.5rem;
+}
+#errorDialog.hv-message-success {
+  color: #198754;
+  background-color: rgba(25, 135, 84, 0.12);
+  border: 1px solid rgba(25, 135, 84, 0.3);
+}
+[data-bs-theme="dark"] #errorDialog.hv-message-success {
+  color: #75b798;
+  background-color: rgba(46, 169, 106, 0.15);
+  border-color: rgba(46, 169, 106, 0.4);
+}
+
 #resources {
   font-size: medium;
+}
+
+/* --------------------------------------------------------------------------- */
+/* Header: logo smaller, side panels unified                                   */
+/* --------------------------------------------------------------------------- */
+.hv-logo-wrap {
+  max-width: 220px;
+  width: 100%;
+}
+.hv-logo {
+  display: block;
+  width: 100%;
+  height: auto;
+}
+.hv-header-panel .card-body {
+  padding: 0.75rem 1rem;
+}
+.hv-header-panel .card-header {
+  padding: 0.4rem 1rem;
 }
 
 #Title {
@@ -79,7 +122,39 @@ hr {
 }
 
 /* --------------------------------------------------------------------------- */
-/* Tables – full borders                                                       */
+/* Navigation tabs – only active tab highlighted                               */
+/* --------------------------------------------------------------------------- */
+#gameTabs {
+  margin-top: 0.75rem;
+}
+
+#gameTabs .nav-link {
+  color: var(--hv-text);
+  border-color: transparent;
+}
+#gameTabs .nav-link:hover:not(.active):not(.disabled) {
+  color: var(--hv-text);
+  border-color: transparent;
+  background-color: var(--hv-panel-bg);
+}
+#gameTabs .nav-link.active {
+  color: var(--hv-text);
+  background-color: var(--hv-panel-bg);
+  border-color: var(--hv-border) var(--hv-border) var(--hv-bg);
+}
+#gameTabs .nav-link.disabled {
+  color: var(--hv-muted, #6c757d);
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+#gameTabs .nav-link.disabled::after {
+  content: " (Locked)";
+  font-size: 0.75em;
+  opacity: 0.9;
+}
+
+/* --------------------------------------------------------------------------- */
+/* Tables – full borders, thead, header background                             */
 /* --------------------------------------------------------------------------- */
 .table,
 .table-bordered,
@@ -90,6 +165,15 @@ hr {
 
 .table-bordered {
   border-collapse: collapse;
+}
+
+.table thead th {
+  background-color: var(--hv-panel-bg);
+  padding: 0.5rem 0.75rem;
+  text-align: center;
+}
+.table-bordered thead th {
+  border-bottom: 1px solid var(--hv-border) !important;
 }
 
 /* --------------------------------------------------------------------------- */
@@ -109,6 +193,20 @@ button:hover {
   border: 2px solid var(--hv-button-border);
 }
 
+/* Primary (Gather, Improve, Accept, Create) vs secondary (Load, Reset, Theme) */
+.hv-btn-primary {
+  background-color: var(--hv-button-bg);
+  border-color: var(--hv-button-border);
+}
+.hv-btn-secondary {
+  width: auto;
+  min-width: 6rem;
+}
+.hv-btn-auto {
+  width: auto;
+  min-width: 5rem;
+}
+
 [data-bs-theme="dark"] button,
 [data-bs-theme="dark"] select,
 [data-bs-theme="dark"] input,
@@ -123,12 +221,13 @@ button:hover {
 /* Gather button (ID kept for e2e)                                              */
 /* --------------------------------------------------------------------------- */
 #gatherButton {
-  padding: 5px 5px 5px 40px;
-  background: var(--hv-button-bg) url(/images/I_Chest02.png) no-repeat scroll 5px center;
+  padding: 6px 12px 6px 42px;
+  background: var(--hv-button-bg) url(/images/I_Chest02.png) no-repeat scroll 8px center;
   border: 1px solid var(--hv-button-border);
   color: var(--hv-button-text);
   text-decoration: none;
-  width: 90px;
+  min-width: 100px;
+  box-sizing: border-box;
   -webkit-touch-callout: none;
   -webkit-user-select: none;
   -khtml-user-select: none;
@@ -140,8 +239,8 @@ button:hover {
 }
 
 #gatherButton:hover {
-  padding: 4px 4px 4px 39px;
-  background: var(--hv-button-bg) url(/images/I_Chest02.png) no-repeat scroll 4px center;
+  padding: 5px 11px 5px 41px;
+  background: var(--hv-button-bg) url(/images/I_Chest02.png) no-repeat scroll 7px center;
   border: 2px solid var(--hv-button-border);
   cursor: pointer;
 }
@@ -290,9 +389,6 @@ button:hover {
 /* Tutorial / info button (ID kept for e2e)                                     */
 /* --------------------------------------------------------------------------- */
 #infobutton {
-  position: absolute;
-  bottom: 10px;
-  right: 6px;
   padding: 5px;
   background-color: var(--hv-button-bg);
   border: 1px solid var(--hv-button-border);
@@ -307,6 +403,16 @@ button:hover {
   user-select: none;
   margin-left: auto;
   margin-right: auto;
+}
+.hv-header-panel #infobutton,
+.hv-tutorial-next {
+  position: static;
+  display: inline-block;
+}
+#upgradeList .hv-upgrade-btn {
+  width: auto;
+  max-width: 100%;
+  min-width: 8rem;
 }
 
 #panelList {
@@ -346,7 +452,8 @@ button:hover {
   flex-shrink: 0;
   background-color: var(--hv-bg);
   border-top: 1px solid var(--hv-border);
-  padding: 0.5rem 0;
+  padding: 0.75rem 0;
+  margin-top: 0.5rem;
 }
 
 /* --------------------------------------------------------------------------- */
@@ -364,9 +471,33 @@ button:hover {
   background-color: #0d6efd !important; /* blue – experience */
 }
 
-.progress-bar-hp,
-.progress-bar-xp {
-  color: #fff;
+/* Hero HP/XP: label centered over bar, always visible (full or empty) */
+.hv-progress-wrap {
+  position: relative;
+  display: inline-block;
+  height: 1.5rem;
+}
+.hv-progress-wrap .progress {
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 0;
+  bottom: 0;
+}
+.hv-progress-label {
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 0;
+  bottom: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  color: var(--hv-text);
+  font-size: 0.8rem;
+  pointer-events: none;
+  text-shadow: 0 0 3px var(--hv-bg), 0 0 4px var(--hv-bg), 0 1px 2px rgba(0,0,0,0.5), 0 0 1px var(--hv-bg);
 }
 
 [data-bs-theme="dark"] .progress-bar-hp {
@@ -512,6 +643,11 @@ button:hover {
   color: var(--hv-text);
 }
 
+/* Card headers: normal weight (avoid bold everywhere) */
+.card-header {
+  font-weight: normal;
+}
+
 [data-bs-theme="dark"] .progress {
   background: #1a1a1a;
   border: 1px solid var(--hv-button-border);
@@ -536,4 +672,45 @@ button:hover {
 [data-bs-theme="dark"] .dropdown-item:hover {
   background-color: #1a1a1a;
   color: var(--hv-text);
+}
+
+/* --------------------------------------------------------------------------- */
+/* Modals – theme variables (dark mode), consistent font                       */
+/* --------------------------------------------------------------------------- */
+.hv-modal-backdrop {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0, 0, 0, 0.5);
+  z-index: 1000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.hv-modal-dialog {
+  background-color: var(--hv-bg);
+  color: var(--hv-text);
+  border: 1px solid var(--hv-border);
+  padding: 1.25rem;
+  border-radius: 8px;
+  min-width: 320px;
+  max-width: 90%;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.25);
+  font-family: var(--hv-font-sans);
+}
+.hv-modal-dialog input,
+.hv-modal-dialog button {
+  font-family: var(--hv-font-sans);
+}
+
+/* --------------------------------------------------------------------------- */
+/* Focus outline (accessibility)                                                */
+/* --------------------------------------------------------------------------- */
+button:focus-visible,
+#gameTabs .nav-link:focus-visible,
+a:focus-visible {
+  outline: 2px solid var(--hv-button-border);
+  outline-offset: 2px;
 }

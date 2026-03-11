@@ -8,7 +8,6 @@ import { useSelector } from 'react-redux';
 import { useGame } from '../contexts/GameContext.jsx';
 import { selectFullState } from '../store/index.js';
 import GameHeader from './GameHeader.jsx';
-import ResourcesBar from './ResourcesBar.jsx';
 import RandomEventSlider from './RandomEventSlider.jsx';
 import FooterBar from './FooterBar.jsx';
 import TownTab from './TownTab.jsx';
@@ -61,9 +60,6 @@ export default function App() {
       <div className="app-main">
         <div className="row" id="header-react-root">
           <GameHeader />
-        </div>
-        <div id="resources-react-root">
-          <ResourcesBar />
         </div>
         <div id="gameTabs" data-testid="game-tabs">
         <ul className="nav nav-tabs" role="tablist">
@@ -119,7 +115,7 @@ export default function App() {
             <OptionsTab />
           </div>
         </div>
-      </div>
+          </div>
         <div id="randomTrigger">
           <div id="random-event-react-root">
             <RandomEventSlider />

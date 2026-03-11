@@ -13,18 +13,22 @@ export default function ProfessionsTab() {
   const jobs = (state.jobs || []).filter((j) => j.enabled === true);
 
   return (
-    <section data-testid="professions-tab">
-      <div className="col-lg-6">
+    <section data-testid="professions-tab" className="row justify-content-center">
+      <div className="col-lg-6 mb-3">
         {jobs.length > 0 && (
-          <table className="table table-bordered">
+          <div className="card h-100">
+            <div className="card-body p-2">
+          <table className="table table-bordered mb-0">
+            <thead>
+              <tr>
+                <th colSpan={2} className="text-center">Jobs</th>
+              </tr>
+              <tr>
+                <th>Name</th>
+                <th>Description</th>
+              </tr>
+            </thead>
             <tbody>
-              <tr>
-                <td><u><b>Jobs</b></u></td>
-              </tr>
-              <tr>
-                <td><u>Name</u></td>
-                <td><u>Description</u></td>
-              </tr>
               {jobs.map((job) => (
                 <tr key={job.id ?? job.name}>
                   <td>{job.name}</td>
@@ -33,6 +37,8 @@ export default function ProfessionsTab() {
               ))}
             </tbody>
           </table>
+            </div>
+          </div>
         )}
       </div>
       <div className="col-lg-6" />

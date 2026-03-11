@@ -50,15 +50,17 @@ export default function OptionsTab() {
   const optionsLoss = state.optionsLoss || [];
 
   return (
-    <>
-      <div className="col-lg-6" id="optionTab">
+    <div className="row justify-content-center">
+      <div className="col-lg-6 hv-options-column text-center" id="optionTab">
         <h3>Options</h3>
-        <button type="button" id="save" onClick={handleSave}>Save</button>
-        <button type="button" id="load" onClick={handleLoad}>Load</button>
-        <button type="button" id="reset" onClick={() => game?.options?.reset?.()}>Reset</button>
-        <button type="button" id="swap theme" value="SwapTheme" onClick={() => game?.options?.changeTheme?.()}>Swap Theme</button>
-        <div id="optionMenu">
-          <div className="card">
+        <div className="mb-2 d-flex flex-wrap justify-content-center gap-2">
+          <button type="button" id="save" className="hv-btn-secondary" onClick={handleSave}>Save</button>
+          <button type="button" id="load" className="hv-btn-secondary" onClick={handleLoad}>Load</button>
+          <button type="button" id="reset" className="hv-btn-secondary" onClick={() => game?.options?.reset?.()}>Reset</button>
+          <button type="button" id="swap theme" value="SwapTheme" className="hv-btn-secondary" onClick={() => game?.options?.changeTheme?.()}>Swap Theme</button>
+        </div>
+        <div id="optionMenu" className="d-flex flex-column align-items-center">
+          <div className="card w-100" style={{ maxWidth: '24rem' }}>
             <div
               className="card-header noTextSelect"
               style={{ cursor: 'pointer' }}
@@ -70,7 +72,7 @@ export default function OptionsTab() {
               Hero Options
             </div>
             {heroOptionsOpen && (
-              <div className="card-body">
+              <div className="card-body text-start">
                 <div>Format Heroes as Table <input type="checkbox" id="showOld" name="showHeroTable" checked={!!state.showHeroTable?.enabled} onChange={handleShowHeroTableChange} /></div>
                 <div>Successes before moving up dungeon <select id="successCountSelect" value={state.successCount?.amount} onChange={handleSuccessCountChange}>{optionsSuccess.map((opt) => <option key={opt} value={opt}>{opt}</option>)}</select></div>
                 <div>Dungeons moved down on loss <select id="lossCountSelect" value={state.lossCount?.amount} onChange={handleLossCountChange}>{optionsLoss.map((opt) => <option key={opt} value={opt}>{opt}</option>)}</select></div>
@@ -78,10 +80,12 @@ export default function OptionsTab() {
             )}
           </div>
         </div>
-        <button type="button" id="skip" onClick={() => game?.options?.skipTut?.()}>Skip Tutorial</button>
+        <button type="button" id="skip" className="hv-btn-secondary mt-2" onClick={() => game?.options?.skipTut?.()}>Skip Tutorial</button>
       </div>
       <div className="col-lg-6">
-        <h3>Quick Guide</h3>
+        <div className="card">
+          <div className="card-header">Quick Guide</div>
+          <div className="card-body">
         <div id="tips">
           <ul>
             {QUICK_GUIDE_TIPS.map((tip) => (
@@ -99,7 +103,9 @@ export default function OptionsTab() {
             </li>
           </ul>
         </div>
+          </div>
+        </div>
       </div>
-    </>
+    </div>
   );
 }

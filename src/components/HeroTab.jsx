@@ -66,9 +66,11 @@ export default function HeroTab() {
   const setSortWork = () => setReverse((r) => !r);
 
   return (
-    <section data-testid="hero-tab">
+    <section data-testid="hero-tab" className="row justify-content-center">
       <div className="col-lg-7">
-        <div className="hero-sort-wrap" id="heroFilter">
+        <div className="d-flex flex-wrap align-items-center gap-2 mb-2" role="group" aria-label="Sort and filter heroes">
+          <span className="small text-muted">Sort / filter heroes:</span>
+          <div className="hero-sort-wrap" id="heroFilter">
           <button
             type="button"
             className="hv-sort-btn"
@@ -100,13 +102,15 @@ export default function HeroTab() {
               ))}
             </ul>
           )}
-        </div>
+          </div>
         <input
           type="text"
           value={state.hFilterString?.name ?? ''}
           onChange={(e) => game.setFilterName?.(e.target.value)}
           placeholder="Filter by name"
+          title="Filter hero list by name"
         />
+        </div>
         {!showTable && (
           <ul id="heroList">
             {adventureHeroes.map((hero) => {
@@ -129,17 +133,19 @@ export default function HeroTab() {
                       <tr>
                         <td>
                           HP:{' '}
-                          <div className="progress" style={{ width: 220 }} role="progressbar" aria-valuenow={hero.currHealth} aria-valuemin={0} aria-valuemax={hero.health}>
-                            <div className={`progress-bar progress-bar-hp${hpPct <= 25 ? ' low' : ''}`} style={{ width: `${hpPct}%` }}>
-                              <i>{Number(hero.currHealth).toLocaleString()}/{Number(hero.health).toLocaleString()}</i>
+                          <div className="hv-progress-wrap" style={{ width: 220 }} role="progressbar" aria-valuenow={hero.currHealth} aria-valuemin={0} aria-valuemax={hero.health}>
+                            <div className="progress h-100">
+                              <div className={`progress-bar progress-bar-hp${hpPct <= 25 ? ' low' : ''}`} style={{ width: `${hpPct}%` }} />
                             </div>
+                            <span className="hv-progress-label">{Number(hero.currHealth).toLocaleString()}/{Number(hero.health).toLocaleString()}</span>
                           </div>
                           {' '}
                           XP:{' '}
-                          <div className="progress" style={{ width: 220 }} role="progressbar" aria-valuenow={hero.experience} aria-valuemin={0} aria-valuemax={hero.next}>
-                            <div className="progress-bar progress-bar-xp" style={{ width: `${xpPct}%` }}>
-                              <i>{Number(hero.experience).toLocaleString()}/{Number(hero.next).toLocaleString()}</i>
+                          <div className="hv-progress-wrap" style={{ width: 220 }} role="progressbar" aria-valuenow={hero.experience} aria-valuemin={0} aria-valuemax={hero.next}>
+                            <div className="progress h-100">
+                              <div className="progress-bar progress-bar-xp" style={{ width: `${xpPct}%` }} />
                             </div>
+                            <span className="hv-progress-label">{Number(hero.experience).toLocaleString()}/{Number(hero.next).toLocaleString()}</span>
                           </div>
                         </td>
                       </tr>

@@ -37,19 +37,24 @@ export default function ResourcesBar() {
   const damageMulti = state.damageMulti ?? 1;
   const goldMulti = state.goldMulti ?? 1;
 
+  const isSuccessMessage = /saved|save/i.test(errorMessage || '');
   return (
-    <div className="row">
-      <div id="resources">
-        {resources.toLocaleString()}/{maxResources.toLocaleString()}
-        <img src="images/I_Chest01.png" alt="" />
-        {gold.toLocaleString()}/{maxGold.toLocaleString()}
-        <img src="images/I_GoldBar.png" alt="" />
-        {gameLoop !== 1000 && <img src="images/S_Buff11.png" alt="" title="Doubles the game speed" />}
-        {damageMulti !== 1 && <img src="images/S_Shadow07.png" alt="" title="Doubles your heroes damage" />}
-        {goldMulti !== 1 && <img src="images/E_Gold02.png" alt="" title="Doubles the gold gained from sales" />}
-      </div>
-      <div id="gatherButton" role="button" tabIndex={0} onClick={() => game.incrRes?.(state?.incr ?? 1)} onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') game.incrRes?.(state?.incr ?? 1); }}>Gather</div>
-      <div id="errorDialog" title="Error" role="alert">{errorMessage || <br />}</div>
+    <div className="d-flex align-items-center justify-content-center gap-3 flex-wrap">
+        <div id="resources" className="d-flex align-items-center gap-2 flex-wrap">
+          <span title="Resources (materials)">
+            {resources.toLocaleString()}/{maxResources.toLocaleString()}
+            <img src="images/I_Chest01.png" alt="" aria-hidden />
+          </span>
+          <span title="Gold">
+            {gold.toLocaleString()}/{maxGold.toLocaleString()}
+            <img src="images/I_GoldBar.png" alt="" aria-hidden />
+          </span>
+          {gameLoop !== 1000 && <img src="images/S_Buff11.png" alt="" title="Doubles the game speed" />}
+          {damageMulti !== 1 && <img src="images/S_Shadow07.png" alt="" title="Doubles your heroes damage" />}
+          {goldMulti !== 1 && <img src="images/E_Gold02.png" alt="" title="Doubles the gold gained from sales" />}
+        </div>
+        <div id="gatherButton" className="hv-btn-primary" role="button" tabIndex={0} onClick={() => game.incrRes?.(state?.incr ?? 1)} onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') game.incrRes?.(state?.incr ?? 1); }}>Gather</div>
+        <div id="errorDialog" className={`hv-message-toast ${isSuccessMessage ? 'hv-message-success' : ''}`} title={errorMessage ? 'Message' : 'Error'} role="alert" aria-live="polite">{errorMessage || '\u00A0'}</div>
     </div>
   );
 }

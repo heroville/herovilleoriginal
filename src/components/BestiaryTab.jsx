@@ -33,19 +33,23 @@ export default function BestiaryTab() {
   };
 
   return (
-    <section data-testid="bestiary-tab">
-      <div className="col-lg-6">
-        <table className="table table-bordered">
+    <section data-testid="bestiary-tab" className="row justify-content-center">
+      <div className="col-lg-6 mb-3">
+        <div className="card h-100">
+          <div className="card-body p-2">
+        <table className="table table-bordered mb-0">
+          <thead>
+            <tr>
+              <th colSpan={4} className="text-center">Monsters</th>
+            </tr>
+            <tr>
+              <th>Name</th>
+              <th>Level</th>
+              <th>Damage</th>
+              <th>Health</th>
+            </tr>
+          </thead>
           <tbody>
-            <tr>
-              <td><u><b>Monsters</b></u></td>
-            </tr>
-            <tr>
-              <td><b><u>Name</u></b></td>
-              <td><b><u>Level</u></b></td>
-              <td><b><u>Damage</u></b></td>
-              <td><b><u>Health</u></b></td>
-            </tr>
             {monsters.map((monster) => (
               <tr key={monster.id ?? monster.name}>
                 <td>{monster.name}</td>
@@ -56,19 +60,25 @@ export default function BestiaryTab() {
             ))}
           </tbody>
         </table>
+          </div>
+        </div>
       </div>
-      <div className="col-lg-6">
-        <table className="table table-bordered">
+      <div className="col-lg-6 mb-3">
+        <div className="card h-100">
+          <div className="card-body p-2">
+        <table className="table table-bordered mb-0">
+          <thead>
+            <tr>
+              <th colSpan={4} className="text-center">Bosses</th>
+            </tr>
+            <tr>
+              <th>Name</th>
+              <th>Location</th>
+              <th>Damage</th>
+              <th>Health</th>
+            </tr>
+          </thead>
           <tbody>
-            <tr>
-              <td><u><b>Bosses</b></u></td>
-            </tr>
-            <tr>
-              <td><b><u>Name</u></b></td>
-              <td><b><u>Location</u></b></td>
-              <td><b><u>Damage</u></b></td>
-              <td><b><u>Health</u></b></td>
-            </tr>
             {bosses.map((boss) => (
               <tr key={boss.id ?? boss.name}>
                 <td>{boss.name}</td>
@@ -83,6 +93,8 @@ export default function BestiaryTab() {
             ))}
           </tbody>
         </table>
+          </div>
+        </div>
       </div>
     </section>
   );
