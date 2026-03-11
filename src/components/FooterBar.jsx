@@ -17,7 +17,7 @@ export default function FooterBar() {
   };
 
   return (
-    <div className="footer navbar-fixed-bottom">
+    <div className="footer">
       <div className="container" id="support">
         <button type="button" className="btn-link" style={{ background: 'none', border: 'none', padding: 0, font: 'inherit', color: 'inherit', cursor: 'pointer', textDecoration: 'underline' }} onClick={() => game.showVersion?.()}>Version {version}</button>
         {' Meredori © 2017 '}

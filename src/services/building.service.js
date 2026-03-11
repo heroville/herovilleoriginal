@@ -91,7 +91,7 @@ function BuildingServiceFactory(GameStateService, GameUiService, DungeonService,
         switch (bid) {
             case 0: {
                 if (actions.openHeroDialog) actions.openHeroDialog();
-                state.heroEnabled = false;
+                state.heroEnabled = true; /* unlock Hero tab when first Tent built */
                 if (state.buildings[0].count === 5) actions.activateBlueprint(3);
                 if (state.panelNumber === 3) actions.nextTutorial();
                 break;
@@ -102,7 +102,7 @@ function BuildingServiceFactory(GameStateService, GameUiService, DungeonService,
                 state.maxGold = Math.floor(stateBuilding.cost / 10);
                 if (state.buildings[2].count === 0) {
                     state.buildings[2].enabled = true;
-                    state.prodEnabled = false;
+                    state.prodEnabled = true; /* unlock Production tab when Stockpile built */
                     state.jobs[1].enabled = true;
                 } else if (state.buildings[4].count === 0) {
                     actions.activateBlueprint(2);
@@ -132,7 +132,7 @@ function BuildingServiceFactory(GameStateService, GameUiService, DungeonService,
             }
             case 4: {
                 state.buildings[4].enabled = false;
-                state.upgEnabled = false;
+                state.upgEnabled = true; /* unlock Professions tab when Tavern built */
                 if (state.buildings[9]) state.buildings[9].enabled = true;
                 if (state.panelNumber === 19) actions.nextTutorial();
                 break;
@@ -194,7 +194,7 @@ function BuildingServiceFactory(GameStateService, GameUiService, DungeonService,
                     break;
                 case -2:
                     state.bestiary = true;
-                    state.beastEnabled = false;
+                    state.beastEnabled = true; /* unlock Bestiary tab */
                     break;
             }
         }

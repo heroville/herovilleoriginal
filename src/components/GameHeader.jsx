@@ -16,8 +16,8 @@ export default function GameHeader() {
   return (
     <>
       <div className="col-lg-4">
-        <div className="panel panel-default">
-          <div className="panel-body">
+        <div className="card">
+          <div className="card-body">
             <ul id="panelList">
               <li>
                 <b>{panel[0]}</b>
@@ -38,9 +38,9 @@ export default function GameHeader() {
         <img src="images/heroville-logo.png" width="100%" alt="HeroVille" />
       </div>
       <div className="col-lg-4">
-        <div className="panel panel-default">
-          <div className="panel-heading">Upgrades</div>
-          <div className="panel-body">
+        <div className="card">
+          <div className="card-header">Upgrades</div>
+          <div className="card-body">
             <ul id="upgradeList">
               {upgrades.map((upgrade) => (
                 <li key={upgrade.id}>

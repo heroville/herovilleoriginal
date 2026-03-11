@@ -33,7 +33,7 @@ export default function BestiaryTab() {
   };
 
   return (
-    <section id="container" data-testid="bestiary-tab">
+    <section data-testid="bestiary-tab">
       <div className="col-lg-6">
         <table className="table table-bordered">
           <tbody>

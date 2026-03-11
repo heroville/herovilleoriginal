@@ -1,6 +1,6 @@
 /**
  * Production tab: potions, weapons, blueprints.
- * E2E expects section#containter (typo preserved), #potionButt, images, table headers.
+ * E2E expects section#container, #potionButt, images, table headers.
  */
 import { useSelector } from 'react-redux';
 import { useGame } from '../contexts/GameContext.jsx';
@@ -23,7 +23,7 @@ export default function ProductionTab() {
   const potionDisabled = potionInProgress || (potion.count + (potion.working || 0) >= (potion.maxCount || 0));
 
   return (
-    <section id="containter" data-testid="production-tab">
+    <section data-testid="production-tab">
       <div className="col-lg-6">
         <table className="table table-bordered">
           <tbody>

@@ -13,7 +13,7 @@ export default function ProfessionsTab() {
   const jobs = (state.jobs || []).filter((j) => j.enabled === true);
 
   return (
-    <section id="container" data-testid="professions-tab">
+    <section data-testid="professions-tab">
       <div className="col-lg-6">
         {jobs.length > 0 && (
           <table className="table table-bordered">

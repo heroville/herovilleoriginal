@@ -30,16 +30,9 @@ const TABS = [
 
 function DarkTheme({ dark }) {
   useEffect(() => {
-    if (!dark) return;
-    const link = document.createElement('link');
-    link.rel = 'stylesheet';
-    link.href = './styles/darkStyle.css';
-    link.id = 'dark-style';
-    document.head.appendChild(link);
-    return () => {
-      const el = document.getElementById('dark-style');
-      if (el) el.remove();
-    };
+    const html = document.documentElement;
+    html.setAttribute('data-bs-theme', dark ? 'dark' : 'light');
+    return () => { html.removeAttribute('data-bs-theme'); };
   }, [dark]);
   return null;
 }
@@ -65,25 +58,39 @@ export default function App() {
   return (
     <>
       <DarkTheme dark={!!dark} />
-      <div className="row" id="header-react-root">
-        <GameHeader />
-      </div>
-      <div id="resources-react-root">
-        <ResourcesBar />
-      </div>
-      <div id="gameTabs">
+      <div className="app-main">
+        <div className="row" id="header-react-root">
+          <GameHeader />
+        </div>
+        <div id="resources-react-root">
+          <ResourcesBar />
+        </div>
+        <div id="gameTabs" data-testid="game-tabs">
         <ul className="nav nav-tabs" role="tablist">
           {TABS.map((tab) => {
             const disabled = isDisabled(tab);
+            const isActive = activeTab === tab.id;
             return (
-              <li key={tab.id} role="presentation" className={activeTab === tab.id ? 'active' : ''}>
+              <li key={tab.id} className="nav-item" role="presentation">
                 <a
                   href={'#' + tab.id}
+                  role="tab"
+                  aria-selected={isActive}
+                  aria-disabled={disabled}
+                  tabIndex={disabled ? -1 : 0}
+                  className={`nav-link ${isActive ? 'active' : ''} ${disabled ? 'disabled' : ''}`}
+                  data-testid={`tab-${tab.id}`}
                   onClick={(e) => {
                     e.preventDefault();
-                    setActiveTab(tab.id);
+                    if (!disabled) setActiveTab(tab.id);
                   }}
-                  style={disabled ? { opacity: 0.6 } : {}}
+                  onKeyDown={(e) => {
+                    if (disabled) return;
+                    if (e.key === 'Enter' || e.key === ' ') {
+                      e.preventDefault();
+                      setActiveTab(tab.id);
+                    }
+                  }}
                   title={disabled ? `${tab.name} (unlock by progressing)` : undefined}
                 >
                   {tab.name}
@@ -113,13 +120,14 @@ export default function App() {
           </div>
         </div>
       </div>
-      <div id="randomTrigger">
-        <div id="random-event-react-root">
-          <RandomEventSlider />
+        <div id="randomTrigger">
+          <div id="random-event-react-root">
+            <RandomEventSlider />
+          </div>
         </div>
-      </div>
-      <div id="dialogs-react-root">
-        <AppDialogs />
+        <div id="dialogs-react-root">
+          <AppDialogs />
+        </div>
       </div>
       <div id="footer-react-root">
         <FooterBar />

@@ -16,7 +16,7 @@ export default function TownTab() {
   const bosses = state.bosses || {};
 
   return (
-    <section id="container" data-testid="town-tab">
+    <section data-testid="town-tab">
       <div className="col-lg-6">
         <table className="table table-bordered">
           <tbody>

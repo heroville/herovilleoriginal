@@ -66,37 +66,40 @@ export default function HeroTab() {
   const setSortWork = () => setReverse((r) => !r);
 
   return (
-    <section id="container" data-testid="hero-tab">
+    <section data-testid="hero-tab">
       <div className="col-lg-7">
-        <div className="btn-group" id="heroFilter">
+        <div className="hero-sort-wrap" id="heroFilter">
           <button
             type="button"
-            className="dropdown-toggle btn btn-default"
+            className="hv-sort-btn"
             id="sortButton"
             onClick={() => setSortOpen((o) => !o)}
             aria-expanded={sortOpen}
+            aria-haspopup="listbox"
           >
-            Sort <span className="caret down" />
+            Sort <span className="hv-sort-caret" aria-hidden>▼</span>
           </button>
-          <ul className={`dropdown-menu${sortOpen ? '' : ' hidden'}`} role="menu" style={sortOpen ? { display: 'block' } : { display: 'none' }}>
-            {[
-              ['name', 'Name'],
-              [['level', 'experience'], 'Level'],
-              ['equip.gold', 'Gold'],
-              ['equip.scrap', 'Resources'],
-              ['equip.weapon.id', 'Weapon'],
-              ['equip.accessory.length', 'Accessory'],
-              ['currHealth', 'Health'],
-              ['experience', 'Experience'],
-              ['dungeon', 'Location']
-            ].map(([key, label]) => (
-              <li key={String(key)}>
-                <button type="button" className="btn-link" style={{ background: 'none', border: 'none', padding: 0, width: '100%', textAlign: 'left', cursor: 'pointer' }} onClick={() => { setSort(key); setSortOpen(false); }}>
-                  <u>{label}</u>
-                </button>
-              </li>
-            ))}
-          </ul>
+          {sortOpen && (
+            <ul className="hero-sort-dropdown" role="listbox" aria-label="Sort by">
+              {[
+                ['name', 'Name'],
+                [['level', 'experience'], 'Level'],
+                ['equip.gold', 'Gold'],
+                ['equip.scrap', 'Resources'],
+                ['equip.weapon.id', 'Weapon'],
+                ['equip.accessory.length', 'Accessory'],
+                ['currHealth', 'Health'],
+                ['experience', 'Experience'],
+                ['dungeon', 'Location']
+              ].map(([key, label]) => (
+                <li key={String(key)} role="option">
+                  <button type="button" className="hero-sort-item" onClick={() => { setSort(key); setSortOpen(false); }}>
+                    {label}
+                  </button>
+                </li>
+              ))}
+            </ul>
+          )}
         </div>
         <input
           type="text"
@@ -127,14 +130,14 @@ export default function HeroTab() {
                         <td>
                           HP:{' '}
                           <div className="progress" style={{ width: 220 }} role="progressbar" aria-valuenow={hero.currHealth} aria-valuemin={0} aria-valuemax={hero.health}>
-                            <div className="progress-bar progress-bar-danger" style={{ width: `${hpPct}%` }}>
+                            <div className={`progress-bar progress-bar-hp${hpPct <= 25 ? ' low' : ''}`} style={{ width: `${hpPct}%` }}>
                               <i>{Number(hero.currHealth).toLocaleString()}/{Number(hero.health).toLocaleString()}</i>
                             </div>
                           </div>
                           {' '}
                           XP:{' '}
                           <div className="progress" style={{ width: 220 }} role="progressbar" aria-valuenow={hero.experience} aria-valuemin={0} aria-valuemax={hero.next}>
-                            <div className="progress-bar progress-bar-warning" style={{ width: `${xpPct}%` }}>
+                            <div className="progress-bar progress-bar-xp" style={{ width: `${xpPct}%` }}>
                               <i>{Number(hero.experience).toLocaleString()}/{Number(hero.next).toLocaleString()}</i>
                             </div>
                           </div>
@@ -163,12 +166,12 @@ export default function HeroTab() {
                                     {' '}({weapon?.minDamage ?? 0}-{weapon?.maxDamage ?? 0}) Durability: {weapon?.durability ?? 0}
                                     {showEquip && (
                                       <div
-                                        className="panel panel-default"
+                                        className="card hero-popover"
                                         style={{ position: 'absolute', left: 0, top: '100%', zIndex: 1050, minWidth: 200, marginTop: 4 }}
                                         onMouseEnter={() => setHoveredPopover({ heroId: hero.id, type: 'equip' })}
                                         onMouseLeave={() => setHoveredPopover(null)}
                                       >
-                                        <div className="panel-body">
+                                        <div className="card-body">
                                           {weapon && <><img src={`images/${weapon.image}`} alt="" /> {weapon.name} ({weapon.minDamage}-{weapon.maxDamage}) {weapon.durability}</>}
                                           {(hero.equip?.accessory || []).map((acc, i) => (
                                             <div key={acc.id ?? acc.name ?? `acc-${hero.id}-${i}`}><img src={`images/${acc.image}`} alt="" /> {acc.name} | {acc.durability}</div>
@@ -200,7 +203,8 @@ export default function HeroTab() {
                             {hero.progress}
                             {showBattle && (
                               <div
-                                style={{ position: 'absolute', left: 0, top: '100%', zIndex: 1050, marginTop: 4, background: 'white' }}
+                                className="card hero-popover"
+                                style={{ position: 'absolute', left: 0, top: '100%', zIndex: 1050, marginTop: 4 }}
                                 onMouseEnter={() => setHoveredPopover({ heroId: hero.id, type: 'battle' })}
                                 onMouseLeave={() => setHoveredPopover(null)}
                               >

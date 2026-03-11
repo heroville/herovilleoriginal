@@ -172,16 +172,16 @@ function SaveLoadServiceFactory(GameConfig, GameUiService, GameStateService) {
         s.bestiary = data.bestiary;
 
         if (s.buildings && s.buildings[0]) {
-            s.heroEnabled = s.buildings[0].count > 0 ? false : s.heroEnabled;
+            s.heroEnabled = s.buildings[0].count > 0 ? true : s.heroEnabled;
         }
         if (s.buildings && s.buildings[1]) {
-            s.prodEnabled = s.buildings[1].count > 0 ? false : s.prodEnabled;
+            s.prodEnabled = s.buildings[1].count > 0 ? true : s.prodEnabled;
         }
         if (s.buildings && s.buildings[4]) {
-            s.upgEnabled = s.buildings[4].count > 0 ? false : s.upgEnabled;
+            s.upgEnabled = s.buildings[4].count > 0 ? true : s.upgEnabled;
         }
         if (data.bestiary) {
-            s.beastEnabled = false;
+            s.beastEnabled = true;
         }
 
         s.heroTable = data.heroTable;

@@ -58,9 +58,9 @@ export default function OptionsTab() {
         <button type="button" id="reset" onClick={() => game?.options?.reset?.()}>Reset</button>
         <button type="button" id="swap theme" value="SwapTheme" onClick={() => game?.options?.changeTheme?.()}>Swap Theme</button>
         <div id="optionMenu">
-          <div className="panel panel-default">
+          <div className="card">
             <div
-              className="panel-heading noTextSelect"
+              className="card-header noTextSelect"
               style={{ cursor: 'pointer' }}
               onClick={() => setHeroOptionsOpen(!heroOptionsOpen)}
               role="button"
@@ -70,7 +70,7 @@ export default function OptionsTab() {
               Hero Options
             </div>
             {heroOptionsOpen && (
-              <div className="panel-body">
+              <div className="card-body">
                 <div>Format Heroes as Table <input type="checkbox" id="showOld" name="showHeroTable" checked={!!state.showHeroTable?.enabled} onChange={handleShowHeroTableChange} /></div>
                 <div>Successes before moving up dungeon <select id="successCountSelect" value={state.successCount?.amount} onChange={handleSuccessCountChange}>{optionsSuccess.map((opt) => <option key={opt} value={opt}>{opt}</option>)}</select></div>
                 <div>Dungeons moved down on loss <select id="lossCountSelect" value={state.lossCount?.amount} onChange={handleLossCountChange}>{optionsLoss.map((opt) => <option key={opt} value={opt}>{opt}</option>)}</select></div>
