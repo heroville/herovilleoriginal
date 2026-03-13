@@ -20,7 +20,7 @@ const initialState = {
   lossCount: { amount: 1 },
   optionsSuccess: [],
   optionsLoss: [],
-  version: '1.3',
+  version: '2.0',
   bestiary: false,
   predicate: 'name',
   selectedDungeon: 0

@@ -110,7 +110,7 @@ function ProductionServiceFactory(EconomyService, GameUiService) {
             switch (upgradeID) {
                 case 0: {
                     s.incr++;
-                    if (s.panelNumber === 9) {
+                    if (s.tutorialStepIndex === 8) {
                         GameUiService.nextTutorial();
                     }
                     s.upgrades[2].enabled = true;
@@ -120,7 +120,7 @@ function ProductionServiceFactory(EconomyService, GameUiService) {
                     s.buildings[0].tier++;
                     s.buildings[0].name = 'Campsite';
                     s.restAmount += 3;
-                    if (s.panelNumber === 18) {
+                    if (s.tutorialStepIndex === 17) {
                         GameUiService.nextTutorial();
                     }
                     break;
@@ -168,7 +168,7 @@ function ProductionServiceFactory(EconomyService, GameUiService) {
                 actions.showError("You do not have enough Resources.");
                 return;
             }
-            if (state.panelNumber === 7) actions.nextTutorial();
+            if (state.tutorialStepIndex === 6) actions.nextTutorial();
             if (actions.disablePotionButton) actions.disablePotionButton(-1);
             state.potion.working++;
             actions.startCreatePotion();
@@ -200,7 +200,7 @@ function ProductionServiceFactory(EconomyService, GameUiService) {
         if (actions.disableWeaponButton) actions.disableWeaponButton(weaponID);
         actions.decResources(w.cost);
         w.working++;
-        if (state.panelNumber === 16) actions.nextTutorial();
+        if (state.tutorialStepIndex === 15) actions.nextTutorial();
         if (state.buildings[0].tier === 1) state.upgrades[1].enabled = true;
         if (!(state.gameStats.weaponsManual[weaponID] >= 0)) state.gameStats.weaponsManual[weaponID] = 0;
         state.gameStats.weaponsManual[weaponID]++;

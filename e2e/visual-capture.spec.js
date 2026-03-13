@@ -85,7 +85,7 @@ test.describe.serial('Visual capture', () => {
   });
 
   test('5. Hero tab with hero', async () => {
-    await sharedPage.getByRole('tab', { name: 'Hero' }).click();
+    await sharedPage.getByRole('tab', { name: 'Heroes' }).click();
     await expect(sharedPage.locator('#heroList')).toContainText('VisualCaptureHero', { timeout: 5000 });
     await sharedPage.screenshot({ path: screenshotPath('05-hero-tab-with-hero') });
   });

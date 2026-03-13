@@ -1,7 +1,5 @@
 /**
- * Town tab: buildings list (Improve button), dungeons list.
- * E2E expects section#container with "Buildings" and "Dungeons".
- * Subscribes to Redux store so UI updates immediately when store updates (e.g. after Improve Tavern).
+ * Town tab: buildings and dungeons as two panels. E2E expects "Buildings", "Dungeons".
  */
 import { useSelector } from 'react-redux';
 import { useGame } from '../contexts/GameContext.jsx';
@@ -16,14 +14,14 @@ export default function TownTab() {
   const bosses = state.bosses || {};
 
   return (
-    <section data-testid="town-tab" className="row justify-content-center">
-      <div className="col-lg-6 mb-3">
-        <div className="card h-100">
-          <div className="card-body p-2">
-            <table className="table table-bordered mb-0">
+    <section data-testid="town-tab" className="hv-content">
+      <div className="hv-grid hv-grid--2">
+        <div className="hv-panel hv-table-card">
+          <div className="hv-panel__body hv-panel__body--no-pad">
+            <table className="hv-table">
               <thead>
                 <tr>
-                  <th colSpan={4} className="text-center">Buildings</th>
+                  <th colSpan={4} className="hv-text-center">Buildings</th>
                 </tr>
                 <tr>
                   <th>Name</th>
@@ -54,14 +52,12 @@ export default function TownTab() {
             </table>
           </div>
         </div>
-      </div>
-      <div className="col-lg-6 mb-3" style={dungeons.length === 0 ? { display: 'none' } : undefined}>
-        <div className="card h-100">
-          <div className="card-body p-2">
-            <table className="table table-bordered mb-0">
+        <div className="hv-panel hv-table-card" style={dungeons.length === 0 ? { display: 'none' } : undefined}>
+          <div className="hv-panel__body hv-panel__body--no-pad">
+            <table className="hv-table">
               <thead>
                 <tr>
-                  <th colSpan={5} className="text-center">Dungeons</th>
+                  <th colSpan={5} className="hv-text-center">Dungeons</th>
                 </tr>
                 <tr>
                   <th>Name</th>

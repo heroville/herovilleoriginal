@@ -70,7 +70,10 @@ function SaveLoadServiceFactory(GameConfig, GameUiService, GameStateService) {
             party: s.party,
             gameStats: s.gameStats,
             panelNumber: s.panelNumber,
-            showTutorial: s.showTutorial
+            showTutorial: s.showTutorial,
+            tutorialStepIndex: s.tutorialStepIndex,
+            tutorialCompleted: s.tutorialCompleted,
+            gameLog: s.gameLog || []
         };
     }
 
@@ -190,13 +193,11 @@ function SaveLoadServiceFactory(GameConfig, GameUiService, GameStateService) {
         s.party = data.party || s.party;
         s.gameStats = data.gameStats || s.gameStats;
 
-        if (data.panelNumber === 22) {
-            if (typeof scope.skipTut === 'function') scope.skipTut();
+        s.tutorialStepIndex = data.tutorialStepIndex ?? 0;
+        s.tutorialCompleted = data.tutorialCompleted ?? false;
+        s.gameLog = Array.isArray(data.gameLog) ? data.gameLog : [];
+        if (s.tutorialCompleted) {
             s.panel = ['Game successfully loaded'];
-        } else {
-            s.panelNumber = (data.panelNumber - 1);
-            s.showTutorial = data.showTutorial;
-            GameUiService.nextTutorial();
         }
         syncStoreIfBound();
         return true;

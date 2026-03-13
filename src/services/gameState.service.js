@@ -41,10 +41,13 @@ function GameStateServiceFactory(GameConfig) {
     const heroClasses = deepCopy(GameConfig.heroClasses || []);
 
     const state = {
-        panel: ["Welcome to Heroville, I will be your guide while you play. (Skip in Options/Help)"],
+        panel: [],
         panelNumber: 0,
         showTutorial: true,
         panelInfo: false,
+        tutorialStepIndex: 0,
+        tutorialCompleted: false,
+        gameLog: [],
         resources: 0,
         maxResources: 25,
         gold: 0,
@@ -60,7 +63,7 @@ function GameStateServiceFactory(GameConfig) {
         gameLoop: 1000,
         damageMulti: 1,
         goldMulti: 1,
-        version: '1.3',
+        version: '2.0',
         optionsSuccess: [1, 2, 3, 4, 5, 6, 7, 8, 9],
         optionsLoss: [1, 2, 3, 4],
         sorting: {

@@ -1,8 +1,30 @@
 # UI improvement ideas
 
-Recommendations from reviewing **visual capture screenshots** (01–08) and the codebase. Keeps the existing visual style (Bootstrap, CSS variables, light/dark theme) but allows major overhauls of specific components or layouts.
+Recommendations from reviewing **visual capture screenshots** (01–08) and the codebase.
 
-**Last screenshot pass:** Fresh run of `npm run test:visual`; doc updated to remove addressed items and add new findings.
+**Last pass:** Tutorial overhaul – Redux-driven steps, reliable Next button, game log after completion. Melvor-style layout; all unit tests pass.
+
+---
+
+## Tutorial system (overhaul)
+
+- **State:** Tutorial lives in Redux (`tutorial` slice: `tutorialStepIndex`, `tutorialCompleted`, `gameLog`). No dependency on UiService or GameStateService for progression; Next button dispatches `advanceTutorial()`.
+- **Steps:** Content and “show Next” are in `src/constants/tutorialSteps.js`. Same 23 steps and trigger points (e.g. buy tent at step 2, create potion at step 6) with clearer, shorter copy.
+- **Progression:** GuidePanel reads from `state.tutorial`, shows current step and Next when `step.showNext`. Building/Production/GameUiService call `api.nextTutorial()` (dispatches `advanceTutorial`) when the player does the right action at the right step; they use `tutorialStepIndex` (synced from Redux to GameStateService on every store change).
+- **Game log:** After tutorial completion, the panel shows “Log” and `gameLog`. `api.notifyError(msg)` dispatches `addGameLogMessage(msg)` when `tutorialCompleted`, so save/random-event messages appear there.
+- **Save/load:** `tutorialStepIndex`, `tutorialCompleted`, `gameLog` are saved and restored; `REPLACE_STATE` from other services preserves tutorial state when the payload has no tutorial fields.
+
+---
+
+## Current UI (Melvor-style)
+
+- **No tabs:** Navigation is a **left sidebar** (like Melvor Idle): Guide, section links (Heroes, Town, Production, Bestiary, Professions), Upgrades, Options/Help. One main content area shows the selected section.
+- **Top bar:** Compact strip above the content: logo + resources + Gather + save message. No three-column header.
+- **Sidebar:** Dark strip (`--hv-sidebar-bg`: slate/blue-gray), light text, active section with accent (gold) left border. Guide and Upgrades live in the sidebar; `#gameTabs` is the sidebar container for E2E.
+- **Viewport:** Main area has its own background (`--hv-viewport-bg`); content panels use a game-window style (border, shadow) so it feels like a different game, not Bootstrap.
+- **Aesthetic:** Sidebar = dark UI chrome; viewport = content area; panels have a clear “window” look. Dark theme flips sidebar/viewport colours via `data-bs-theme="dark"`.
+
+Run `npm run test:visual` and diff `screenshots/` to compare before/after changes.
 
 ---
 
@@ -31,33 +53,34 @@ The following were in the original list and have been implemented or explicitly 
 
 ---
 
-## 1. **Resource and buff icon clarity**
+## 1. **Resource and buff icon clarity** ✓ Addressed in overhaul
 
 - **Observed:** Buff icons (e.g. green creature/leaf) can appear with no number or label; “0/0” gold could clarify “unlocked but empty” vs “not yet unlocked.” Tooltips exist for resources and gold; buff icons have titles but could be more discoverable.
 - **Improvement:** Ensure all buff icons have a clear `title`; consider a short “Resources / Gold” label above or beside the row on first load. Optionally label gold capacity when 0 (e.g. “Unlock Stockpile for gold”).
 
 ---
 
-## 2. **Hero cards**
+## 2. **Hero cards** ✓ Addressed in overhaul
 
 - **Observed (05):** Hero card still uses nested tables; Equip is terse (“(1-1) Durability: 1”); Loot/Equip can feel disconnected from HP/XP. Fixed height (250×390) can cramp content.
-- **Improvement:** Redesign as a single card: clear sections (avatar, name+class, HP/XP bars, loot/equip row, location, progress). Use flexbox/grid; `min-height` instead of fixed height. Expand Equip (e.g. item name) so card shows “all details” without relying only on hover. Keep progress bar colors and popover behavior.
+- **Done:** Card layout with sections (name+class, HP/XP bars, loot/equip, location, progress); flex layout and min-height; Equip shows item name and stats inline; popover kept for full details.
 
 ---
 
-## 3. **Accessibility**
+## 3. **Accessibility** ✓ Addressed in overhaul
 
 - **Current:** Focus outline on tabs/buttons; `aria-live` on error/save message; modal uses theme variables; Escape closes modals.
-- **Improvement:** Focus trap inside modals (keep focus on first focusable, wrap on Tab); ensure all interactive elements have visible `:focus-visible`; extend ARIA where needed (e.g. live region for toasts).
+- **Done:** Focus trap in modals (Tab wraps, focus on first focusable when open, restore on close); `:focus-visible` on inputs/selects and in modals; `aria-modal`, `aria-describedby`, `role="alert"` on modal errors.
 
 ---
 
 ## Summary (current backlog)
 
-| # | Area | Goal |
-|---|------|------|
-| 1 | Resource/buff icons | Tooltips/labels; clarify gold when 0 |
-| 2 | Hero cards | Card layout; flex/grid; expand Equip; min-height |
-| 3 | Accessibility | Focus trap in modals; focus-visible; ARIA |
+| # | Area | Status |
+|---|------|--------|
+| 1 | Resource/buff icons | Addressed in overhaul |
+| 2 | Hero cards | Addressed in overhaul |
+| 3 | Accessibility | Addressed in overhaul |
 
 Run `npm run test:visual` before and after changes and diff the `screenshots/` folder to catch regressions.
+

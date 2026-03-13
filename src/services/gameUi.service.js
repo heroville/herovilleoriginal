@@ -24,8 +24,8 @@ function GameUiServiceFactory() {
      */
     function checkTutorialProgress(state) {
         if (!state) return;
-        if (state.resources === 10 && state.panelNumber === 2) nextTutorial();
-        else if (state.gold === 1 && state.panelNumber === 8) nextTutorial();
+        if (state.resources === 10 && state.tutorialStepIndex === 1) nextTutorial();
+        else if (state.gold === 1 && state.tutorialStepIndex === 7) nextTutorial();
     }
 
     function openHeroDialog() {

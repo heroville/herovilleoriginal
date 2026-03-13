@@ -115,18 +115,18 @@ test.describe.serial('Heroville smoke', () => {
     await expect(sharedPage.locator('#name')).toBeVisible({ timeout: 5000 });
     await sharedPage.locator('#name').fill(heroName);
     await sharedPage.locator('.heroPopup').getByRole('button', { name: 'Accept' }).click();
-    await sharedPage.getByRole('tab', { name: 'Hero' }).click();
+    await sharedPage.getByRole('tab', { name: 'Heroes' }).click();
     await expect(sharedPage.locator('#heroList')).toContainText(heroName, { timeout: 5000 });
     await expect(sharedPage.locator('#heroList')).toContainText('Class: Adventurer');
   });
 
   test('5. Hero tab progress bars, images, popover triggers', async () => {
-    await sharedPage.getByRole('tab', { name: 'Hero' }).click();
+    await sharedPage.getByRole('tab', { name: 'Heroes' }).click();
     await expect(sharedPage.getByText('SmokeTestHero', { exact: false })).toBeVisible({ timeout: 5000 });
     await expect(sharedPage.getByRole('progressbar').first()).toBeVisible({ timeout: 5000 });
     await expect(sharedPage.locator('#heroList img[src*="images/"]').first()).toBeVisible({ timeout: 5000 });
     await expect(sharedPage.getByTestId('hero-equip-popover-trigger').first()).toBeVisible({ timeout: 5000 });
-    await expect(sharedPage.getByTestId('hero-battle-popover-trigger').first()).toBeVisible({ timeout: 5000 });
+    await expect(sharedPage.locator('.hv-hero-combat').first()).toBeVisible({ timeout: 5000 });
   });
 
   test('6. Town shows dungeon list', async () => {
@@ -158,7 +158,7 @@ test.describe.serial('Heroville smoke', () => {
 
   test('8. hero enters combat or dungeon', async () => {
     test.setTimeout(45000);
-    await sharedPage.getByRole('tab', { name: 'Hero' }).click();
+    await sharedPage.getByRole('tab', { name: 'Heroes' }).click();
     await expect(sharedPage.locator('#heroList')).toContainText('SmokeTestHero', { timeout: 5000 });
     await waitForHeroCombatOrDungeon(sharedPage, 35000);
   });
@@ -210,7 +210,7 @@ test.describe.serial('Heroville smoke', () => {
 
   test('13. buy Bonus Resources I and verify gather increment is 2', async () => {
     test.setTimeout(35000);
-    await sharedPage.getByRole('tab', { name: 'Production' }).click();
+    await sharedPage.getByRole('tab', { name: 'Upgrades' }).click();
     await sharedPage.locator('#upgradeList').getByRole('button', { name: /Bonus Resources I/i }).click();
     const resourcesBefore = await sharedPage.evaluate(() => {
       const getState = window['__HEROVILLE_E2E_STATE__'];
@@ -301,10 +301,10 @@ test.describe.serial('Heroville smoke', () => {
     const overlay = sharedPage.locator('.ui-widget-overlay');
     await overlay.waitFor({ state: 'hidden', timeout: 5000 }).catch(() => {});
     await sharedPage.getByRole('tab', { name: 'Options/Help' }).click({ force: true });
-    const tips = sharedPage.locator('#tips');
-    await expect(tips).toContainText(/Total Battles:|Wins:|Losses:/, { timeout: 5000 });
-    await expect(tips).toContainText(/Total Battles: [1-9]|Wins: [1-9]|Losses: [1-9]/, { timeout: 15000 });
-    await sharedPage.getByRole('tab', { name: 'Hero' }).click({ force: true });
+    const optionsPanel = sharedPage.locator('#optionTab');
+    await expect(optionsPanel).toContainText(/Total Battles:|Wins:|Losses:/, { timeout: 5000 });
+    await expect(optionsPanel).toContainText(/Total Battles: [1-9]|Wins: [1-9]|Losses: [1-9]/, { timeout: 15000 });
+    await sharedPage.getByRole('tab', { name: 'Heroes' }).click({ force: true });
     await expect(sharedPage.locator('#heroList')).toContainText('SmokeTestHero');
     await expect(sharedPage.locator('#heroList')).toContainText(/Location: Home|Location: Cave|Resting|Complete|Fighting/);
   });

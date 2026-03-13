@@ -1,6 +1,5 @@
 /**
- * Bestiary tab: Monsters and Bosses tables (read-only).
- * E2E expects section#container with "Monsters" and "Bosses".
+ * Bestiary tab: Monsters and Bosses tables. E2E expects "Monsters", "Bosses".
  */
 import { useSelector } from 'react-redux';
 import { useGame } from '../contexts/GameContext.jsx';
@@ -33,66 +32,64 @@ export default function BestiaryTab() {
   };
 
   return (
-    <section data-testid="bestiary-tab" className="row justify-content-center">
-      <div className="col-lg-6 mb-3">
-        <div className="card h-100">
-          <div className="card-body p-2">
-        <table className="table table-bordered mb-0">
-          <thead>
-            <tr>
-              <th colSpan={4} className="text-center">Monsters</th>
-            </tr>
-            <tr>
-              <th>Name</th>
-              <th>Level</th>
-              <th>Damage</th>
-              <th>Health</th>
-            </tr>
-          </thead>
-          <tbody>
-            {monsters.map((monster) => (
-              <tr key={monster.id ?? monster.name}>
-                <td>{monster.name}</td>
-                <td>{monster.value}</td>
-                <td>{monster.minDamage}-{monster.maxDamage}</td>
-                <td>{monster.health}</td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
+    <section data-testid="bestiary-tab" className="hv-content">
+      <div className="hv-grid hv-grid--2">
+        <div className="hv-panel hv-table-card">
+          <div className="hv-panel__body hv-panel__body--no-pad">
+            <table className="hv-table">
+              <thead>
+                <tr>
+                  <th colSpan={4} className="hv-text-center">Monsters</th>
+                </tr>
+                <tr>
+                  <th>Name</th>
+                  <th>Level</th>
+                  <th>Damage</th>
+                  <th>Health</th>
+                </tr>
+              </thead>
+              <tbody>
+                {monsters.map((monster) => (
+                  <tr key={monster.id ?? monster.name}>
+                    <td>{monster.name}</td>
+                    <td>{monster.value}</td>
+                    <td>{monster.minDamage}-{monster.maxDamage}</td>
+                    <td>{monster.health}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
           </div>
         </div>
-      </div>
-      <div className="col-lg-6 mb-3">
-        <div className="card h-100">
-          <div className="card-body p-2">
-        <table className="table table-bordered mb-0">
-          <thead>
-            <tr>
-              <th colSpan={4} className="text-center">Bosses</th>
-            </tr>
-            <tr>
-              <th>Name</th>
-              <th>Location</th>
-              <th>Damage</th>
-              <th>Health</th>
-            </tr>
-          </thead>
-          <tbody>
-            {bosses.map((boss) => (
-              <tr key={boss.id ?? boss.name}>
-                <td>{boss.name}</td>
-                <td>
-                  {getDungeonNamesForBoss(boss.id).map((name) => (
-                    <div key={name}>{name}</div>
-                  ))}
-                </td>
-                <td>{boss.minDamage}-{boss.maxDamage}</td>
-                <td>{boss.health}</td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
+        <div className="hv-panel hv-table-card">
+          <div className="hv-panel__body hv-panel__body--no-pad">
+            <table className="hv-table">
+              <thead>
+                <tr>
+                  <th colSpan={4} className="hv-text-center">Bosses</th>
+                </tr>
+                <tr>
+                  <th>Name</th>
+                  <th>Location</th>
+                  <th>Damage</th>
+                  <th>Health</th>
+                </tr>
+              </thead>
+              <tbody>
+                {bosses.map((boss) => (
+                  <tr key={boss.id ?? boss.name}>
+                    <td>{boss.name}</td>
+                    <td>
+                      {getDungeonNamesForBoss(boss.id).map((name) => (
+                        <div key={name}>{name}</div>
+                      ))}
+                    </td>
+                    <td>{boss.minDamage}-{boss.maxDamage}</td>
+                    <td>{boss.health}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
           </div>
         </div>
       </div>

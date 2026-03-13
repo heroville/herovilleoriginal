@@ -2,6 +2,7 @@
  * Converts between flat game state (used by services and UI) and sliced Redux state.
  * Used for store hydration, replaceState sync, and selectFullState for getState().
  */
+import { createSelector } from '@reduxjs/toolkit';
 
 /**
  * Maps flat state from GameStateService.getState() into slice keys for the Redux store.
@@ -19,6 +20,11 @@ export function stateToSlices(flat) {
       incr: flat.incr ?? 1,
       damageMulti: flat.damageMulti ?? 1,
       goldMulti: flat.goldMulti ?? 1
+    },
+    tutorial: {
+      tutorialStepIndex: flat.tutorialStepIndex ?? 0,
+      tutorialCompleted: flat.tutorialCompleted ?? false,
+      gameLog: flat.gameLog ?? []
     },
     ui: {
       panel: flat.panel ?? [],
@@ -39,7 +45,7 @@ export function stateToSlices(flat) {
       lossCount: flat.lossCount ?? { amount: 1 },
       optionsSuccess: flat.optionsSuccess ?? [],
       optionsLoss: flat.optionsLoss ?? [],
-      version: flat.version ?? '1.3',
+      version: flat.version ?? '2.0',
       bestiary: flat.bestiary ?? false,
       predicate: flat.predicate ?? 'name',
       selectedDungeon: flat.selectedDungeon ?? 0
@@ -99,14 +105,14 @@ function getEmptySlices() {
 
 /**
  * Merges sliced Redux state back into a single flat object for components and services.
+ * Memoized so the same state reference returns the same flat reference (avoids unnecessary rerenders).
  * Used by api.getState() so existing code that reads state.resources, state.heroList, etc. keeps working.
- * @param {Object} state - Redux store state (sliced)
- * @returns {Object} Flat state object
  */
-export function selectFullState(state) {
+function selectFullStateUnmemoized(state) {
   if (!state) return {};
   const e = state.economy ?? {};
   const u = state.ui ?? {};
+  const t = state.tutorial ?? {};
   const c = state.config ?? {};
   const h = state.heroes ?? {};
   const d = state.dungeons ?? {};
@@ -114,6 +120,9 @@ export function selectFullState(state) {
   return {
     ...e,
     ...u,
+    tutorialStepIndex: t.tutorialStepIndex,
+    tutorialCompleted: t.tutorialCompleted,
+    gameLog: t.gameLog,
     ...c,
     buildings: state.buildings ?? [],
     jobs: state.jobs ?? [],
@@ -133,6 +142,12 @@ export function selectFullState(state) {
     gameStats: state.gameStats ?? {}
   };
 }
+
+/** Memoized selector: same state reference => same flat state reference. */
+export const selectFullState = createSelector(
+  [(state) => state],
+  selectFullStateUnmemoized
+);
 
 /** Action type for replacing entire store state from flat state. */
 export const REPLACE_STATE = 'game/replaceState';

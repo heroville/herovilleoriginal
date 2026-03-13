@@ -1,6 +1,6 @@
 /**
- * Shared header: Guide (left), logo + resources bar (center), Upgrades (right).
- * E2E expects #panelList, #infobutton, #upgradeList; #resources, #gatherButton, #errorDialog live in ResourcesBar.
+ * Shared header: Guide (left), logo + resources (center), Upgrades (right).
+ * E2E expects #panelList, #infobutton, #upgradeList; #resources, #gatherButton, #errorDialog in ResourcesBar.
  */
 import { useSelector } from 'react-redux';
 import { useGame } from '../contexts/GameContext.jsx';
@@ -16,10 +16,10 @@ export default function GameHeader() {
 
   return (
     <>
-      <div className="col-lg-4">
-        <div className="card hv-header-panel h-100">
-          <div className="card-header">Guide</div>
-          <div className="card-body d-flex flex-column">
+      <div className="hv-header-left">
+        <div className="hv-panel hv-header-panel">
+          <div className="hv-panel__header">Guide</div>
+          <div className="hv-panel__body hv-flex" style={{ flexDirection: 'column' }}>
             <ul id="panelList">
               <li>
                 {panel[0]}
@@ -27,7 +27,7 @@ export default function GameHeader() {
               </li>
               {panel.map((line, i) => (i > 0 ? <li key={`panel-${i}-${String(line).slice(0, 40)}`}>{line}</li> : null))}
             </ul>
-            <div id="infoButtonDiv" className="mt-2">
+            <div id="infoButtonDiv" className="hv-mt-2">
               {state.showTutorial && (
                 <div id="infobutton" className="hv-tutorial-next" role="button" tabIndex={0} onClick={() => game.nextTutorial?.()} onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') game.nextTutorial?.(); }}>Next</div>
               )}
@@ -35,22 +35,22 @@ export default function GameHeader() {
           </div>
         </div>
       </div>
-      <div className="col-lg-4 d-flex flex-column align-items-center justify-content-center">
+      <div className="hv-header-center">
         <div className="hv-logo-wrap">
           <img src="images/heroville-logo.png" alt="HeroVille" className="hv-logo" />
         </div>
-        <div id="resources-react-root" className="w-100 mt-2 d-flex flex-column align-items-center">
+        <div id="resources-react-root" className="hv-w-100 hv-mt-2 hv-flex" style={{ flexDirection: 'column', alignItems: 'center' }}>
           <ResourcesBar />
         </div>
       </div>
-      <div className="col-lg-4">
-        <div className="card hv-header-panel h-100">
-          <div className="card-header">Upgrades</div>
-          <div className="card-body">
+      <div className="hv-header-right">
+        <div className="hv-panel hv-header-panel">
+          <div className="hv-panel__header">Upgrades</div>
+          <div className="hv-panel__body">
             <ul id="upgradeList">
               {upgrades.map((upgrade) => (
                 <li key={upgrade.id}>
-                  <button type="button" className="hv-upgrade-btn" onClick={() => game.buyUpgrade?.(upgrade.id)}>
+                  <button type="button" className="hv-upgrade-btn hv-btn-secondary" onClick={() => game.buyUpgrade?.(upgrade.id)}>
                     {upgrade.name} <br />
                     Cost(g): {upgrade.price} <br />
                   </button>

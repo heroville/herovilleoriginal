@@ -1,46 +1,37 @@
 /**
- * Root app: tab bar, tab content, dark theme.
- * E2E expects #gameTabs and getByRole('link', { name: 'Town' }) etc.
- * In E2E mode (window.__HEROVILLE_E2E_FAST_TICK__), exposes window.__HEROVILLE_E2E_STATE__() for tests.
+ * Root app: sidebar + viewport; dark mode only. Town first; Guide in corner.
+ * E2E expects #gameTabs, role="tab", #town-react-root, #upgradeList (in Upgrades tab), etc.
  */
 import { useState, useEffect } from 'react';
 import { useSelector } from 'react-redux';
 import { useGame } from '../contexts/GameContext.jsx';
 import { selectFullState } from '../store/index.js';
-import GameHeader from './GameHeader.jsx';
+import Sidebar from './Sidebar.jsx';
+import TopBar from './TopBar.jsx';
+import GuidePanel from './GuidePanel.jsx';
 import RandomEventSlider from './RandomEventSlider.jsx';
-import FooterBar from './FooterBar.jsx';
 import TownTab from './TownTab.jsx';
 import HeroTab from './HeroTab.jsx';
 import ProductionTab from './ProductionTab.jsx';
 import ProfessionsTab from './ProfessionsTab.jsx';
 import BestiaryTab from './BestiaryTab.jsx';
+import UpgradesTab from './UpgradesTab.jsx';
 import OptionsTab from './OptionsTab.jsx';
 import AppDialogs from './AppDialogs.jsx';
 
-const TABS = [
-  { id: 'town', name: 'Town' },
-  { id: 'hero', name: 'Hero', disabledKey: 'heroEnabled' },
-  { id: 'production', name: 'Production', disabledKey: 'prodEnabled' },
-  { id: 'professions', name: 'Professions', disabledKey: 'upgEnabled' },
-  { id: 'bestiary', name: 'Bestiary', disabledKey: 'beastEnabled' },
-  { id: 'options', name: 'Options/Help' }
-];
-
-function DarkTheme({ dark }) {
+function DarkThemeOnly() {
   useEffect(() => {
-    const html = document.documentElement;
-    html.setAttribute('data-bs-theme', dark ? 'dark' : 'light');
-    return () => { html.removeAttribute('data-bs-theme'); };
-  }, [dark]);
+    document.documentElement.setAttribute('data-bs-theme', 'dark');
+    return () => document.documentElement.removeAttribute('data-bs-theme');
+  }, []);
   return null;
 }
 
 export default function App() {
   const game = useGame();
-  const [activeTab, setActiveTab] = useState('town');
   const state = useSelector(selectFullState);
-  const dark = game.getState?.()?.dark;
+  const heroEnabled = !!state.heroEnabled;
+  const [activeSection, setActiveSection] = useState('town');
 
   useEffect(() => {
     if (typeof window !== 'undefined' && window.__HEROVILLE_E2E_FAST_TICK__ != null) {
@@ -49,73 +40,44 @@ export default function App() {
     }
   }, [game]);
 
-  const isDisabled = (tab) => {
-    if (!tab.disabledKey) return false;
-    return !state[tab.disabledKey];
-  };
+  useEffect(() => {
+    if (activeSection === 'hero' && !heroEnabled) setActiveSection('town');
+  }, [heroEnabled, activeSection]);
 
   return (
     <>
-      <DarkTheme dark={!!dark} />
-      <div className="app-main">
-        <div className="row" id="header-react-root">
-          <GameHeader />
-        </div>
-        <div id="gameTabs" data-testid="game-tabs">
-        <ul className="nav nav-tabs" role="tablist">
-          {TABS.map((tab) => {
-            const disabled = isDisabled(tab);
-            const isActive = activeTab === tab.id;
-            return (
-              <li key={tab.id} className="nav-item" role="presentation">
-                <a
-                  href={'#' + tab.id}
-                  role="tab"
-                  aria-selected={isActive}
-                  aria-disabled={disabled}
-                  tabIndex={disabled ? -1 : 0}
-                  className={`nav-link ${isActive ? 'active' : ''} ${disabled ? 'disabled' : ''}`}
-                  data-testid={`tab-${tab.id}`}
-                  onClick={(e) => {
-                    e.preventDefault();
-                    if (!disabled) setActiveTab(tab.id);
-                  }}
-                  onKeyDown={(e) => {
-                    if (disabled) return;
-                    if (e.key === 'Enter' || e.key === ' ') {
-                      e.preventDefault();
-                      setActiveTab(tab.id);
-                    }
-                  }}
-                  title={disabled ? `${tab.name} (unlock by progressing)` : undefined}
-                >
-                  {tab.name}
-                </a>
-              </li>
-            );
-          })}
-        </ul>
-        <div className="tab-content" style={{ marginTop: 8 }}>
-          <div role="tabpanel" id="town-react-root" className={activeTab === 'town' ? 'tab-pane active' : 'tab-pane'}>
-            <TownTab />
-          </div>
-          <div role="tabpanel" id="hero-react-root" className={activeTab === 'hero' ? 'tab-pane active' : 'tab-pane'} hidden={activeTab !== 'hero'}>
-            <HeroTab />
-          </div>
-          <div role="tabpanel" id="production-react-root" className={activeTab === 'production' ? 'tab-pane active' : 'tab-pane'} hidden={activeTab !== 'production'}>
-            <ProductionTab />
-          </div>
-          <div role="tabpanel" id="professions-react-root" className={activeTab === 'professions' ? 'tab-pane active' : 'tab-pane'} hidden={activeTab !== 'professions'}>
-            <ProfessionsTab />
-          </div>
-          <div role="tabpanel" id="bestiary-react-root" className={activeTab === 'bestiary' ? 'tab-pane active' : 'tab-pane'} hidden={activeTab !== 'bestiary'}>
-            <BestiaryTab />
-          </div>
-          <div role="tabpanel" id="options-react-root" className={activeTab === 'options' ? 'tab-pane active' : 'tab-pane'} hidden={activeTab !== 'options'}>
-            <OptionsTab />
+      <DarkThemeOnly />
+      <div className="hv-app">
+        <Sidebar activeSection={activeSection} onSelectSection={setActiveSection} />
+        <div className="hv-viewport">
+          <TopBar />
+          <div className="hv-viewport__body">
+            <main className="hv-main">
+              <div className="hv-content" style={{ display: activeSection === 'town' ? 'block' : 'none' }} role="tabpanel" id="town-react-root" aria-hidden={activeSection !== 'town'}>
+                <TownTab />
+              </div>
+              <div className="hv-content hv-content--heroes" style={{ display: activeSection === 'hero' ? 'block' : 'none' }} role="tabpanel" id="hero-react-root" aria-hidden={activeSection !== 'hero'}>
+                <HeroTab />
+              </div>
+              <div className="hv-content" style={{ display: activeSection === 'production' ? 'block' : 'none' }} role="tabpanel" id="production-react-root" aria-hidden={activeSection !== 'production'}>
+                <ProductionTab />
+              </div>
+              <div className="hv-content" style={{ display: activeSection === 'professions' ? 'block' : 'none' }} role="tabpanel" id="professions-react-root" aria-hidden={activeSection !== 'professions'}>
+                <ProfessionsTab />
+              </div>
+              <div className="hv-content" style={{ display: activeSection === 'bestiary' ? 'block' : 'none' }} role="tabpanel" id="bestiary-react-root" aria-hidden={activeSection !== 'bestiary'}>
+                <BestiaryTab />
+              </div>
+              <div className="hv-content" style={{ display: activeSection === 'upgrades' ? 'block' : 'none' }} role="tabpanel" id="upgrades-react-root" aria-hidden={activeSection !== 'upgrades'}>
+                <UpgradesTab />
+              </div>
+              <div className="hv-content" style={{ display: activeSection === 'options' ? 'block' : 'none' }} role="tabpanel" id="options-react-root" aria-hidden={activeSection !== 'options'}>
+                <OptionsTab />
+              </div>
+            </main>
+            <GuidePanel />
           </div>
         </div>
-          </div>
         <div id="randomTrigger">
           <div id="random-event-react-root">
             <RandomEventSlider />
@@ -124,9 +86,6 @@ export default function App() {
         <div id="dialogs-react-root">
           <AppDialogs />
         </div>
-      </div>
-      <div id="footer-react-root">
-        <FooterBar />
       </div>
     </>
   );

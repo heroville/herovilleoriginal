@@ -1,6 +1,6 @@
 /**
- * Shared resources row: resources/gold display, buff icons, Gather button.
- * E2E expects #resources, #gatherButton, #errorDialog.
+ * Resources row: clickable resources (count + icon) triggers gather; gold + buffs display only.
+ * E2E expects #resources, #gatherButton (on the clickable area), #errorDialog.
  */
 import { useState, useEffect, useRef } from 'react';
 import { useSelector } from 'react-redux';
@@ -38,23 +38,37 @@ export default function ResourcesBar() {
   const goldMulti = state.goldMulti ?? 1;
 
   const isSuccessMessage = /saved|save/i.test(errorMessage || '');
+  const goldHint = maxGold === 0 ? ' (Unlock Stockpile for gold)' : '';
+  const handleGather = () => game.incrRes?.(state?.incr ?? 1);
+
   return (
-    <div className="d-flex align-items-center justify-content-center gap-3 flex-wrap">
-        <div id="resources" className="d-flex align-items-center gap-2 flex-wrap">
-          <span title="Resources (materials)">
-            {resources.toLocaleString()}/{maxResources.toLocaleString()}
-            <img src="images/I_Chest01.png" alt="" aria-hidden />
+    <div className="hv-resources-bar">
+      <div className="hv-resources-label" aria-hidden="true">Resources / Gold</div>
+      <div className="hv-resources-row">
+        <div
+          id="gatherButton"
+          role="button"
+          tabIndex={0}
+          className="hv-resources-gather"
+          onClick={handleGather}
+          onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); handleGather(); } }}
+          title="Click to gather resources"
+          aria-label="Gather resources"
+        >
+          <span id="resources" className="hv-resource-item hv-resource-item--clickable">
+            <span className="hv-resource-value">{resources.toLocaleString()}/{maxResources.toLocaleString()}</span>
+            <img src="images/I_Chest01.png" alt="" aria-hidden className="hv-resource-icon" />
           </span>
-          <span title="Gold">
-            {gold.toLocaleString()}/{maxGold.toLocaleString()}
-            <img src="images/I_GoldBar.png" alt="" aria-hidden />
-          </span>
-          {gameLoop !== 1000 && <img src="images/S_Buff11.png" alt="" title="Doubles the game speed" />}
-          {damageMulti !== 1 && <img src="images/S_Shadow07.png" alt="" title="Doubles your heroes damage" />}
-          {goldMulti !== 1 && <img src="images/E_Gold02.png" alt="" title="Doubles the gold gained from sales" />}
         </div>
-        <div id="gatherButton" className="hv-btn-primary" role="button" tabIndex={0} onClick={() => game.incrRes?.(state?.incr ?? 1)} onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') game.incrRes?.(state?.incr ?? 1); }}>Gather</div>
+        <span className="hv-resource-item" title={`Gold. Current: ${gold.toLocaleString()}, max: ${maxGold.toLocaleString()}${goldHint}`}>
+          <span className="hv-resource-value">{gold.toLocaleString()}/{maxGold.toLocaleString()}{maxGold === 0 ? <span className="hv-gold-hint" title="Build Stockpile in Town to store gold."> (Unlock Stockpile)</span> : null}</span>
+          <img src="images/I_GoldBar.png" alt="" aria-hidden className="hv-resource-icon" />
+        </span>
+        {gameLoop !== 1000 && <img src="images/S_Buff11.png" alt="Speed buff" className="hv-buff-icon" title="Doubles the game speed" />}
+        {damageMulti !== 1 && <img src="images/S_Shadow07.png" alt="Damage buff" className="hv-buff-icon" title="Doubles your heroes damage" />}
+        {goldMulti !== 1 && <img src="images/E_Gold02.png" alt="Gold buff" className="hv-buff-icon" title="Doubles the gold gained from sales" />}
         <div id="errorDialog" className={`hv-message-toast ${isSuccessMessage ? 'hv-message-success' : ''}`} title={errorMessage ? 'Message' : 'Error'} role="alert" aria-live="polite">{errorMessage || '\u00A0'}</div>
+      </div>
     </div>
   );
 }

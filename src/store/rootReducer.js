@@ -4,8 +4,10 @@
  */
 import { combineReducers } from '@reduxjs/toolkit';
 import { REPLACE_STATE, stateToSlices } from './sliceState.js';
+import { getTutorialStepFromState } from '../constants/tutorialSteps.js';
 import economyReducer from './slices/economySlice.js';
 import uiReducer from './slices/uiSlice.js';
+import tutorialReducer from './slices/tutorialSlice.js';
 import configReducer from './slices/configSlice.js';
 import buildingsReducer from './slices/buildingsSlice.js';
 import heroesReducer from './slices/heroesSlice.js';
@@ -18,6 +20,7 @@ import gameStatsReducer from './slices/gameStatsSlice.js';
 const combinedReducer = combineReducers({
   economy: economyReducer,
   ui: uiReducer,
+  tutorial: tutorialReducer,
   config: configReducer,
   buildings: buildingsReducer,
   heroes: heroesReducer,
@@ -36,6 +39,20 @@ export default function rootReducer(state, action) {
     const next = stateToSlices(action.payload);
     // Preserve UI-only state (e.g. dark theme) not present in flat payload
     if (state?.ui?.dark !== undefined) next.ui.dark = state.ui.dark;
+    // Preserve tutorial when payload has no tutorial fields (e.g. from GameStateService)
+    const payload = action.payload;
+    if (payload.tutorialStepIndex === undefined && payload.tutorialCompleted === undefined) {
+      next.tutorial = state?.tutorial ?? next.tutorial;
+    }
+    // Sync tutorial step from game state so we skip ahead if player is ahead (or load has progress)
+    if (next.tutorial && !next.tutorial.tutorialCompleted) {
+      const fromState = getTutorialStepFromState(payload);
+      const current = next.tutorial.tutorialStepIndex ?? 0;
+      if (fromState > current) {
+        next.tutorial = { ...next.tutorial, tutorialStepIndex: fromState };
+        if (fromState >= 22) next.tutorial = { ...next.tutorial, tutorialCompleted: true };
+      }
+    }
     return next;
   }
   return combinedReducer(state, action);

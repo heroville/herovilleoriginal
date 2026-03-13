@@ -18,6 +18,7 @@ import {
 import bootstrapReact from './bootstrapReact.js';
 import { createGameStore, selectFullState, replaceStateFromFlat } from './store/index.js';
 import { toggleDark } from './store/slices/uiSlice.js';
+import { advanceTutorial, skipTutorial, addGameLogMessage } from './store/slices/tutorialSlice.js';
 
 // String.prototype.toHHMMSS used by ProductionService progress display
 if (typeof String.prototype.toHHMMSS !== 'function') {
@@ -41,6 +42,17 @@ if (typeof window !== 'undefined' && window.__HEROVILLE_E2E_FAST_TICK__ != null)
 
 /** Redux store; single source of truth for React. Hydrated from GameStateService, synced after mutations until services dispatch. */
 const store = createGameStore(state);
+
+/** Keep GameStateService in sync with Redux tutorial state so save/load and service triggers work. */
+store.subscribe(() => {
+  const s = store.getState();
+  if (s.tutorial) {
+    const flat = GameStateService.getState();
+    flat.tutorialStepIndex = s.tutorial.tutorialStepIndex;
+    flat.tutorialCompleted = s.tutorial.tutorialCompleted;
+    flat.gameLog = s.tutorial.gameLog || [];
+  }
+});
 
 /** So EconomyService dispatches economy/gameStats actions; dual-writes keep GameStateService in sync for other services. */
 EconomyService.bindStore(store, () => selectFullState(store.getState()));
@@ -175,6 +187,9 @@ const api = {
         },
         get panelNumber() {
           return s.panelNumber;
+        },
+        get tutorialStepIndex() {
+          return s.tutorialStepIndex;
         }
       };
       const createActions = {
@@ -200,6 +215,9 @@ const api = {
         gameStats: s.gameStats,
         get panelNumber() {
           return s.panelNumber;
+        },
+        get tutorialStepIndex() {
+          return s.tutorialStepIndex;
         }
       };
       const purchaseWeaponActions = {
@@ -244,12 +262,11 @@ const api = {
       store.dispatch(toggleDark());
     },
     skipTut() {
-      UiService.skipTut(appContext);
+      store.dispatch(skipTutorial());
     }
   },
   nextTutorial() {
-    UiService.nextTutorial(appContext);
-    /* UiService dispatches REPLACE_STATE internally. */
+    store.dispatch(advanceTutorial());
   },
   buyUpgrade(id) {
     ProductionService.buyUpgrade(id);
@@ -294,15 +311,20 @@ const appContext = {
   forceReset: true,
   notifyError: (msg) => api.notifyError(msg),
   setDialogState: (type, open) => api.setDialogState(type, open),
-  nextTutorial: () => UiService.nextTutorial(appContext),
-  skipTut: () => UiService.skipTut(appContext),
+  nextTutorial: () => store.dispatch(advanceTutorial()),
+  skipTut: () => store.dispatch(skipTutorial()),
   changeTheme: () => store.dispatch(toggleDark())
 };
 
 api.showError = (msg) => api.notifyError(msg);
-api.nextTutorial = () => UiService.nextTutorial(appContext);
+api.nextTutorial = () => store.dispatch(advanceTutorial());
 api.openHeroDialog = () => api.setDialogState('hero', true);
 api.openWorkerDialog = () => api.setDialogState('worker', true);
+const origNotifyError = api.notifyError.bind(api);
+api.notifyError = (msg) => {
+  if (store.getState().tutorial?.tutorialCompleted) store.dispatch(addGameLogMessage(msg));
+  origNotifyError(msg);
+};
 GameUiService.register(api);
 
 function doRandomEvent(type) {
