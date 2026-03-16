@@ -2,6 +2,8 @@
 // BuildingService, ProductionService, GameUiService.
 
 export const TUTORIAL_TOTAL_STEPS = 23;
+/** Last step index (0-based); tutorial is complete when stepIndex >= this. */
+export const TUTORIAL_LAST_STEP_INDEX = TUTORIAL_TOTAL_STEPS - 1;
 
 /**
  * Returns the tutorial step index (0–22) implied by current game state.

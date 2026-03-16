@@ -69,8 +69,6 @@ function SaveLoadServiceFactory(GameConfig, GameUiService, GameStateService) {
             losses: s.lossCount.amount,
             party: s.party,
             gameStats: s.gameStats,
-            panelNumber: s.panelNumber,
-            showTutorial: s.showTutorial,
             tutorialStepIndex: s.tutorialStepIndex,
             tutorialCompleted: s.tutorialCompleted,
             gameLog: s.gameLog || []

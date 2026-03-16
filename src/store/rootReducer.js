@@ -4,7 +4,7 @@
  */
 import { combineReducers } from '@reduxjs/toolkit';
 import { REPLACE_STATE, stateToSlices } from './sliceState.js';
-import { getTutorialStepFromState } from '../constants/tutorialSteps.js';
+import { getTutorialStepFromState, TUTORIAL_LAST_STEP_INDEX } from '../constants/tutorialSteps.js';
 import economyReducer from './slices/economySlice.js';
 import uiReducer from './slices/uiSlice.js';
 import tutorialReducer from './slices/tutorialSlice.js';
@@ -50,7 +50,7 @@ export default function rootReducer(state, action) {
       const current = next.tutorial.tutorialStepIndex ?? 0;
       if (fromState > current) {
         next.tutorial = { ...next.tutorial, tutorialStepIndex: fromState };
-        if (fromState >= 22) next.tutorial = { ...next.tutorial, tutorialCompleted: true };
+        if (fromState >= TUTORIAL_LAST_STEP_INDEX) next.tutorial = { ...next.tutorial, tutorialCompleted: true };
       }
     }
     return next;

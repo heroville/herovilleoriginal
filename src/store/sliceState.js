@@ -105,7 +105,6 @@ function getEmptySlices() {
 
 /**
  * Merges sliced Redux state back into a single flat object for components and services.
- * Memoized so the same state reference returns the same flat reference (avoids unnecessary rerenders).
  * Used by api.getState() so existing code that reads state.resources, state.heroList, etc. keeps working.
  */
 function selectFullStateUnmemoized(state) {
@@ -143,10 +142,37 @@ function selectFullStateUnmemoized(state) {
   };
 }
 
-/** Memoized selector: same state reference => same flat state reference. */
+/**
+ * Selector: inputs are slice references so recomputation only runs when a used slice changes.
+ */
 export const selectFullState = createSelector(
-  [(state) => state],
-  selectFullStateUnmemoized
+  [
+    (state) => state?.economy,
+    (state) => state?.ui,
+    (state) => state?.tutorial,
+    (state) => state?.config,
+    (state) => state?.buildings,
+    (state) => state?.heroes,
+    (state) => state?.dungeons,
+    (state) => state?.production,
+    (state) => state?.jobs,
+    (state) => state?.upgrades,
+    (state) => state?.gameStats
+  ],
+  (economy, ui, tutorial, config, buildings, heroes, dungeons, production, jobs, upgrades, gameStats) =>
+    selectFullStateUnmemoized({
+      economy,
+      ui,
+      tutorial,
+      config,
+      buildings,
+      heroes,
+      dungeons,
+      production,
+      jobs,
+      upgrades,
+      gameStats
+    })
 );
 
 /** Action type for replacing entire store state from flat state. */

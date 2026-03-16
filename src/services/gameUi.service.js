@@ -20,11 +20,11 @@ function GameUiServiceFactory() {
 
     /**
      * Call after state.resources or state.gold may have changed; advances tutorial when thresholds are met.
-     * @param {{ resources: number, gold: number, panelNumber: number }} state
+     * @param {{ resources: number, gold: number, tutorialStepIndex: number }} state
      */
     function checkTutorialProgress(state) {
         if (!state) return;
-        if (state.resources === 10 && state.tutorialStepIndex === 1) nextTutorial();
+        if (state.resources >= 5 && state.tutorialStepIndex === 1) nextTutorial();
         else if (state.gold === 1 && state.tutorialStepIndex === 7) nextTutorial();
     }
 

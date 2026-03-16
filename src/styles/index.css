@@ -165,14 +165,11 @@ input, select, textarea {
   font-weight: 600;
   color: var(--hv-sidebar-text);
   cursor: pointer;
-  outline: none;
 }
 .hv-sidebar__version:hover {
   color: var(--hv-sidebar-accent);
 }
-.hv-sidebar__version:focus-visible {
-  outline: none;
-}
+/* Keep visible focus for keyboard users (global :focus-visible applies) */
 .hv-sidebar__link {
   display: block;
   padding: 0.5rem 1rem;
@@ -776,25 +773,6 @@ body {
   width: 100%;
   height: auto;
 }
-.hv-header-panel {
-  border: var(--hv-frame) solid var(--hv-panel-border);
-  border-radius: var(--hv-radius);
-  box-shadow: var(--hv-shadow);
-  overflow: hidden;
-  height: 100%;
-  display: flex;
-  flex-direction: column;
-}
-.hv-header-panel .hv-panel__body,
-.hv-header-panel .hv-panel__header {
-  padding: 0.5rem 0.75rem;
-}
-.hv-header-panel .hv-panel__header {
-  background: linear-gradient(180deg, color-mix(in srgb, var(--hv-panel-border) 20%, var(--hv-panel-bg)) 0%, var(--hv-panel-bg) 100%);
-  border-bottom: 1px solid var(--hv-panel-border);
-  font-weight: 600;
-}
-
 #Title {
   font-size: x-large;
 }
@@ -1429,7 +1407,6 @@ button:active {
 #infobutton:hover {
   filter: brightness(1.08);
 }
-.hv-header-panel #infobutton,
 .hv-tutorial-next {
   position: static;
   display: inline-block;

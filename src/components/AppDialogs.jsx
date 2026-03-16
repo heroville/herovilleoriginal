@@ -223,7 +223,7 @@ export default function AppDialogs() {
               <p>You are loading from an old version, there may be errors. If the game does not load correctly try starting a new game by refreshing the page. Continue to load the save anyway, or Reset to start fresh.</p>
               <div className="hv-modal-actions">
                 <button type="button" className="hv-btn-primary hv-btn-auto" onClick={handleLoadingAccept}>Continue</button>
-                <button type="button" className="hv-btn-secondary hv-btn-auto" onClick={() => close('loading')}>Reset</button>
+                <button type="button" className="hv-btn-secondary hv-btn-auto" onClick={() => game?.options?.reset?.()}>Reset</button>
               </div>
             </div>
           </div>
