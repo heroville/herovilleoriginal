@@ -1,6 +1,6 @@
 /**
  * Hero tab: adventure hero list (card + table views), workers list with job change.
- * E2E expects #heroList with hero name, "Class: ...", progress bars, images, and popover triggers.
+ * E2E expects #heroList with hero name, "Class: ...", progress bars, images, and data-testid="hero-equip-popover-trigger".
  */
 import { useState } from 'react';
 import { useSelector } from 'react-redux';
@@ -39,7 +39,6 @@ export default function HeroTab() {
   const [reverse, setReverse] = useState(false);
   const [sortOpen, setSortOpen] = useState(false);
   const [selectedJobByWorker, setSelectedJobByWorker] = useState({});
-  const [hoveredPopover, setHoveredPopover] = useState(null); // equip popover only; combat is embedded
 
   const heroList = state.heroList || [];
   const jobs = (state.jobs || []).filter((j) => j.enabled === true);
@@ -113,14 +112,11 @@ export default function HeroTab() {
         />
         </div>
         {!showTable && (
-          <ul id="heroList" className="hv-hero-list">
+          <ul id="heroList" data-testid="hero-list" className="hv-hero-list">
             {adventureHeroes.map((hero) => {
               const hpPct = hero.health ? (Number(hero.currHealth) / Number(hero.health)) * 100 : 0;
               const xpPct = hero.next ? (Number(hero.experience) / Number(hero.next)) * 100 : 0;
               const weapon = hero.equip?.weapon;
-              const accessories = hero.equip?.accessory || [];
-              const potions = hero.equip?.potions || [];
-              const showEquip = hoveredPopover?.heroId === hero.id && hoveredPopover?.type === 'equip';
               const heroBattles = filterHeroBattle(battles, hero);
               return (
                 <li key={hero.id} className="hv-hero-card-wrap">
@@ -154,12 +150,7 @@ export default function HeroTab() {
                         <span className="hv-hero-loot-label">Loot:</span>
                         <span>{hero.equip?.gold ?? 0} <img src="images/I_GoldBar.png" alt="Gold" className="hv-hero-inline-icon" /></span>
                       </div>
-                      <div
-                        className="hv-hero-equip"
-                        data-testid="hero-equip-popover-trigger"
-                        onMouseEnter={() => setHoveredPopover({ heroId: hero.id, type: 'equip' })}
-                        onMouseLeave={() => setHoveredPopover((p) => (p?.type === 'equip' && p?.heroId === hero.id ? null : p))}
-                      >
+                      <div className="hv-hero-equip" data-testid="hero-equip-popover-trigger">
                         <span className="hv-hero-equip-label">Equip:</span>
                         {weapon ? (
                           <span className="hv-hero-equip-main">
@@ -169,23 +160,6 @@ export default function HeroTab() {
                           </span>
                         ) : (
                           <span className="hv-hero-equip-empty">—</span>
-                        )}
-                        {showEquip && (
-                          <div
-                            className="hv-panel hero-popover hv-hero-equip-popover"
-                            onMouseEnter={() => setHoveredPopover({ heroId: hero.id, type: 'equip' })}
-                            onMouseLeave={() => setHoveredPopover(null)}
-                          >
-                            <div className="hv-panel__body">
-                              {weapon && <div><img src={`images/${weapon.image}`} alt="" /> {weapon.name} ({weapon.minDamage}-{weapon.maxDamage}) DUR: {weapon.durability}</div>}
-                              {accessories.map((acc, i) => (
-                                <div key={acc.id ?? acc.name ?? `acc-${hero.id}-${i}`}><img src={`images/${acc.image}`} alt="" /> {acc.name} | {acc.durability}</div>
-                              ))}
-                              {potions.map((pot, i) => (
-                                <div key={pot.id ?? pot.name ?? `pot-${hero.id}-${i}`}><img src={`images/${pot.image}`} alt="" /> {pot.name} | {pot.count}</div>
-                              ))}
-                            </div>
-                          </div>
                         )}
                       </div>
                     </div>

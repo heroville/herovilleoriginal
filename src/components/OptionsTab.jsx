@@ -56,12 +56,12 @@ export default function OptionsTab() {
   const optionsLoss = state.optionsLoss || [];
 
   return (
-    <div className="hv-options-layout" id="optionTab">
+    <div className="hv-options-layout" id="optionTab" data-testid="options-panel">
       <div className="hv-options-panel">
         <div className="hv-options-panel-header">Settings</div>
         <div className="hv-options-panel-body">
           <div className="hv-options-actions">
-            <button type="button" id="save" className="hv-btn-secondary" onClick={handleSave}>Save</button>
+            <button type="button" id="save" data-testid="save-button" className="hv-btn-secondary" onClick={handleSave}>Save</button>
             <button type="button" id="load" className="hv-btn-secondary" onClick={handleLoad}>Load</button>
             <button type="button" id="reset" className="hv-btn-secondary" onClick={() => game?.options?.reset?.()}>Reset</button>
           </div>

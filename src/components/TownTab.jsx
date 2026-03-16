@@ -15,7 +15,7 @@ export default function TownTab() {
 
   return (
     <section data-testid="town-tab" className="hv-content">
-      <div className="hv-grid hv-grid--2">
+      <div className="hv-stack">
         <div className="hv-panel hv-table-card">
           <div className="hv-panel__body hv-panel__body--no-pad">
             <table className="hv-table">
@@ -52,7 +52,8 @@ export default function TownTab() {
             </table>
           </div>
         </div>
-        <div className="hv-panel hv-table-card" style={dungeons.length === 0 ? { display: 'none' } : undefined}>
+        {dungeons.length > 0 && (
+        <div className="hv-panel hv-table-card">
           <div className="hv-panel__body hv-panel__body--no-pad">
             <table className="hv-table">
               <thead>
@@ -81,6 +82,7 @@ export default function TownTab() {
             </table>
           </div>
         </div>
+        )}
       </div>
     </section>
   );

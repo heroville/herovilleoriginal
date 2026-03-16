@@ -52,15 +52,15 @@ test.describe.serial('Visual capture', () => {
     await sharedPage.goto('/');
     await sharedPage.evaluate(() => localStorage.removeItem('data'));
     await sharedPage.reload();
-    await expect(sharedPage.locator('#gameTabs')).toBeVisible({ timeout: 10000 });
-    await expect(sharedPage.locator('#gatherButton').first()).toBeVisible({ timeout: 10000 });
+    await expect(sharedPage.getByTestId('game-tabs')).toBeVisible({ timeout: 10000 });
+    await expect(sharedPage.getByTestId('gather-trigger')).toBeVisible({ timeout: 10000 });
     await sharedPage.waitForFunction(() => typeof window['__HEROVILLE_E2E_STATE__'] === 'function', { timeout: 5000 });
-    await expect(sharedPage.locator('#town-react-root')).toContainText('Buildings', { timeout: 10000 });
+    await expect(sharedPage.getByTestId('town-tab')).toContainText('Buildings', { timeout: 10000 });
     await sharedPage.screenshot({ path: screenshotPath('01-fresh-load') });
   });
 
   test('2. after gather – resources updated', async () => {
-    const gather = sharedPage.locator('#gatherButton').first();
+    const gather = sharedPage.getByTestId('gather-trigger');
     for (let i = 0; i < 5; i++) await gather.click();
     await sharedPage.waitForTimeout(200);
     await sharedPage.screenshot({ path: screenshotPath('02-after-gather') });
@@ -68,30 +68,30 @@ test.describe.serial('Visual capture', () => {
 
   test('3. Options/Help tab', async () => {
     await sharedPage.getByRole('tab', { name: 'Options/Help' }).click();
-    await expect(sharedPage.locator('#save')).toBeVisible({ timeout: 5000 });
+    await expect(sharedPage.getByTestId('save-button')).toBeVisible({ timeout: 5000 });
     await sharedPage.screenshot({ path: screenshotPath('03-options-help') });
   });
 
   test('4. Hero dialog (buy new hero)', async () => {
-    const gather = sharedPage.locator('#gatherButton').first();
+    const gather = sharedPage.getByTestId('gather-trigger');
     for (let i = 0; i < 6; i++) await gather.click();
     await sharedPage.getByRole('tab', { name: 'Town' }).click();
     await sharedPage.getByRole('button', { name: 'Improve Tent' }).click();
     await expect(sharedPage.locator('.heroPopup')).toBeVisible({ timeout: 5000 });
-    await expect(sharedPage.locator('#name')).toBeVisible({ timeout: 5000 });
+    await expect(sharedPage.getByTestId('hero-name-input')).toBeVisible({ timeout: 5000 });
     await sharedPage.screenshot({ path: screenshotPath('04-hero-dialog') });
-    await sharedPage.locator('#name').fill('VisualCaptureHero');
+    await sharedPage.getByTestId('hero-name-input').fill('VisualCaptureHero');
     await sharedPage.locator('.heroPopup').getByRole('button', { name: 'Accept' }).click();
   });
 
   test('5. Hero tab with hero', async () => {
     await sharedPage.getByRole('tab', { name: 'Heroes' }).click();
-    await expect(sharedPage.locator('#heroList')).toContainText('VisualCaptureHero', { timeout: 5000 });
+    await expect(sharedPage.getByTestId('hero-list')).toContainText('VisualCaptureHero', { timeout: 5000 });
     await sharedPage.screenshot({ path: screenshotPath('05-hero-tab-with-hero') });
   });
 
   test('6. Town – Stockpile + second dungeon', async () => {
-    const gather = sharedPage.locator('#gatherButton').first();
+    const gather = sharedPage.getByTestId('gather-trigger');
     for (let i = 0; i < 25; i++) await gather.click();
     await sharedPage.getByRole('tab', { name: 'Town' }).click();
     await sharedPage.getByRole('button', { name: 'Improve Stockpile' }).click();
@@ -113,8 +113,8 @@ test.describe.serial('Visual capture', () => {
 
   test('8. Options/Help – save confirmation dialog', async () => {
     await sharedPage.getByRole('tab', { name: 'Options/Help' }).click();
-    await sharedPage.locator('#save').click();
-    await expect(sharedPage.locator('#errorDialog')).toContainText(/saved|save/i, { timeout: 4000 });
+    await sharedPage.getByTestId('save-button').click();
+    await expect(sharedPage.getByTestId('error-toast')).toContainText(/saved|save/i, { timeout: 4000 });
     await sharedPage.screenshot({ path: screenshotPath('08-options-save-dialog') });
   });
 });

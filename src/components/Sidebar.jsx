@@ -9,10 +9,10 @@ import { selectFullState } from '../store/index.js';
 const SECTIONS = [
   { id: 'town', name: 'Town' },
   { id: 'hero', name: 'Heroes', disabledKey: 'heroEnabled' },
+  { id: 'upgrades', name: 'Upgrades', unlockByGold: true },
   { id: 'production', name: 'Production', disabledKey: 'prodEnabled' },
   { id: 'professions', name: 'Professions', disabledKey: 'upgEnabled' },
   { id: 'bestiary', name: 'Bestiary', disabledKey: 'beastEnabled' },
-  { id: 'upgrades', name: 'Upgrades' },
   { id: 'options', name: 'Options/Help' },
 ];
 
@@ -21,6 +21,11 @@ export default function Sidebar({ activeSection, onSelectSection }) {
   const state = useSelector(selectFullState);
 
   const isDisabled = (section) => {
+    if (section.unlockByGold) {
+      const hasGold = (state.gold ?? 0) >= 1;
+      const hasBoughtUpgrade = (state.upgrades || []).some((u) => u.enabled === false);
+      return !hasGold && !hasBoughtUpgrade;
+    }
     if (!section.disabledKey) return false;
     return !state[section.disabledKey];
   };
@@ -49,7 +54,7 @@ export default function Sidebar({ activeSection, onSelectSection }) {
               data-testid={`tab-${section.id}`}
               onClick={(e) => { e.preventDefault(); if (!disabled) onSelectSection(section.id); }}
               onKeyDown={(e) => { if (disabled) return; if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); onSelectSection(section.id); } }}
-              title={disabled ? `${section.name} (unlock by progressing)` : undefined}
+              title={disabled ? (section.unlockByGold ? `${section.name} (unlock when you earn your first gold)` : `${section.name} (unlock by progressing)`) : undefined}
             >
               {section.name}
             </a>

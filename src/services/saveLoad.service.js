@@ -130,6 +130,7 @@ function SaveLoadServiceFactory(GameConfig, GameUiService, GameStateService) {
         if (data.upgrades && s.upgrades) {
             for (let i = 0; i < data.upgrades.length; i++) {
                 s.upgrades[i].enabled = data.upgrades[i].enabled;
+                if (data.upgrades[i].purchased !== undefined) s.upgrades[i].purchased = data.upgrades[i].purchased;
             }
         }
         if (data.jobs && s.jobs) {

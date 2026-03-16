@@ -47,6 +47,7 @@ export default function ResourcesBar() {
       <div className="hv-resources-row">
         <div
           id="gatherButton"
+          data-testid="gather-trigger"
           role="button"
           tabIndex={0}
           className="hv-resources-gather"
@@ -55,7 +56,7 @@ export default function ResourcesBar() {
           title="Click to gather resources"
           aria-label="Gather resources"
         >
-          <span id="resources" className="hv-resource-item hv-resource-item--clickable">
+          <span id="resources" data-testid="resources-count" className="hv-resource-item hv-resource-item--clickable">
             <span className="hv-resource-value">{resources.toLocaleString()}/{maxResources.toLocaleString()}</span>
             <img src="images/I_Chest01.png" alt="" aria-hidden className="hv-resource-icon" />
           </span>
@@ -67,7 +68,7 @@ export default function ResourcesBar() {
         {gameLoop !== 1000 && <img src="images/S_Buff11.png" alt="Speed buff" className="hv-buff-icon" title="Doubles the game speed" />}
         {damageMulti !== 1 && <img src="images/S_Shadow07.png" alt="Damage buff" className="hv-buff-icon" title="Doubles your heroes damage" />}
         {goldMulti !== 1 && <img src="images/E_Gold02.png" alt="Gold buff" className="hv-buff-icon" title="Doubles the gold gained from sales" />}
-        <div id="errorDialog" className={`hv-message-toast ${isSuccessMessage ? 'hv-message-success' : ''}`} title={errorMessage ? 'Message' : 'Error'} role="alert" aria-live="polite">{errorMessage || '\u00A0'}</div>
+        <div id="errorDialog" data-testid="error-toast" className={`hv-message-toast ${isSuccessMessage ? 'hv-message-success' : ''}`} title={errorMessage ? 'Message' : 'Error'} role="alert" aria-live="polite">{errorMessage || '\u00A0'}</div>
       </div>
     </div>
   );

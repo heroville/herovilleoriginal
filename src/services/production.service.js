@@ -27,6 +27,7 @@ function ProductionServiceFactory(EconomyService, GameUiService) {
         if (s.potion.prodTime > start) {
             if (button) {
                 s.potion.progress = (s.potion.prodTime - start).toString().toHHMMSS();
+                syncStoreIfBound();
             } else if (heroID >= 0) {
                 s.heroList[heroID].progress = (s.potion.prodTime - start).toString().toHHMMSS();
             }
@@ -55,6 +56,7 @@ function ProductionServiceFactory(EconomyService, GameUiService) {
         if (acc.prodTime > start) {
             if (button) {
                 acc.progress = (acc.prodTime - start).toString().toHHMMSS();
+                syncStoreIfBound();
             } else if (heroID >= 0) {
                 s.heroList[heroID].progress = (acc.prodTime - start).toString().toHHMMSS();
             }
@@ -83,6 +85,7 @@ function ProductionServiceFactory(EconomyService, GameUiService) {
         if (weapon.prodTime > start) {
             if (button) {
                 weapon.progress = (weapon.prodTime - start).toString().toHHMMSS();
+                syncStoreIfBound();
             } else if (heroID >= 0) {
                 s.heroList[heroID].progress = (weapon.prodTime - start).toString().toHHMMSS();
             }
@@ -107,6 +110,7 @@ function ProductionServiceFactory(EconomyService, GameUiService) {
         if (s.upgrades[upgradeID].price <= s.gold) {
             EconomyService.decGold(s.upgrades[upgradeID].price);
             s.upgrades[upgradeID].enabled = false;
+            s.upgrades[upgradeID].purchased = true;
             switch (upgradeID) {
                 case 0: {
                     s.incr++;

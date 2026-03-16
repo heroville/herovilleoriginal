@@ -156,7 +156,7 @@ export default function AppDialogs() {
             <div className="hv-modal-body">
               <div id="error" role="alert">{heroError && <span className="text-danger">{heroError}</span>}</div>
               <p id="hero-dialog-desc">Enter a name for the hero.</p>
-              <input type="text" id="name" name="name" value={heroName} onChange={(e) => setHeroName(e.target.value)} onKeyDown={(e) => e.key === 'Enter' && handleHeroAccept()} className="hv-w-100" />
+              <input type="text" id="name" name="name" data-testid="hero-name-input" value={heroName} onChange={(e) => setHeroName(e.target.value)} onKeyDown={(e) => e.key === 'Enter' && handleHeroAccept()} className="hv-w-100" />
               <div className="hv-modal-actions">
                 <button type="button" className="hv-btn-primary hv-btn-auto" onClick={handleHeroAccept}>Accept</button>
               </div>
@@ -172,7 +172,7 @@ export default function AppDialogs() {
             <div className="hv-modal-body">
               <div role="alert">{workerError && <span className="text-danger">{workerError}</span>}</div>
               <p id="worker-dialog-desc">Enter a name for the worker.</p>
-              <input type="text" id="name2" name="name2" value={workerName} onChange={(e) => setWorkerName(e.target.value)} onKeyDown={(e) => e.key === 'Enter' && handleWorkerAccept()} className="hv-w-100" />
+              <input type="text" id="name2" name="name2" data-testid="worker-name-input" value={workerName} onChange={(e) => setWorkerName(e.target.value)} onKeyDown={(e) => e.key === 'Enter' && handleWorkerAccept()} className="hv-w-100" />
               <div className="hv-modal-actions">
                 <button type="button" className="hv-btn-primary hv-btn-auto" onClick={handleWorkerAccept}>Accept</button>
               </div>

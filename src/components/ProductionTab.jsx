@@ -13,7 +13,7 @@ export default function ProductionTab() {
   const potion = state.potion || {};
   const potions = (state.potions || []).filter((p) => p.enabled === true);
   const weapons = (state.weapons || []).filter((w) => w.enabled === true);
-  const blueprints = (state.blueprints || []).filter((b) => b.enabled === true);
+  const blueprints = (state.blueprints || []).filter((b) => b.enabled === true && (b.cost ?? 1) > 0);
   const stockpileName = buildings[1]?.name ?? 'Stockpile';
   const blacksmithName = buildings[3]?.name ?? 'Blacksmith';
   const marketName = buildings[2]?.name ?? 'Market';
@@ -23,8 +23,7 @@ export default function ProductionTab() {
 
   return (
     <section data-testid="production-tab" className="hv-content">
-      <div className="hv-grid hv-grid--2">
-        <div>
+      <div className="hv-stack">
           <div className="hv-panel hv-table-card hv-mb-3">
             <div className="hv-panel__body hv-panel__body--no-pad">
               <div className="hv-table-wrap">
@@ -55,6 +54,7 @@ export default function ProductionTab() {
                         <button
                           type="button"
                           id="potionButt"
+                          data-testid="potion-create-button"
                           className="hv-btn-primary hv-btn-auto"
                           disabled={potionDisabled}
                           onClick={() => game.production.create(-1)}
@@ -148,8 +148,7 @@ export default function ProductionTab() {
               </div>
             </div>
           )}
-        </div>
-        <div style={blueprints.length === 0 ? { display: 'none' } : undefined}>
+        {blueprints.length > 0 && (
           <div className="hv-panel hv-table-card">
             <div className="hv-panel__body hv-panel__body--no-pad">
               <div className="hv-table-wrap">
@@ -174,6 +173,7 @@ export default function ProductionTab() {
                             type="button"
                             className="hv-btn-primary hv-btn-auto"
                             title={blueprint.description}
+                            disabled={blueprint.cost === 0}
                             onClick={() => game.production.incrBlueprint(blueprint)}
                           >
                             Buy {blueprint.name}
@@ -186,7 +186,7 @@ export default function ProductionTab() {
               </div>
             </div>
           </div>
-        </div>
+        )}
       </div>
     </section>
   );

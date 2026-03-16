@@ -111,7 +111,9 @@ function BuildingServiceFactory(GameStateService, GameUiService, DungeonService,
                 break;
             }
             case 2: {
-                if (!state.buildings[3].enabled) {
+                const bp0 = state.blueprints && state.blueprints[0];
+                const notYetPurchased = bp0 && bp0.cost > 0;
+                if (notYetPurchased && !state.buildings[3].enabled) {
                     state.blueprints[0].enabled = true;
                     state.buildings[2].enabled = false;
                     if (state.tutorialStepIndex === 12) actions.nextTutorial();
@@ -165,9 +167,11 @@ function BuildingServiceFactory(GameStateService, GameUiService, DungeonService,
                 break;
             }
         }
-        // Fallback: enable Blacksmith Blueprint when improving Market (by id or name) so E2E/UI see it regardless of id shape
+        // Fallback: enable Blacksmith Blueprint when improving Market (by id or name) only if not yet purchased
         if (state.blueprints && state.blueprints[0] && (bid === 2 || (building.name && building.name.toLowerCase() === 'market'))) {
-            if (!state.buildings[3].enabled) {
+            const bp = state.blueprints[0];
+            const notYetPurchased = bp.cost > 0;
+            if (notYetPurchased && !state.buildings[3].enabled) {
                 state.blueprints[0].enabled = true;
                 state.buildings[2].enabled = false;
             }
