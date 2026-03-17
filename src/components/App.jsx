@@ -31,7 +31,7 @@ export default function App() {
   const game = useGame();
   const state = useSelector(selectFullState);
   const heroEnabled = !!state.heroEnabled;
-  const upgradesUnlocked = (state.gold ?? 0) >= 1 || (state.upgrades || []).some((u) => u.enabled === false);
+  const upgradesUnlocked = (state.gold ?? 0) >= 1 || (state.upgrades || []).some((u) => u.purchased === true);
   const [activeSection, setActiveSection] = useState('town');
 
   useEffect(() => {

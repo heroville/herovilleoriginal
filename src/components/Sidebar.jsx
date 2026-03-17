@@ -23,7 +23,7 @@ export default function Sidebar({ activeSection, onSelectSection }) {
   const isDisabled = (section) => {
     if (section.unlockByGold) {
       const hasGold = (state.gold ?? 0) >= 1;
-      const hasBoughtUpgrade = (state.upgrades || []).some((u) => u.enabled === false);
+      const hasBoughtUpgrade = (state.upgrades || []).some((u) => u.purchased === true);
       return !hasGold && !hasBoughtUpgrade;
     }
     if (!section.disabledKey) return false;
@@ -49,7 +49,8 @@ export default function Sidebar({ activeSection, onSelectSection }) {
               role="tab"
               aria-selected={isActive}
               aria-disabled={disabled}
-              tabIndex={disabled ? -1 : 0}
+              aria-controls={`${section.id}-react-root`}
+              tabIndex={disabled ? -1 : (isActive ? 0 : -1)}
               className={`hv-sidebar__link ${isActive ? 'hv-sidebar__link--active' : ''} ${disabled ? 'hv-sidebar__link--disabled' : ''}`}
               data-testid={`tab-${section.id}`}
               onClick={(e) => { e.preventDefault(); if (!disabled) onSelectSection(section.id); }}

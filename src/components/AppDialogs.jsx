@@ -150,8 +150,8 @@ export default function AppDialogs() {
   return (
     <>
       {dialogState.hero && (
-        <div className="hv-modal-backdrop" onClick={() => close('hero')} role="presentation" aria-modal="true">
-          <div ref={heroDialogRef} className="heroPopup hv-modal-dialog" onClick={(e) => e.stopPropagation()} role="dialog" aria-labelledby="hero-dialog-title" aria-describedby="hero-dialog-desc">
+        <div className="hv-modal-backdrop" onClick={() => close('hero')} role="presentation">
+          <div ref={heroDialogRef} className="heroPopup hv-modal-dialog" onClick={(e) => e.stopPropagation()} role="dialog" aria-modal="true" aria-labelledby="hero-dialog-title" aria-describedby="hero-dialog-desc">
             <div className="hv-modal-header"><h3 id="hero-dialog-title">New Hero</h3></div>
             <div className="hv-modal-body">
               <div id="error" role="alert">{heroError && <span className="text-danger">{heroError}</span>}</div>
@@ -166,8 +166,8 @@ export default function AppDialogs() {
       )}
 
       {dialogState.worker && (
-        <div className="hv-modal-backdrop" onClick={() => close('worker')} role="presentation" aria-modal="true">
-          <div ref={workerDialogRef} className="workerPopup hv-modal-dialog" onClick={(e) => e.stopPropagation()} role="dialog" aria-labelledby="worker-dialog-title" aria-describedby="worker-dialog-desc">
+        <div className="hv-modal-backdrop" onClick={() => close('worker')} role="presentation">
+          <div ref={workerDialogRef} className="workerPopup hv-modal-dialog" onClick={(e) => e.stopPropagation()} role="dialog" aria-modal="true" aria-labelledby="worker-dialog-title" aria-describedby="worker-dialog-desc">
             <div className="hv-modal-header"><h3 id="worker-dialog-title">New Worker</h3></div>
             <div className="hv-modal-body">
               <div role="alert">{workerError && <span className="text-danger">{workerError}</span>}</div>
@@ -182,8 +182,8 @@ export default function AppDialogs() {
       )}
 
       {dialogState.version && (
-        <div className="hv-modal-backdrop" onClick={() => close('version')} role="presentation" aria-modal="true">
-          <div ref={versionDialogRef} className="hv-modal-dialog" onClick={(e) => e.stopPropagation()} role="dialog" aria-labelledby="version-dialog-title">
+        <div className="hv-modal-backdrop" onClick={() => close('version')} role="presentation">
+          <div ref={versionDialogRef} className="hv-modal-dialog" onClick={(e) => e.stopPropagation()} role="dialog" aria-modal="true" aria-labelledby="version-dialog-title">
             <div className="hv-modal-header"><h3 id="version-dialog-title">Version Information</h3></div>
             <div className="hv-modal-body">
               <p><strong>Version 2.0</strong></p>
@@ -201,8 +201,8 @@ export default function AppDialogs() {
       )}
 
       {dialogState.confirm && (
-        <div className="hv-modal-backdrop" onClick={() => close('confirm')} role="presentation" aria-modal="true">
-          <div ref={confirmDialogRef} className="hv-modal-dialog" onClick={(e) => e.stopPropagation()} role="dialog" aria-labelledby="confirm-dialog-title">
+        <div className="hv-modal-backdrop" onClick={() => close('confirm')} role="presentation">
+          <div ref={confirmDialogRef} className="hv-modal-dialog" onClick={(e) => e.stopPropagation()} role="dialog" aria-modal="true" aria-labelledby="confirm-dialog-title">
             <div className="hv-modal-header"><h3 id="confirm-dialog-title">Confirmation Required</h3></div>
             <div className="hv-modal-body">
               <p>This change is permanent, are you sure this is what you want to do?</p>
@@ -216,8 +216,8 @@ export default function AppDialogs() {
       )}
 
       {dialogState.loading && (
-        <div className="hv-modal-backdrop" onClick={() => close('loading')} role="presentation" aria-modal="true">
-          <div ref={loadingDialogRef} className="hv-modal-dialog" onClick={(e) => e.stopPropagation()} role="dialog" aria-labelledby="loading-dialog-title">
+        <div className="hv-modal-backdrop" onClick={() => close('loading')} role="presentation">
+          <div ref={loadingDialogRef} className="hv-modal-dialog" onClick={(e) => e.stopPropagation()} role="dialog" aria-modal="true" aria-labelledby="loading-dialog-title">
             <div className="hv-modal-header"><h3 id="loading-dialog-title">Old Version</h3></div>
             <div className="hv-modal-body">
               <p>You are loading from an old version, there may be errors. If the game does not load correctly try starting a new game by refreshing the page. Continue to load the save anyway, or Reset to start fresh.</p>

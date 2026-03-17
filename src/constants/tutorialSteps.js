@@ -28,11 +28,11 @@ export function getTutorialStepFromState(flat) {
   const blacksmithCount = buildings[3]?.count ?? 0;
   const tavernCount = buildings[4]?.count ?? 0;
   const hasHero = heroList.length >= 1;
-  const bonusResBought = upgrades[0]?.enabled === false;
-  const savePointBought = upgrades[1]?.enabled === false;
+  const bonusResBought = upgrades[0]?.purchased === true;
+  const savePointBought = upgrades[1]?.purchased === true;
   const potionCount = (potion.count ?? 0) + (potion.working ?? 0);
   const hasWeapon = weapons.length > 0 && (weapons[0]?.count ?? 0) + (weapons[0]?.working ?? 0) >= 1;
-  const blacksmithBlueprintBought = blueprints[0]?.enabled === false && (buildings[3]?.enabled === true || blacksmithCount >= 1);
+  const blacksmithBlueprintBought = blueprints[0] != null && (blueprints[0].cost === 0) && (buildings[3]?.enabled === true || blacksmithCount >= 1);
   const dungeonCount = dungeons.length;
 
   // Highest first: return first (highest) step whose goal is already met
