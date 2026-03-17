@@ -5,8 +5,11 @@
  */
 import { REPLACE_STATE } from '../store/sliceState.js';
 
+const PROGRESS_SYNC_THROTTLE_MS = 500;
+
 function ProductionServiceFactory(EconomyService, GameUiService) {
     var _dispatch = null;
+    var _lastProgressSync = 0;
 
     function bindStore(store) {
         if (store) _dispatch = store.dispatch;
@@ -19,6 +22,15 @@ function ProductionServiceFactory(EconomyService, GameUiService) {
         }
     }
 
+    /** Throttled sync for progress ticks to avoid full clone every gameLoop ms. Always call syncStoreIfBound on completion. */
+    function syncProgressIfNeeded() {
+        const now = Date.now();
+        if (now - _lastProgressSync >= PROGRESS_SYNC_THROTTLE_MS) {
+            _lastProgressSync = now;
+            syncStoreIfBound();
+        }
+    }
+
     function createPotion(button, start, heroID, onDone) {
         const s = EconomyService.getState();
         if (heroID !== 0) {
@@ -27,7 +39,7 @@ function ProductionServiceFactory(EconomyService, GameUiService) {
         if (s.potion.prodTime > start) {
             if (button) {
                 s.potion.progress = (s.potion.prodTime - start).toString().toHHMMSS();
-                syncStoreIfBound();
+                syncProgressIfNeeded();
             } else if (heroID >= 0) {
                 s.heroList[heroID].progress = (s.potion.prodTime - start).toString().toHHMMSS();
             }
@@ -56,7 +68,7 @@ function ProductionServiceFactory(EconomyService, GameUiService) {
         if (acc.prodTime > start) {
             if (button) {
                 acc.progress = (acc.prodTime - start).toString().toHHMMSS();
-                syncStoreIfBound();
+                syncProgressIfNeeded();
             } else if (heroID >= 0) {
                 s.heroList[heroID].progress = (acc.prodTime - start).toString().toHHMMSS();
             }
@@ -85,7 +97,7 @@ function ProductionServiceFactory(EconomyService, GameUiService) {
         if (weapon.prodTime > start) {
             if (button) {
                 weapon.progress = (weapon.prodTime - start).toString().toHHMMSS();
-                syncStoreIfBound();
+                syncProgressIfNeeded();
             } else if (heroID >= 0) {
                 s.heroList[heroID].progress = (weapon.prodTime - start).toString().toHHMMSS();
             }

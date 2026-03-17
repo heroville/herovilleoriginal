@@ -1,56 +1,6 @@
 // Tutorial steps: content and showNext. Step indices match triggers in
 // BuildingService, ProductionService, GameUiService.
-
-export const TUTORIAL_TOTAL_STEPS = 23;
-/** Last step index (0-based); tutorial is complete when stepIndex >= this. */
-export const TUTORIAL_LAST_STEP_INDEX = TUTORIAL_TOTAL_STEPS - 1;
-
-/**
- * Returns the tutorial step index (0–22) implied by current game state.
- * Used to skip ahead when the player has already done the goal of earlier steps.
- * @param {Object} flat - Flat state (resources, gold, buildings, heroList, upgrades, etc.)
- */
-export function getTutorialStepFromState(flat) {
-  if (!flat) return 0;
-  const buildings = flat.buildings || [];
-  const heroList = flat.heroList || [];
-  const upgrades = flat.upgrades || [];
-  const gold = flat.gold ?? 0;
-  const resources = flat.resources ?? 0;
-  const potion = flat.potion || {};
-  const weapons = flat.weapons || [];
-  const blueprints = flat.blueprints || [];
-  const dungeons = flat.dungeons || [];
-
-  const tentCount = buildings[0]?.count ?? 0;
-  const stockpileCount = buildings[1]?.count ?? 0;
-  const marketCount = buildings[2]?.count ?? 0;
-  const blacksmithCount = buildings[3]?.count ?? 0;
-  const tavernCount = buildings[4]?.count ?? 0;
-  const hasHero = heroList.length >= 1;
-  const bonusResBought = upgrades[0]?.purchased === true;
-  const savePointBought = upgrades[1]?.purchased === true;
-  const potionCount = (potion.count ?? 0) + (potion.working ?? 0);
-  const hasWeapon = weapons.length > 0 && (weapons[0]?.count ?? 0) + (weapons[0]?.working ?? 0) >= 1;
-  const blacksmithBlueprintBought = blueprints[0] != null && (blueprints[0].cost === 0) && (buildings[3]?.enabled === true || blacksmithCount >= 1);
-  const dungeonCount = dungeons.length;
-
-  // Highest first: return first (highest) step whose goal is already met
-  if (tavernCount >= 1) return 19;
-  if (savePointBought) return 18;
-  if (hasWeapon) return 16;
-  if (blacksmithCount >= 1) return 15;
-  if (blacksmithBlueprintBought) return 14;
-  if (marketCount >= 1) return 13;
-  if (dungeonCount >= 1) return 11;
-  if (bonusResBought) return 9;
-  if (gold >= 1) return 8;
-  if (potionCount >= 1) return 7;
-  if (stockpileCount >= 1) return 6;
-  if (hasHero || tentCount >= 1) return 3;
-  if (resources >= 5) return 2;
-  return 0;
-}
+// TUTORIAL_TOTAL_STEPS and TUTORIAL_LAST_STEP_INDEX are derived from TUTORIAL_STEPS.length.
 
 export const TUTORIAL_STEPS = [
   {
@@ -169,3 +119,54 @@ export const TUTORIAL_STEPS = [
     showNext: false
   }
 ];
+
+export const TUTORIAL_TOTAL_STEPS = TUTORIAL_STEPS.length;
+/** Last step index (0-based); tutorial is complete when stepIndex >= this. */
+export const TUTORIAL_LAST_STEP_INDEX = TUTORIAL_TOTAL_STEPS - 1;
+
+/**
+ * Returns the tutorial step index (0 to TUTORIAL_LAST_STEP_INDEX) implied by current game state.
+ * Used to skip ahead when the player has already done the goal of earlier steps.
+ * @param {Object} flat - Flat state (resources, gold, buildings, heroList, upgrades, etc.)
+ */
+export function getTutorialStepFromState(flat) {
+  if (!flat) return 0;
+  const buildings = flat.buildings || [];
+  const heroList = flat.heroList || [];
+  const upgrades = flat.upgrades || [];
+  const gold = flat.gold ?? 0;
+  const resources = flat.resources ?? 0;
+  const potion = flat.potion || {};
+  const weapons = flat.weapons || [];
+  const blueprints = flat.blueprints || [];
+  const dungeons = flat.dungeons || [];
+
+  const tentCount = buildings[0]?.count ?? 0;
+  const stockpileCount = buildings[1]?.count ?? 0;
+  const marketCount = buildings[2]?.count ?? 0;
+  const blacksmithCount = buildings[3]?.count ?? 0;
+  const tavernCount = buildings[4]?.count ?? 0;
+  const hasHero = heroList.length >= 1;
+  const bonusResBought = upgrades[0]?.purchased === true;
+  const savePointBought = upgrades[1]?.purchased === true;
+  const potionCount = (potion.count ?? 0) + (potion.working ?? 0);
+  const hasWeapon = weapons.length > 0 && (weapons[0]?.count ?? 0) + (weapons[0]?.working ?? 0) >= 1;
+  const blacksmithBlueprintBought = blueprints[0] != null && (blueprints[0].cost === 0) && (buildings[3]?.enabled === true || blacksmithCount >= 1);
+  const dungeonCount = dungeons.length;
+
+  // Highest first: return first (highest) step whose goal is already met
+  if (tavernCount >= 1) return 19;
+  if (savePointBought) return 18;
+  if (hasWeapon) return 16;
+  if (blacksmithCount >= 1) return 15;
+  if (blacksmithBlueprintBought) return 14;
+  if (marketCount >= 1) return 13;
+  if (dungeonCount >= 1) return 11;
+  if (bonusResBought) return 9;
+  if (gold >= 1) return 8;
+  if (potionCount >= 1) return 7;
+  if (stockpileCount >= 1) return 6;
+  if (hasHero || tentCount >= 1) return 3;
+  if (resources >= 5) return 2;
+  return 0;
+}

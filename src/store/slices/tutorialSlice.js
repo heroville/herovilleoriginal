@@ -24,7 +24,7 @@ const tutorialSlice = createSlice({
       }
     },
     skipTutorial(state) {
-      state.tutorialStepIndex = TUTORIAL_TOTAL_STEPS;
+      state.tutorialStepIndex = TUTORIAL_LAST_STEP_INDEX;
       state.tutorialCompleted = true;
     },
     setTutorialFromSave(state, action) {
@@ -33,12 +33,18 @@ const tutorialSlice = createSlice({
       if (tutorialCompleted !== undefined) state.tutorialCompleted = !!tutorialCompleted;
       if (Array.isArray(gameLog)) state.gameLog = gameLog;
     },
-    addGameLogMessage(state, action) {
-      const msg = action.payload;
-      if (typeof msg !== 'string') return;
-      const timestamp = new Date().toTimeString().slice(0, 8);
-      state.gameLog.unshift(`${timestamp} : ${msg}`);
-      if (state.gameLog.length > 10) state.gameLog.pop();
+    addGameLogMessage: {
+      prepare(message) {
+        if (typeof message !== 'string') return { payload: { formatted: '' } };
+        const timestamp = new Date().toTimeString().slice(0, 8);
+        return { payload: { formatted: `${timestamp} : ${message}` } };
+      },
+      reducer(state, action) {
+        const formatted = action.payload?.formatted;
+        if (!formatted) return;
+        state.gameLog.unshift(formatted);
+        if (state.gameLog.length > 10) state.gameLog.pop();
+      }
     }
   }
 });
