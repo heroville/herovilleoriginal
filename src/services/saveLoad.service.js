@@ -69,8 +69,9 @@ function SaveLoadServiceFactory(GameConfig, GameUiService, GameStateService) {
             losses: s.lossCount.amount,
             party: s.party,
             gameStats: s.gameStats,
-            panelNumber: s.panelNumber,
-            showTutorial: s.showTutorial
+            tutorialStepIndex: s.tutorialStepIndex,
+            tutorialCompleted: s.tutorialCompleted,
+            gameLog: s.gameLog || []
         };
     }
 
@@ -127,6 +128,7 @@ function SaveLoadServiceFactory(GameConfig, GameUiService, GameStateService) {
         if (data.upgrades && s.upgrades) {
             for (let i = 0; i < data.upgrades.length; i++) {
                 s.upgrades[i].enabled = data.upgrades[i].enabled;
+                if (data.upgrades[i].purchased !== undefined) s.upgrades[i].purchased = data.upgrades[i].purchased;
             }
         }
         if (data.jobs && s.jobs) {
@@ -172,16 +174,16 @@ function SaveLoadServiceFactory(GameConfig, GameUiService, GameStateService) {
         s.bestiary = data.bestiary;
 
         if (s.buildings && s.buildings[0]) {
-            s.heroEnabled = s.buildings[0].count > 0 ? false : s.heroEnabled;
+            s.heroEnabled = s.buildings[0].count > 0 ? true : s.heroEnabled;
         }
         if (s.buildings && s.buildings[1]) {
-            s.prodEnabled = s.buildings[1].count > 0 ? false : s.prodEnabled;
+            s.prodEnabled = s.buildings[1].count > 0 ? true : s.prodEnabled;
         }
         if (s.buildings && s.buildings[4]) {
-            s.upgEnabled = s.buildings[4].count > 0 ? false : s.upgEnabled;
+            s.upgEnabled = s.buildings[4].count > 0 ? true : s.upgEnabled;
         }
         if (data.bestiary) {
-            s.beastEnabled = false;
+            s.beastEnabled = true;
         }
 
         s.heroTable = data.heroTable;
@@ -190,13 +192,11 @@ function SaveLoadServiceFactory(GameConfig, GameUiService, GameStateService) {
         s.party = data.party || s.party;
         s.gameStats = data.gameStats || s.gameStats;
 
-        if (data.panelNumber === 22) {
-            if (typeof scope.skipTut === 'function') scope.skipTut();
+        s.tutorialStepIndex = data.tutorialStepIndex ?? 0;
+        s.tutorialCompleted = data.tutorialCompleted ?? false;
+        s.gameLog = Array.isArray(data.gameLog) ? data.gameLog : [];
+        if (s.tutorialCompleted) {
             s.panel = ['Game successfully loaded'];
-        } else {
-            s.panelNumber = (data.panelNumber - 1);
-            s.showTutorial = data.showTutorial;
-            GameUiService.nextTutorial();
         }
         syncStoreIfBound();
         return true;

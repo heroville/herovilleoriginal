@@ -7,3 +7,9 @@ dist/
 /blob-report/
 /playwright/.cache/
 /playwright/.auth/
+/screenshots/
+
+# Work-in-progress / internal docs (not for PR)
+/docs/
+/MIGRATION-REPORT.md
+site-screenshot.png

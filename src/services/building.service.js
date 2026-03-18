@@ -91,9 +91,9 @@ function BuildingServiceFactory(GameStateService, GameUiService, DungeonService,
         switch (bid) {
             case 0: {
                 if (actions.openHeroDialog) actions.openHeroDialog();
-                state.heroEnabled = false;
+                state.heroEnabled = true; /* unlock Hero tab when first Tent built */
                 if (state.buildings[0].count === 5) actions.activateBlueprint(3);
-                if (state.panelNumber === 3) actions.nextTutorial();
+                if (state.tutorialStepIndex === 2) actions.nextTutorial();
                 break;
             }
             case 1: {
@@ -102,26 +102,28 @@ function BuildingServiceFactory(GameStateService, GameUiService, DungeonService,
                 state.maxGold = Math.floor(stateBuilding.cost / 10);
                 if (state.buildings[2].count === 0) {
                     state.buildings[2].enabled = true;
-                    state.prodEnabled = false;
+                    state.prodEnabled = true; /* unlock Production tab when Stockpile built */
                     state.jobs[1].enabled = true;
                 } else if (state.buildings[4].count === 0) {
                     actions.activateBlueprint(2);
                 }
-                if (state.panelNumber === 6) actions.nextTutorial();
+                if (state.tutorialStepIndex === 5) actions.nextTutorial();
                 break;
             }
             case 2: {
-                if (!state.buildings[3].enabled) {
+                const bp0 = state.blueprints && state.blueprints[0];
+                const notYetPurchased = bp0 && bp0.cost > 0;
+                if (notYetPurchased && !state.buildings[3].enabled) {
                     state.blueprints[0].enabled = true;
                     state.buildings[2].enabled = false;
-                    if (state.panelNumber === 13) actions.nextTutorial();
+                    if (state.tutorialStepIndex === 12) actions.nextTutorial();
                 }
                 break;
             }
             case 3: {
                 if (state.buildings[3].count + 1 < state.weapons.length) {
                     state.weapons[state.buildings[3].count].enabled = true;
-                    if (state.panelNumber === 15) actions.nextTutorial();
+                    if (state.tutorialStepIndex === 14) actions.nextTutorial();
                 } else {
                     state.weapons[state.buildings[3].count].enabled = true;
                     state.buildings[3].enabled = false;
@@ -132,9 +134,9 @@ function BuildingServiceFactory(GameStateService, GameUiService, DungeonService,
             }
             case 4: {
                 state.buildings[4].enabled = false;
-                state.upgEnabled = false;
+                state.upgEnabled = true; /* unlock Professions tab when Tavern built */
                 if (state.buildings[9]) state.buildings[9].enabled = true;
-                if (state.panelNumber === 19) actions.nextTutorial();
+                if (state.tutorialStepIndex === 18) actions.nextTutorial();
                 break;
             }
             case 5: {
@@ -150,7 +152,7 @@ function BuildingServiceFactory(GameStateService, GameUiService, DungeonService,
             case 6: {
                 if (state.dungeons.length < 14) {
                     actions.activateDungeon();
-                    if (state.panelNumber === 11) actions.nextTutorial();
+                    if (state.tutorialStepIndex === 10) actions.nextTutorial();
                 } else {
                     actions.activateDungeon();
                     actions.activateBlueprint(4);
@@ -165,9 +167,11 @@ function BuildingServiceFactory(GameStateService, GameUiService, DungeonService,
                 break;
             }
         }
-        // Fallback: enable Blacksmith Blueprint when improving Market (by id or name) so E2E/UI see it regardless of id shape
+        // Fallback: enable Blacksmith Blueprint when improving Market (by id or name) only if not yet purchased
         if (state.blueprints && state.blueprints[0] && (bid === 2 || (building.name && building.name.toLowerCase() === 'market'))) {
-            if (!state.buildings[3].enabled) {
+            const bp = state.blueprints[0];
+            const notYetPurchased = bp.cost > 0;
+            if (notYetPurchased && !state.buildings[3].enabled) {
                 state.blueprints[0].enabled = true;
                 state.buildings[2].enabled = false;
             }
@@ -187,14 +191,14 @@ function BuildingServiceFactory(GameStateService, GameUiService, DungeonService,
         if (blueprint.buildingID > 0) {
             state.buildings[blueprint.buildingID].enabled = true;
             blueprint.cost = 0;
-            if (state.panelNumber === 14) actions.nextTutorial();
+            if (state.tutorialStepIndex === 13) actions.nextTutorial();
         } else {
             switch (blueprint.buildingID) {
                 case -1:
                     break;
                 case -2:
                     state.bestiary = true;
-                    state.beastEnabled = false;
+                    state.beastEnabled = true; /* unlock Bestiary tab */
                     break;
             }
         }

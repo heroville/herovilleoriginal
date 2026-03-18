@@ -1,6 +1,6 @@
 /**
  * Hero tab: adventure hero list (card + table views), workers list with job change.
- * E2E expects #heroList with hero name, "Class: ...", progress bars, images, and popover triggers.
+ * E2E expects #heroList with hero name, "Class: ...", progress bars, images, and data-testid="hero-equip-popover-trigger".
  */
 import { useState } from 'react';
 import { useSelector } from 'react-redux';
@@ -39,7 +39,6 @@ export default function HeroTab() {
   const [reverse, setReverse] = useState(false);
   const [sortOpen, setSortOpen] = useState(false);
   const [selectedJobByWorker, setSelectedJobByWorker] = useState({});
-  const [hoveredPopover, setHoveredPopover] = useState(null);
 
   const heroList = state.heroList || [];
   const jobs = (state.jobs || []).filter((j) => j.enabled === true);
@@ -66,182 +65,134 @@ export default function HeroTab() {
   const setSortWork = () => setReverse((r) => !r);
 
   return (
-    <section id="container" data-testid="hero-tab">
-      <div className="col-lg-7">
-        <div className="btn-group" id="heroFilter">
+    <section data-testid="hero-tab" className="hv-content hv-content--heroes">
+      <div className="hv-hero-layout">
+        <div>
+        <div className="hv-flex hv-flex-wrap hv-items-center hv-gap-2 hv-mb-2" role="group" aria-label="Sort and filter heroes">
+          <span className="hv-text-muted">Sort / filter heroes:</span>
+          <div className="hero-sort-wrap" id="heroFilter">
           <button
             type="button"
-            className="dropdown-toggle btn btn-default"
+            className="hv-sort-btn"
             id="sortButton"
             onClick={() => setSortOpen((o) => !o)}
             aria-expanded={sortOpen}
+            aria-haspopup="listbox"
           >
-            Sort <span className="caret down" />
+            Sort <span className="hv-sort-caret" aria-hidden>▼</span>
           </button>
-          <ul className={`dropdown-menu${sortOpen ? '' : ' hidden'}`} role="menu" style={sortOpen ? { display: 'block' } : { display: 'none' }}>
-            {[
-              ['name', 'Name'],
-              [['level', 'experience'], 'Level'],
-              ['equip.gold', 'Gold'],
-              ['equip.scrap', 'Resources'],
-              ['equip.weapon.id', 'Weapon'],
-              ['equip.accessory.length', 'Accessory'],
-              ['currHealth', 'Health'],
-              ['experience', 'Experience'],
-              ['dungeon', 'Location']
-            ].map(([key, label]) => (
-              <li key={String(key)}>
-                <button type="button" className="btn-link" style={{ background: 'none', border: 'none', padding: 0, width: '100%', textAlign: 'left', cursor: 'pointer' }} onClick={() => { setSort(key); setSortOpen(false); }}>
-                  <u>{label}</u>
-                </button>
-              </li>
-            ))}
-          </ul>
-        </div>
+          {sortOpen && (
+            <ul className="hero-sort-dropdown" role="listbox" aria-label="Sort by">
+              {[
+                ['name', 'Name'],
+                [['level', 'experience'], 'Level'],
+                ['equip.gold', 'Gold'],
+                ['equip.scrap', 'Resources'],
+                ['equip.weapon.id', 'Weapon'],
+                ['equip.accessory.length', 'Accessory'],
+                ['currHealth', 'Health'],
+                ['experience', 'Experience'],
+                ['dungeon', 'Location']
+              ].map(([key, label]) => (
+                <li key={String(key)} role="option">
+                  <button type="button" className="hero-sort-item" onClick={() => { setSort(key); setSortOpen(false); }}>
+                    {label}
+                  </button>
+                </li>
+              ))}
+            </ul>
+          )}
+          </div>
         <input
           type="text"
           value={state.hFilterString?.name ?? ''}
           onChange={(e) => game.setFilterName?.(e.target.value)}
           placeholder="Filter by name"
+          title="Filter hero list by name"
         />
+        </div>
         {!showTable && (
-          <ul id="heroList">
+          <ul id="heroList" data-testid="hero-list" className="hv-hero-list">
             {adventureHeroes.map((hero) => {
               const hpPct = hero.health ? (Number(hero.currHealth) / Number(hero.health)) * 100 : 0;
               const xpPct = hero.next ? (Number(hero.experience) / Number(hero.next)) * 100 : 0;
               const weapon = hero.equip?.weapon;
-              const showEquip = hoveredPopover?.heroId === hero.id && hoveredPopover?.type === 'equip';
-              const showBattle = hoveredPopover?.heroId === hero.id && hoveredPopover?.type === 'battle';
               const heroBattles = filterHeroBattle(battles, hero);
               return (
-                <li key={hero.id}>
-                  <table className="table table-bordered" id="heroTable">
-                    <tbody>
-                      <tr>
-                        <td>Lvl. {hero.level} {hero.name}</td>
-                      </tr>
-                      <tr>
-                        <td>Class: {hero.academy?.name ?? '—'}</td>
-                      </tr>
-                      <tr>
-                        <td>
-                          HP:{' '}
-                          <div className="progress" style={{ width: 220 }} role="progressbar" aria-valuenow={hero.currHealth} aria-valuemin={0} aria-valuemax={hero.health}>
-                            <div className="progress-bar progress-bar-danger" style={{ width: `${hpPct}%` }}>
-                              <i>{Number(hero.currHealth).toLocaleString()}/{Number(hero.health).toLocaleString()}</i>
-                            </div>
+                <li key={hero.id} className="hv-hero-card-wrap">
+                  <article className="hv-panel hv-hero-card">
+                    <div className="hv-hero-card-header">
+                      <span className="hv-hero-name">Lvl. {hero.level} {hero.name}</span>
+                      <span className="hv-hero-class">Class: {hero.academy?.name ?? '—'}</span>
+                    </div>
+                    <div className="hv-hero-bars">
+                      <div className="hv-hero-bar-row">
+                        <span className="hv-hero-bar-label">HP</span>
+                        <div className="hv-progress-wrap hv-hero-progress" role="progressbar" aria-valuenow={hero.currHealth} aria-valuemin={0} aria-valuemax={hero.health}>
+                          <div className="progress h-100">
+                            <div className={`progress-bar progress-bar-hp${hpPct <= 25 ? ' low' : ''}`} style={{ width: `${hpPct}%` }} />
                           </div>
-                          {' '}
-                          XP:{' '}
-                          <div className="progress" style={{ width: 220 }} role="progressbar" aria-valuenow={hero.experience} aria-valuemin={0} aria-valuemax={hero.next}>
-                            <div className="progress-bar progress-bar-warning" style={{ width: `${xpPct}%` }}>
-                              <i>{Number(hero.experience).toLocaleString()}/{Number(hero.next).toLocaleString()}</i>
-                            </div>
+                          <span className="hv-progress-label">{Number(hero.currHealth).toLocaleString()}/{Number(hero.health).toLocaleString()}</span>
+                        </div>
+                      </div>
+                      <div className="hv-hero-bar-row">
+                        <span className="hv-hero-bar-label">XP</span>
+                        <div className="hv-progress-wrap hv-hero-progress" role="progressbar" aria-valuenow={hero.experience} aria-valuemin={0} aria-valuemax={hero.next}>
+                          <div className="progress h-100">
+                            <div className="progress-bar progress-bar-xp" style={{ width: `${xpPct}%` }} />
                           </div>
-                        </td>
-                      </tr>
-                      <tr>
-                        <td>
-                          <table id="lootTable">
-                            <tbody>
-                              <tr>
-                                <td>Loot:</td>
-                                <td>Equip:</td>
-                              </tr>
-                              <tr>
-                                <td style={{ width: '50%' }}>
-                                  {hero.equip?.gold ?? 0} <img src="images/I_GoldBar.png" alt="Gold" />
-                                </td>
-                                <td>
-                                  <span
-                                    data-testid="hero-equip-popover-trigger"
-                                    onMouseEnter={() => setHoveredPopover({ heroId: hero.id, type: 'equip' })}
-                                    onMouseLeave={() => setHoveredPopover((p) => (p?.type === 'equip' && p?.heroId === hero.id ? null : p))}
-                                    style={{ position: 'relative', cursor: 'pointer' }}
-                                  >
-                                    {weapon && <img src={`images/${weapon.image}`} alt={weapon.name} />}
-                                    {' '}({weapon?.minDamage ?? 0}-{weapon?.maxDamage ?? 0}) Durability: {weapon?.durability ?? 0}
-                                    {showEquip && (
-                                      <div
-                                        className="panel panel-default"
-                                        style={{ position: 'absolute', left: 0, top: '100%', zIndex: 1050, minWidth: 200, marginTop: 4 }}
-                                        onMouseEnter={() => setHoveredPopover({ heroId: hero.id, type: 'equip' })}
-                                        onMouseLeave={() => setHoveredPopover(null)}
-                                      >
-                                        <div className="panel-body">
-                                          {weapon && <><img src={`images/${weapon.image}`} alt="" /> {weapon.name} ({weapon.minDamage}-{weapon.maxDamage}) {weapon.durability}</>}
-                                          {(hero.equip?.accessory || []).map((acc, i) => (
-                                            <div key={acc.id ?? acc.name ?? `acc-${hero.id}-${i}`}><img src={`images/${acc.image}`} alt="" /> {acc.name} | {acc.durability}</div>
-                                          ))}
-                                          {(hero.equip?.potions || []).map((pot, i) => (
-                                            <div key={pot.id ?? pot.name ?? `pot-${hero.id}-${i}`}><img src={`images/${pot.image}`} alt="" /> {pot.name} | {pot.count}</div>
-                                          ))}
-                                        </div>
-                                      </div>
-                                    )}
-                                  </span>
-                                </td>
-                              </tr>
-                            </tbody>
-                          </table>
-                        </td>
-                      </tr>
-                      <tr>
-                        <td>Location: {hero.location}</td>
-                      </tr>
-                      <tr>
-                        <td>
-                          <span
-                            data-testid="hero-battle-popover-trigger"
-                            onMouseEnter={() => setHoveredPopover({ heroId: hero.id, type: 'battle' })}
-                            onMouseLeave={() => setHoveredPopover((p) => (p?.type === 'battle' && p?.heroId === hero.id ? null : p))}
-                            style={{ position: 'relative', cursor: 'pointer' }}
-                          >
-                            {hero.progress}
-                            {showBattle && (
-                              <div
-                                style={{ position: 'absolute', left: 0, top: '100%', zIndex: 1050, marginTop: 4, background: 'white' }}
-                                onMouseEnter={() => setHoveredPopover({ heroId: hero.id, type: 'battle' })}
-                                onMouseLeave={() => setHoveredPopover(null)}
-                              >
-                                {heroBattles.length > 0 ? (
-                                  <table className="table table-bordered">
-                                    <tbody>
-                                      {heroBattles.map((battle, bi) => (
-                                        <tr key={bi}>
-                                          <td>
-                                            {(battle.copyMonsters || []).map((monster, mi) => (
-                                              <div key={mi} id="monsterList">
-                                                {monster.name} ({monster.minDamage}-{monster.maxDamage}){' '}
-                                                <div className="progress" style={{ width: 200 }} role="progressbar">
-                                                  <div className="progress-bar progress-bar-danger" style={{ width: `${(monster.health / monster.maxHealth) * 100}%` }}>
-                                                    <i>{monster.health}/{monster.maxHealth}</i>
-                                                  </div>
-                                                </div>
-                                              </div>
-                                            ))}
-                                          </td>
-                                        </tr>
-                                      ))}
-                                    </tbody>
-                                  </table>
-                                ) : (
-                                  <div>Not in Battle</div>
-                                )}
-                              </div>
-                            )}
+                          <span className="hv-progress-label">{Number(hero.experience).toLocaleString()}/{Number(hero.next).toLocaleString()}</span>
+                        </div>
+                      </div>
+                    </div>
+                    <div className="hv-hero-loot-equip">
+                      <div className="hv-hero-loot">
+                        <span className="hv-hero-loot-label">Loot:</span>
+                        <span>{hero.equip?.gold ?? 0} <img src="images/I_GoldBar.png" alt="Gold" className="hv-hero-inline-icon" /></span>
+                      </div>
+                      <div className="hv-hero-equip" data-testid="hero-equip-popover-trigger">
+                        <span className="hv-hero-equip-label">Equip:</span>
+                        {weapon ? (
+                          <span className="hv-hero-equip-main">
+                            <img src={`images/${weapon.image}`} alt="" className="hv-hero-equip-icon" />
+                            <span className="hv-hero-equip-name">{weapon.name}</span>
+                            <span className="hv-hero-equip-stats">({weapon.minDamage}-{weapon.maxDamage}) Durability: {weapon.durability}</span>
                           </span>
-                        </td>
-                      </tr>
-                    </tbody>
-                  </table>
+                        ) : (
+                          <span className="hv-hero-equip-empty">—</span>
+                        )}
+                      </div>
+                    </div>
+                    <div className="hv-hero-meta">
+                      <span className="hv-hero-location">Location: {hero.location}</span>
+                      <span className="hv-hero-progress-text">{hero.progress}</span>
+                    </div>
+                    <div className="hv-hero-combat">
+                      <div className="hv-hero-combat-title">Current combat</div>
+                      {heroBattles.length === 0 ? (
+                        <div className="hv-hero-combat-empty">Not in battle</div>
+                      ) : (
+                        heroBattles.map((battle, bi) =>
+                          (battle.copyMonsters || []).map((monster, mi) => (
+                            <div key={`${bi}-${mi}`} className="hv-hero-combat-monster" id="monsterList">
+                              <span className="hv-hero-combat-monster-name">{monster.name} ({monster.minDamage}-{monster.maxDamage})</span>
+                              <div className="progress" style={{ width: '100%', maxWidth: 220 }} role="progressbar" aria-valuenow={monster.health} aria-valuemin={0} aria-valuemax={monster.maxHealth}>
+                                <div className="progress-bar progress-bar-danger" style={{ width: `${(monster.health / monster.maxHealth) * 100}%` }} />
+                              </div>
+                              <span className="hv-hero-combat-monster-hp">{monster.health}/{monster.maxHealth}</span>
+                            </div>
+                          ))
+                        )
+                      )}
+                    </div>
+                  </article>
                 </li>
               );
             })}
           </ul>
         )}
         {showTable && (
-          <table id="oldheroTable" className="table table-bordered">
+          <table id="oldheroTable" className="hv-table">
             <tbody>
               <tr>
                 <td><u><b>Heroes</b></u></td>
@@ -271,9 +222,11 @@ export default function HeroTab() {
             </tbody>
           </table>
         )}
-      </div>
-      <div className="col-lg-5" style={workers.length === 0 ? { display: 'none' } : undefined}>
-        <table className="table table-bordered">
+        </div>
+      <div style={workers.length === 0 ? { display: 'none' } : undefined}>
+        <div className="hv-panel hv-table-card">
+          <div className="hv-panel__body hv-panel__body--no-pad">
+        <table className="hv-table">
           <tbody>
             <tr>
               <td><u><b>Workers</b></u></td>
@@ -314,6 +267,9 @@ export default function HeroTab() {
             })}
           </tbody>
         </table>
+          </div>
+        </div>
+      </div>
       </div>
     </section>
   );

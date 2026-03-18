@@ -5,8 +5,11 @@
  */
 import { REPLACE_STATE } from '../store/sliceState.js';
 
+const PROGRESS_SYNC_THROTTLE_MS = 500;
+
 function ProductionServiceFactory(EconomyService, GameUiService) {
     var _dispatch = null;
+    var _lastProgressSync = 0;
 
     function bindStore(store) {
         if (store) _dispatch = store.dispatch;
@@ -19,6 +22,15 @@ function ProductionServiceFactory(EconomyService, GameUiService) {
         }
     }
 
+    /** Throttled sync for progress ticks to avoid full clone every gameLoop ms. Always call syncStoreIfBound on completion. */
+    function syncProgressIfNeeded() {
+        const now = Date.now();
+        if (now - _lastProgressSync >= PROGRESS_SYNC_THROTTLE_MS) {
+            _lastProgressSync = now;
+            syncStoreIfBound();
+        }
+    }
+
     function createPotion(button, start, heroID, onDone) {
         const s = EconomyService.getState();
         if (heroID !== 0) {
@@ -27,6 +39,7 @@ function ProductionServiceFactory(EconomyService, GameUiService) {
         if (s.potion.prodTime > start) {
             if (button) {
                 s.potion.progress = (s.potion.prodTime - start).toString().toHHMMSS();
+                syncProgressIfNeeded();
             } else if (heroID >= 0) {
                 s.heroList[heroID].progress = (s.potion.prodTime - start).toString().toHHMMSS();
             }
@@ -55,6 +68,7 @@ function ProductionServiceFactory(EconomyService, GameUiService) {
         if (acc.prodTime > start) {
             if (button) {
                 acc.progress = (acc.prodTime - start).toString().toHHMMSS();
+                syncProgressIfNeeded();
             } else if (heroID >= 0) {
                 s.heroList[heroID].progress = (acc.prodTime - start).toString().toHHMMSS();
             }
@@ -83,6 +97,7 @@ function ProductionServiceFactory(EconomyService, GameUiService) {
         if (weapon.prodTime > start) {
             if (button) {
                 weapon.progress = (weapon.prodTime - start).toString().toHHMMSS();
+                syncProgressIfNeeded();
             } else if (heroID >= 0) {
                 s.heroList[heroID].progress = (weapon.prodTime - start).toString().toHHMMSS();
             }
@@ -107,10 +122,11 @@ function ProductionServiceFactory(EconomyService, GameUiService) {
         if (s.upgrades[upgradeID].price <= s.gold) {
             EconomyService.decGold(s.upgrades[upgradeID].price);
             s.upgrades[upgradeID].enabled = false;
+            s.upgrades[upgradeID].purchased = true;
             switch (upgradeID) {
                 case 0: {
                     s.incr++;
-                    if (s.panelNumber === 9) {
+                    if (s.tutorialStepIndex === 8) {
                         GameUiService.nextTutorial();
                     }
                     s.upgrades[2].enabled = true;
@@ -120,7 +136,7 @@ function ProductionServiceFactory(EconomyService, GameUiService) {
                     s.buildings[0].tier++;
                     s.buildings[0].name = 'Campsite';
                     s.restAmount += 3;
-                    if (s.panelNumber === 18) {
+                    if (s.tutorialStepIndex === 17) {
                         GameUiService.nextTutorial();
                     }
                     break;
@@ -168,7 +184,7 @@ function ProductionServiceFactory(EconomyService, GameUiService) {
                 actions.showError("You do not have enough Resources.");
                 return;
             }
-            if (state.panelNumber === 7) actions.nextTutorial();
+            if (state.tutorialStepIndex === 6) actions.nextTutorial();
             if (actions.disablePotionButton) actions.disablePotionButton(-1);
             state.potion.working++;
             actions.startCreatePotion();
@@ -200,7 +216,7 @@ function ProductionServiceFactory(EconomyService, GameUiService) {
         if (actions.disableWeaponButton) actions.disableWeaponButton(weaponID);
         actions.decResources(w.cost);
         w.working++;
-        if (state.panelNumber === 16) actions.nextTutorial();
+        if (state.tutorialStepIndex === 15) actions.nextTutorial();
         if (state.buildings[0].tier === 1) state.upgrades[1].enabled = true;
         if (!(state.gameStats.weaponsManual[weaponID] >= 0)) state.gameStats.weaponsManual[weaponID] = 0;
         state.gameStats.weaponsManual[weaponID]++;
