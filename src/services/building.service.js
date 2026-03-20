@@ -163,7 +163,7 @@ function BuildingServiceFactory(GameStateService, GameUiService, DungeonService,
             case 7:
                 state.buildings[7].enabled = false;
             case 9: {
-                if (state.tutorialStepIndex === 20) actions.nextTutorial();
+                if (state.tutorialStepIndex === 21) actions.nextTutorial();
                 if (actions.openWorkerDialog) actions.openWorkerDialog();
                 break;
             }
