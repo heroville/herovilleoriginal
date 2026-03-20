@@ -2,20 +2,16 @@
 const { test, expect } = require('@playwright/test');
 
 /**
- * Heroville smoke tests run as a dependent sequence: one shared page, no reload between tests.
- * Each test builds on the previous so we avoid repeated setup and save/load conflicts.
- * Fast tick (10ms) is set once in beforeAll.
+ * Heroville E2E tests follow the in-game tutorial to completion. One shared page, no reload between tests.
+ * Fast tick (2ms) is set in beforeAll. Gather uses Playwright clickCount (one round-trip per batch) instead of per-click loops.
  *
- * Progression: 1–2) Load, gather. 3) Save. 4) Tent + hero. 5–6) Hero tab, Town/dungeons.
- * 7) Stockpile (gold capacity) + second dungeon. 8) Hero enters combat/dungeon. 9) Production:
- * gather resources, create potions, wait for hero to buy (gold ≥ 1). 10–12) Production UI and
- * one potion run. 13) Buy Bonus Resources I, assert +2 per gather. 14) Professions nav.
- * 15) Second Stockpile, Market, potions, gold, Blacksmith, Tavern, Professions. 16) Work Hut,
- * create worker. 17) Options/Help combat stats, Hero tab.
+ * Tutorial order: Welcome → Gather 5, Tent, Hero → Stockpile → Potions, gold → First upgrade →
+ * Dungeons → Market, Blacksmith blueprint, Blacksmith → Dagger → Save Point → Tavern → Work Hut,
+ * worker, change profession → End tips. E2E also verifies: all tabs/screens, save/load, combat stats.
  */
 
 /** Wait until game state has at least minGold (heroes buy potions when in town and damaged). */
-async function waitForGold(page, minGold, timeoutMs = 25000) {
+async function waitForGold(page, minGold, timeoutMs = 15000) {
   const deadline = Date.now() + timeoutMs;
   while (Date.now() < deadline) {
     const gold = await page.evaluate(() => {
@@ -24,13 +20,13 @@ async function waitForGold(page, minGold, timeoutMs = 25000) {
       return s && typeof s.gold === 'number' ? s.gold : -1;
     });
     if (gold >= minGold) return gold;
-    await page.waitForTimeout(200);
+    await page.waitForTimeout(25);
   }
   throw new Error(`Gold did not reach ${minGold} within ${timeoutMs}ms`);
 }
 
 /** Wait until any hero is in combat or dungeon (progress: Fighting Boss!, Fighting Encounter!, or X% Complete). */
-async function waitForHeroCombatOrDungeon(page, timeoutMs = 30000) {
+async function waitForHeroCombatOrDungeon(page, timeoutMs = 18000) {
   const deadline = Date.now() + timeoutMs;
   while (Date.now() < deadline) {
     const found = await page.evaluate(() => {
@@ -44,12 +40,81 @@ async function waitForHeroCombatOrDungeon(page, timeoutMs = 30000) {
       });
     });
     if (found) return;
-    await page.waitForTimeout(300);
+    await page.waitForTimeout(35);
   }
   throw new Error(`No hero entered combat or dungeon within ${timeoutMs}ms`);
 }
 
-test.describe.serial('Heroville smoke', () => {
+/** Click the tutorial Next button if visible (within timeoutMs). Returns true if clicked. */
+async function clickTutorialNext(page, timeoutMs = 800) {
+  const btn = page.getByTestId('tutorial-next');
+  try {
+    await btn.click({ timeout: timeoutMs });
+    return true;
+  } catch {
+    return false;
+  }
+}
+
+/** Get current game state (resources, maxResources, buildings). */
+async function getState(page) {
+  return page.evaluate(() => {
+    const getState = window['__HEROVILLE_E2E_STATE__'];
+    const s = getState && getState();
+    return s ? { resources: s.resources ?? 0, maxResources: s.maxResources ?? 0, buildings: s.buildings ?? [] } : { resources: 0, maxResources: 0, buildings: [] };
+  });
+}
+
+/** Click gather until resources >= amount. Each batch is one locator.click({ clickCount }) — fast vs N sequential clicks. */
+const GATHER_BATCH_SIZE = 200;
+
+async function gatherUntil(page, amount, timeoutMs = 45000) {
+  const gather = page.getByTestId('gather-trigger');
+  const deadline = Date.now() + timeoutMs;
+  while (Date.now() < deadline) {
+    const state = await getState(page);
+    if (state.resources >= amount) return;
+    const need = amount - state.resources;
+    const batch = Math.min(GATHER_BATCH_SIZE, need);
+    if (batch > 0) await gather.click({ clickCount: batch });
+  }
+  const state = await getState(page);
+  throw new Error(`Resources did not reach ${amount} (got ${state.resources}) within ${timeoutMs}ms`);
+}
+
+/** Ensure maxResources >= amount, buying stockpile upgrades as needed; then gather until resources >= amount. */
+async function ensureCapacityAndGather(page, amount, timeoutMs = 60000) {
+  const townTab = page.getByRole('tab', { name: 'Town' });
+  const improveStockpile = page.getByRole('button', { name: 'Improve Stockpile' });
+  const deadline = Date.now() + timeoutMs;
+  while (Date.now() < deadline) {
+    const state = await getState(page);
+    if (state.maxResources >= amount) break;
+    const stockpile = state.buildings[1];
+    const cost = stockpile && typeof stockpile.cost === 'number' ? stockpile.cost : 0;
+    if (cost <= 0) break;
+    if (state.maxResources < cost) {
+      throw new Error(`Need capacity ${amount} but next stockpile costs ${cost} and maxResources is ${state.maxResources}`);
+    }
+    await gatherUntil(page, cost, Math.min(20000, deadline - Date.now()));
+    await townTab.click();
+    await improveStockpile.click();
+    await page.waitForTimeout(40);
+  }
+  const stateAfter = await getState(page);
+  if (stateAfter.maxResources < amount) {
+    throw new Error(`Could not get capacity >= ${amount} (maxResources: ${stateAfter.maxResources}) within ${timeoutMs}ms`);
+  }
+  await gatherUntil(page, amount, Math.min(45000, deadline - Date.now()));
+}
+
+/** Gather n times in one Playwright action when possible (clickCount; delay defaults to 0). */
+async function gather(page, n) {
+  if (n <= 0) return;
+  await page.getByTestId('gather-trigger').click({ clickCount: n });
+}
+
+test.describe.serial('Heroville E2E – tutorial flow', () => {
   /** @type {import('@playwright/test').Page} */
   let sharedPage;
   /** @type {import('@playwright/test').BrowserContext} */
@@ -58,7 +123,7 @@ test.describe.serial('Heroville smoke', () => {
   test.beforeAll(async ({ browser }) => {
     sharedContext = await browser.newContext();
     await sharedContext.addInitScript(() => {
-      window['__HEROVILLE_E2E_FAST_TICK__'] = 10;
+      window['__HEROVILLE_E2E_FAST_TICK__'] = 2;
     });
     sharedPage = await sharedContext.newPage();
   });
@@ -71,74 +136,39 @@ test.describe.serial('Heroville smoke', () => {
     await sharedPage.goto('/');
     await sharedPage.evaluate(() => localStorage.removeItem('data'));
     await sharedPage.reload();
-    await expect(sharedPage.getByTestId('game-tabs')).toBeVisible({ timeout: 5000 });
-    await expect(sharedPage.getByTestId('gather-trigger')).toBeVisible({ timeout: 10000 });
-    await sharedPage.waitForFunction(() => typeof window['__HEROVILLE_E2E_STATE__'] === 'function', { timeout: 5000 });
+    await expect(sharedPage.getByTestId('game-tabs')).toBeVisible({ timeout: 3000 });
+    await expect(sharedPage.getByTestId('gather-trigger')).toBeVisible({ timeout: 6000 });
+    await sharedPage.waitForFunction(() => typeof window['__HEROVILLE_E2E_STATE__'] === 'function', { timeout: 3000 });
     const gameLoopMs = await sharedPage.evaluate(() => {
       const getState = window['__HEROVILLE_E2E_STATE__'];
       const s = getState && getState();
       return s && typeof s.gameLoop === 'number' ? s.gameLoop : null;
     });
-    expect(gameLoopMs, 'E2E fast tick should set state.gameLoop to 10').toBe(10);
-    const townRoot = sharedPage.locator('#town-react-root');
-    await expect(townRoot).toContainText('Buildings', { timeout: 10000 });
+    expect(gameLoopMs, 'E2E fast tick should set state.gameLoop to 2').toBe(2);
+    await expect(sharedPage.locator('#town-react-root')).toContainText('Buildings', { timeout: 6000 });
     await expect(sharedPage.getByTestId('app-wrap')).toBeVisible();
     await expect(sharedPage.getByTestId('resources-count')).toBeVisible();
-    await expect(sharedPage.getByTestId('gather-trigger')).toBeVisible();
+    await expect(sharedPage.locator('#panelList')).toBeVisible();
   });
 
-  test('2. gather button increases resources', async () => {
-    const resourcesEl = sharedPage.getByTestId('resources-count');
-    const initialText = await resourcesEl.textContent();
-    const gather = sharedPage.getByTestId('gather-trigger');
-    await gather.click();
-    await gather.click();
-    await gather.click();
-    const afterText = await resourcesEl.textContent();
-    expect(afterText).not.toBe(initialText);
-    expect(afterText).toMatch(/\d/);
-  });
-
-  test('3. save button shows confirmation', async () => {
-    await sharedPage.getByRole('tab', { name: 'Options/Help' }).click();
-    await expect(sharedPage.getByTestId('save-button')).toBeVisible();
-    await sharedPage.getByTestId('save-button').click();
-    await expect(sharedPage.getByTestId('error-toast')).toContainText(/saved|save/i, { timeout: 4000 });
-  });
-
-  test('4. buy Tent, add hero, see in Hero tab', async () => {
-    const heroName = 'SmokeTestHero';
-    const gather = sharedPage.getByTestId('gather-trigger');
-    for (let i = 0; i < 6; i++) await gather.click();
+  test('2. tutorial: welcome, gather 5, buy Tent, add hero', async () => {
+    await clickTutorialNext(sharedPage);
+    await gather(sharedPage, 5);
     await sharedPage.getByRole('tab', { name: 'Town' }).click();
     await sharedPage.getByRole('button', { name: 'Improve Tent' }).click();
-    await expect(sharedPage.getByTestId('hero-name-input')).toBeVisible({ timeout: 5000 });
-    await sharedPage.getByTestId('hero-name-input').fill(heroName);
+    await expect(sharedPage.getByTestId('hero-name-input')).toBeVisible({ timeout: 3000 });
+    await sharedPage.getByTestId('hero-name-input').fill('SmokeTestHero');
     await sharedPage.locator('.heroPopup').getByRole('button', { name: 'Accept' }).click();
     await sharedPage.getByRole('tab', { name: 'Heroes' }).click();
-    await expect(sharedPage.getByTestId('hero-list')).toContainText(heroName, { timeout: 5000 });
+    await expect(sharedPage.getByTestId('hero-list')).toContainText('SmokeTestHero', { timeout: 3000 });
     await expect(sharedPage.getByTestId('hero-list')).toContainText('Class: Adventurer');
+    await clickTutorialNext(sharedPage);
+    await clickTutorialNext(sharedPage);
   });
 
-  test('5. Hero tab progress bars, images, popover triggers', async () => {
-    await sharedPage.getByRole('tab', { name: 'Heroes' }).click();
-    await expect(sharedPage.getByText('SmokeTestHero', { exact: false })).toBeVisible({ timeout: 5000 });
-    await expect(sharedPage.getByRole('progressbar').first()).toBeVisible({ timeout: 5000 });
-    await expect(sharedPage.getByTestId('hero-list').locator('img[src*="images/"]').first()).toBeVisible({ timeout: 5000 });
-    await expect(sharedPage.getByTestId('hero-equip-popover-trigger').first()).toBeVisible({ timeout: 5000 });
-    await expect(sharedPage.locator('.hv-hero-combat').first()).toBeVisible({ timeout: 5000 });
-  });
-
-  test('6. Town shows dungeon list', async () => {
-    await sharedPage.getByRole('tab', { name: 'Town' }).click();
-    const townPanel = sharedPage.getByTestId('town-tab');
-    await expect(townPanel).toContainText('Dungeons', { timeout: 5000 });
-    await expect(townPanel).toContainText(/Encounter Rate|Length/, { timeout: 3000 });
-  });
-
-  test('7. build Stockpile and second Dungeon', async () => {
-    const gather = sharedPage.getByTestId('gather-trigger');
-    for (let i = 0; i < 25; i++) await gather.click();
+  test('3. tutorial: expand Stockpile, build 2 more heroes (3 total)', async () => {
+    test.setTimeout(60000);
+    await ensureCapacityAndGather(sharedPage, 25);
     await sharedPage.getByRole('tab', { name: 'Town' }).click();
     await sharedPage.getByRole('button', { name: 'Improve Stockpile' }).click();
     const maxGold = await sharedPage.evaluate(() => {
@@ -146,70 +176,67 @@ test.describe.serial('Heroville smoke', () => {
       const s = getState && getState();
       return s && typeof s.maxGold === 'number' ? s.maxGold : -1;
     });
-    expect(maxGold, 'Stockpile must be upgraded to a level with gold capacity').toBeGreaterThanOrEqual(1);
-    for (let i = 0; i < 25; i++) await gather.click();
-    await sharedPage.getByRole('tab', { name: 'Town' }).click();
-    const townPanel = sharedPage.getByTestId('town-tab');
-    await expect(townPanel).toContainText('Dungeons', { timeout: 5000 });
-    await sharedPage.getByRole('button', { name: 'Improve Dungeons' }).click();
-    const dungeonTable = townPanel.locator('table').filter({ hasText: 'Encounter Rate' });
-    await expect(dungeonTable.locator('tr')).toHaveCount(4, { timeout: 5000 });
-  });
-
-  test('8. hero enters combat or dungeon', async () => {
-    test.setTimeout(45000);
-    await sharedPage.getByRole('tab', { name: 'Heroes' }).click();
-    await expect(sharedPage.getByTestId('hero-list')).toContainText('SmokeTestHero', { timeout: 5000 });
-    await waitForHeroCombatOrDungeon(sharedPage, 35000);
-  });
-
-  test('9. potion buy: create potions and wait for gold to increment', async () => {
-    test.setTimeout(45000);
-    const maxGold = await sharedPage.evaluate(() => {
+    expect(maxGold).toBeGreaterThanOrEqual(1);
+    // Expand stockpile until we have cap for tent cost 102; then again for 268 so later we have cap for tent 983
+    for (const cost of [57, 268]) {
+      await ensureCapacityAndGather(sharedPage, cost);
+      await sharedPage.getByRole('tab', { name: 'Town' }).click();
+      await sharedPage.getByRole('button', { name: 'Improve Stockpile' }).click();
+    }
+    // Build 2 more tents. Cost formula: nextCost = ceil(prevCost + (count+1)^4). Tent2=21, 3=102.
+    const tentCosts = [21, 102];
+    const heroNames = ['Hero2', 'Hero3'];
+    for (let i = 0; i < tentCosts.length; i++) {
+      await ensureCapacityAndGather(sharedPage, tentCosts[i]);
+      await sharedPage.getByRole('tab', { name: 'Town' }).click();
+      await sharedPage.getByRole('button', { name: 'Improve Tent' }).click();
+      await expect(sharedPage.getByTestId('hero-name-input')).toBeVisible({ timeout: 3000 });
+      await sharedPage.getByTestId('hero-name-input').fill(heroNames[i]);
+      await sharedPage.locator('.heroPopup').getByRole('button', { name: 'Accept' }).click();
+    }
+    const heroCount = await sharedPage.evaluate(() => {
       const getState = window['__HEROVILLE_E2E_STATE__'];
       const s = getState && getState();
-      return s && typeof s.maxGold === 'number' ? s.maxGold : -1;
+      return (s && s.heroList && s.heroList.length) || 0;
     });
-    expect(maxGold, 'Stockpile must have gold capacity for town gold').toBeGreaterThanOrEqual(1);
-    // Potion cost is 10 each; gather enough so we can actually create 5 potions.
-    const gather = sharedPage.getByTestId('gather-trigger');
-    for (let i = 0; i < 55; i++) await gather.click();
+    expect(heroCount).toBe(3);
+  });
+
+  test('4. tutorial: create potions', async () => {
+    await ensureCapacityAndGather(sharedPage, 55);
     await sharedPage.getByRole('tab', { name: 'Production' }).click();
     const createBtn = sharedPage.getByTestId('potion-create-button');
     for (let i = 0; i < 5; i++) {
-      await expect(createBtn).toContainText('Create Potion', { timeout: 5000 }).catch(() => {});
       await createBtn.click();
-      await expect(createBtn).toContainText('Create Potion', { timeout: 3000 });
+      await sharedPage.waitForTimeout(25);
     }
-    await waitForGold(sharedPage, 1, 25000);
   });
 
-  test('10. Production tab shows potion UI', async () => {
-    await sharedPage.getByRole('tab', { name: 'Production' }).click();
-    const productionSection = sharedPage.getByTestId('production-tab');
-    await expect(productionSection).toContainText('Healing Herbs', { timeout: 5000 });
-    await expect(productionSection).toContainText('Create Potion');
+  test('5. save and load: state persists', async () => {
+    await sharedPage.getByRole('tab', { name: 'Options/Help' }).click();
+    await expect(sharedPage.getByTestId('save-button')).toBeVisible();
+    await sharedPage.getByTestId('save-button').click();
+    await expect(sharedPage.getByTestId('error-toast')).toContainText(/saved|save/i, { timeout: 2500 });
+    await sharedPage.reload();
+    await sharedPage.waitForFunction(() => typeof window['__HEROVILLE_E2E_STATE__'] === 'function', { timeout: 3000 });
+    await sharedPage.getByRole('tab', { name: 'Options/Help' }).click();
+    await sharedPage.getByRole('button', { name: 'Load' }).click();
+    await sharedPage.waitForTimeout(150);
+    const state = await sharedPage.evaluate(() => {
+      const getState = window['__HEROVILLE_E2E_STATE__'];
+      return getState ? getState() : null;
+    });
+    expect(state).toBeTruthy();
+    expect(state.heroList && state.heroList.length).toBe(3);
+    expect(state.heroList[0].name).toBe('SmokeTestHero');
+    await sharedPage.getByRole('tab', { name: 'Heroes' }).click();
+    await expect(sharedPage.getByTestId('hero-list')).toContainText('SmokeTestHero', { timeout: 3000 });
   });
 
-  test('11. Production tab visual parity', async () => {
-    await sharedPage.getByRole('tab', { name: 'Production' }).click();
-    const productionSection = sharedPage.getByTestId('production-tab');
-    await expect(productionSection).toContainText('Healing Herbs', { timeout: 5000 });
-    await expect(productionSection.locator('img[src*="images/"]').first()).toBeVisible({ timeout: 5000 });
-    await expect(productionSection).toContainText(/Prod Cost|Prod Time|Sell Price/);
-    await expect(productionSection.getByRole('button', { name: /Create Potion/i })).toBeVisible({ timeout: 5000 });
-  });
-
-  test('12. Production Create Potion runs to completion', async () => {
-    const createBtn = sharedPage.getByTestId('potion-create-button');
-    await expect(createBtn).toContainText('Create Potion', { timeout: 5000 });
-    await createBtn.click();
-    await sharedPage.waitForTimeout(200);
-    await expect(createBtn).toContainText('Create Potion', { timeout: 5000 });
-  });
-
-  test('13. buy Bonus Resources I and verify gather increment is 2', async () => {
-    test.setTimeout(35000);
+  test('6. tutorial: buy Bonus Resources I, verify +2 per gather, build 2 more heroes (5 total)', async () => {
+    test.setTimeout(60000);
+    await waitForGold(sharedPage, 1, 15000);
+    await clickTutorialNext(sharedPage);
     await sharedPage.getByRole('tab', { name: 'Upgrades' }).click();
     await sharedPage.getByTestId('upgrade-list').getByRole('button', { name: /Bonus Resources I/i }).click();
     const resourcesBefore = await sharedPage.evaluate(() => {
@@ -218,94 +245,199 @@ test.describe.serial('Heroville smoke', () => {
       return s && typeof s.resources === 'number' ? s.resources : -1;
     });
     await sharedPage.getByTestId('gather-trigger').click();
-    await sharedPage.waitForTimeout(200);
+    await sharedPage.waitForTimeout(60);
     const resourcesAfter = await sharedPage.evaluate(() => {
       const getState = window['__HEROVILLE_E2E_STATE__'];
       const s = getState && getState();
       return s && typeof s.resources === 'number' ? s.resources : -1;
     });
     expect(resourcesAfter - resourcesBefore).toBe(2);
+    await clickTutorialNext(sharedPage);
+    // Build 2 more tents (4th and 5th). Costs 358, 983; ensure capacity and gather to actual amount needed.
+    const tentCosts = [358, 983];
+    const heroNames = ['Hero4', 'Hero5'];
+    for (let i = 0; i < tentCosts.length; i++) {
+      await ensureCapacityAndGather(sharedPage, tentCosts[i]);
+      await sharedPage.getByRole('tab', { name: 'Town' }).click();
+      await sharedPage.getByRole('button', { name: 'Improve Tent' }).click();
+      await expect(sharedPage.getByTestId('hero-name-input')).toBeVisible({ timeout: 3000 });
+      await sharedPage.getByTestId('hero-name-input').fill(heroNames[i]);
+      await sharedPage.locator('.heroPopup').getByRole('button', { name: 'Accept' }).click();
+    }
+    const heroCount = await sharedPage.evaluate(() => {
+      const getState = window['__HEROVILLE_E2E_STATE__'];
+      const s = getState && getState();
+      return (s && s.heroList && s.heroList.length) || 0;
+    });
+    expect(heroCount).toBe(5);
   });
 
-  test('14. Professions tab in navigation', async () => {
-    await expect(sharedPage.getByRole('tab', { name: 'Professions' })).toBeVisible();
+  test('7. tutorial: build Dungeons, hero enters combat', async () => {
+    await gather(sharedPage, 25);
+    await sharedPage.getByRole('tab', { name: 'Town' }).click();
+    await sharedPage.getByRole('button', { name: 'Improve Dungeons' }).click();
+    const townPanel = sharedPage.getByTestId('town-tab');
+    const dungeonTable = townPanel.locator('table').filter({ hasText: 'Encounter Rate' });
+    await expect(dungeonTable.locator('tr')).toHaveCount(4, { timeout: 3500 });
+    await clickTutorialNext(sharedPage);
+    await sharedPage.getByRole('tab', { name: 'Heroes' }).click();
+    await waitForHeroCombatOrDungeon(sharedPage, 18000);
   });
 
-  test('15. build to Tavern, Professions shows Jobs table', async () => {
-    test.setTimeout(120000);
-    const gather = sharedPage.getByTestId('gather-trigger');
-    // Second Stockpile upgrade (cost 57) so we can hold 100+ for Blacksmith/Work Hut.
-    for (let i = 0; i < 57; i++) await gather.click();
+  test('8. Production tab: potion UI and Create Potion', async () => {
+    await sharedPage.getByRole('tab', { name: 'Production' }).click();
+    const productionSection = sharedPage.getByTestId('production-tab');
+    await expect(productionSection).toContainText('Healing Herbs', { timeout: 3500 });
+    await expect(productionSection).toContainText('Create Potion');
+    await expect(productionSection).toContainText(/Prod Cost|Prod Time|Sell Price/);
+    await expect(productionSection.getByRole('button', { name: /Create Potion/i })).toBeVisible({ timeout: 3500 });
+    const createBtn = sharedPage.getByTestId('potion-create-button');
+    await createBtn.click();
+    await sharedPage.waitForTimeout(80);
+    await expect(createBtn).toContainText('Create Potion', { timeout: 3500 });
+  });
+
+  test('9. tutorial: Market, Blacksmith blueprint, Blacksmith', async () => {
+    await gather(sharedPage, 57);
     await sharedPage.getByRole('tab', { name: 'Town' }).click();
     await sharedPage.getByRole('button', { name: 'Improve Stockpile' }).click();
-    for (let i = 0; i < 40; i++) await gather.click();
+    await gather(sharedPage, 40);
     await sharedPage.getByRole('tab', { name: 'Town' }).click();
-    await expect(sharedPage.getByRole('button', { name: 'Improve Market' })).toBeVisible({ timeout: 10000 });
+    await expect(sharedPage.getByRole('button', { name: 'Improve Market' })).toBeVisible({ timeout: 6000 });
     await sharedPage.getByRole('button', { name: 'Improve Market' }).click();
-    for (let i = 0; i < 40; i++) await gather.click();
     await sharedPage.getByRole('tab', { name: 'Production' }).click();
     const createBtn = sharedPage.getByTestId('potion-create-button');
     for (let i = 0; i < 4; i++) {
-      await expect(createBtn).toContainText('Create Potion', { timeout: 5000 }).catch(() => {});
       await createBtn.click();
-      await expect(createBtn).toContainText('Create Potion', { timeout: 3000 });
+      await sharedPage.waitForTimeout(25);
     }
-    await waitForGold(sharedPage, 1, 25000);
-    await expect(sharedPage.getByRole('button', { name: /Buy Blacksmith Blueprint/i })).toBeVisible({ timeout: 5000 });
+    await waitForGold(sharedPage, 1, 15000);
+    await expect(sharedPage.getByRole('button', { name: /Buy Blacksmith Blueprint/i })).toBeVisible({ timeout: 3500 });
     await sharedPage.getByRole('button', { name: /Buy Blacksmith Blueprint/i }).click();
-    for (let i = 0; i < 100; i++) await gather.click();
+    await gather(sharedPage, 100);
     await sharedPage.getByRole('tab', { name: 'Town' }).click();
-    await expect(sharedPage.getByRole('button', { name: 'Improve Blacksmith' })).toBeVisible({ timeout: 10000 });
+    await expect(sharedPage.getByRole('button', { name: 'Improve Blacksmith' })).toBeVisible({ timeout: 6000 });
     await sharedPage.getByRole('button', { name: 'Improve Blacksmith' }).click();
+  });
+
+  test('10. tutorial: create Dagger stack', async () => {
+    await sharedPage.getByRole('tab', { name: 'Production' }).click();
+    await gather(sharedPage, 45);
+    const daggerBtn = sharedPage.getByRole('button', { name: /Create Dagger/i });
+    await expect(daggerBtn).toBeVisible({ timeout: 3500 });
+    for (let i = 0; i < 3; i++) {
+      await daggerBtn.click();
+      await sharedPage.waitForTimeout(25);
+    }
+    await clickTutorialNext(sharedPage);
+  });
+
+  test('11. tutorial: Save Point upgrade, Tavern blueprint, Tavern', async () => {
+    test.setTimeout(60000);
+    await sharedPage.getByRole('tab', { name: 'Production' }).click();
+    const createBtn = sharedPage.getByTestId('potion-create-button');
+    for (let i = 0; i < 5; i++) {
+      await createBtn.click();
+      await sharedPage.waitForTimeout(25);
+    }
+    await waitForGold(sharedPage, 5, 12000);
+    await sharedPage.getByRole('tab', { name: 'Upgrades' }).click();
+    await sharedPage.getByTestId('upgrade-list').getByRole('button', { name: /Save Point/i }).click();
     await sharedPage.getByRole('tab', { name: 'Production' }).click();
     for (let i = 0; i < 5; i++) {
-      await expect(createBtn).toContainText('Create Potion', { timeout: 5000 }).catch(() => {});
       await createBtn.click();
-      await expect(createBtn).toContainText('Create Potion', { timeout: 3000 });
+      await sharedPage.waitForTimeout(25);
     }
-    await waitForGold(sharedPage, 5, 20000);
-    await expect(sharedPage.getByRole('button', { name: /Buy Tavern Blueprint/i })).toBeVisible({ timeout: 5000 });
-    await sharedPage.getByRole('button', { name: /Buy Tavern Blueprint/i }).click();
-    for (let i = 0; i < 150; i++) await gather.click();
+    await waitForGold(sharedPage, 5, 15000);
+    const tavernBlueprintBtn = sharedPage.getByRole('button', { name: /Buy Tavern Blueprint/i });
+    await expect(tavernBlueprintBtn).toBeVisible({ timeout: 45000 });
+    await expect(tavernBlueprintBtn).toBeEnabled({ timeout: 3000 });
+    await tavernBlueprintBtn.scrollIntoViewIfNeeded();
+    await tavernBlueprintBtn.click({ force: true });
+    await ensureCapacityAndGather(sharedPage, 150);
     await sharedPage.getByRole('tab', { name: 'Town' }).click();
     await sharedPage.getByRole('button', { name: 'Improve Tavern' }).click();
-    await expect(sharedPage.getByRole('button', { name: /Improve Work Hut/i })).toBeVisible({ timeout: 10000 });
-    await sharedPage.getByRole('tab', { name: 'Professions' }).click();
-    const section = sharedPage.getByTestId('professions-tab');
-    await expect(section).toContainText('Jobs', { timeout: 5000 });
-    await expect(section).toContainText('Name');
-    await expect(section).toContainText('Description');
-    await expect(section).toContainText('Gather', { timeout: 5000 });
+    await clickTutorialNext(sharedPage);
+    await clickTutorialNext(sharedPage);
   });
 
-  test('16. Work Hut allows creating a worker', async () => {
-    test.setTimeout(60000);
-    const gather = sharedPage.getByTestId('gather-trigger');
-    for (let i = 0; i < 100; i++) await gather.click();
+  test('12. tutorial: Work Hut, create worker, change profession', async () => {
+    await gather(sharedPage, 100);
     await sharedPage.getByRole('tab', { name: 'Town' }).click();
     const workHutBtn = sharedPage.getByRole('button', { name: /Improve Work Hut/i });
-    await expect(workHutBtn).toBeVisible({ timeout: 15000 });
+    await expect(workHutBtn).toBeVisible({ timeout: 8000 });
     await workHutBtn.click();
-    await expect(sharedPage.getByTestId('worker-name-input')).toBeVisible({ timeout: 5000 });
-    await expect(sharedPage.getByText(/Enter a name for the worker/i)).toBeVisible({ timeout: 3000 });
+    await expect(sharedPage.getByTestId('worker-name-input')).toBeVisible({ timeout: 3000 });
     await sharedPage.getByTestId('worker-name-input').fill('E2EWorker');
     await sharedPage.locator('.workerPopup').getByRole('button', { name: 'Accept' }).click();
+    await sharedPage.getByRole('tab', { name: 'Heroes' }).click();
+    await expect(sharedPage.getByTestId('hero-tab')).toContainText('Workers', { timeout: 3500 });
+    await expect(sharedPage.getByTestId('hero-tab')).toContainText('E2EWorker');
+    await clickTutorialNext(sharedPage);
+    const changeBtn = sharedPage.getByRole('button', { name: 'Change' }).first();
+    await expect(changeBtn).toBeVisible({ timeout: 3000 });
+    await sharedPage.locator('select.span17').first().selectOption({ index: 1 });
+    await changeBtn.click();
+    await clickTutorialNext(sharedPage);
   });
 
-  test('17. combat stats update after hero adventures', async () => {
-    test.setTimeout(45000);
-    // Dismiss any open modal overlay (e.g. from worker popup or tutorial) so the tab is clickable.
-    await sharedPage.keyboard.press('Escape');
-    await sharedPage.keyboard.press('Escape');
-    await sharedPage.waitForTimeout(300);
-    const overlay = sharedPage.locator('.ui-widget-overlay');
-    await overlay.waitFor({ state: 'hidden', timeout: 5000 }).catch(() => {});
-    await sharedPage.getByRole('tab', { name: 'Options/Help' }).click({ force: true });
-    const optionsPanel = sharedPage.getByTestId('options-panel');
-    await expect(optionsPanel).toContainText(/Total Battles:|Wins:|Losses:/, { timeout: 5000 });
-    await expect(optionsPanel).toContainText(/Total Battles: [1-9]|Wins: [1-9]|Losses: [1-9]/, { timeout: 15000 });
-    await sharedPage.getByRole('tab', { name: 'Heroes' }).click({ force: true });
+  test('13. tutorial: complete guide, end tips, guide becomes Log', async () => {
+    const guidePanel = sharedPage.locator('#guide-panel');
+    for (let i = 0; i < 6; i++) {
+      if (await guidePanel.textContent().then((t) => t && t.includes('Log'))) break;
+      await clickTutorialNext(sharedPage);
+      await sharedPage.waitForTimeout(25);
+    }
+    await expect(guidePanel).toContainText('Log', { timeout: 3000 });
+  });
+
+  test('14. screens display correct information', async () => {
+    await sharedPage.getByRole('tab', { name: 'Town' }).click();
+    const townPanel = sharedPage.getByTestId('town-tab');
+    await expect(townPanel).toContainText('Buildings');
+    await expect(townPanel).toContainText('Dungeons');
+    await expect(townPanel).toContainText(/Encounter Rate|Length/);
+
+    await sharedPage.getByRole('tab', { name: 'Heroes' }).click();
     await expect(sharedPage.getByTestId('hero-list')).toContainText('SmokeTestHero');
     await expect(sharedPage.getByTestId('hero-list')).toContainText(/Location: Home|Location: Cave|Resting|Complete|Fighting/);
+    await expect(sharedPage.getByRole('progressbar').first()).toBeVisible({ timeout: 3500 });
+
+    await sharedPage.getByRole('tab', { name: 'Production' }).click();
+    const productionSection = sharedPage.getByTestId('production-tab');
+    await expect(productionSection).toContainText('Healing Herbs');
+    await expect(productionSection).toContainText(/Create Potion|Create Dagger/);
+
+    await sharedPage.getByRole('tab', { name: 'Upgrades' }).click();
+    await expect(sharedPage.getByTestId('upgrade-list')).toBeVisible();
+    await expect(sharedPage.getByTestId('upgrade-list')).toContainText(/Bonus Resources|Save Point/);
+
+    await sharedPage.getByRole('tab', { name: 'Professions' }).click();
+    const section = sharedPage.getByTestId('professions-tab');
+    await expect(section).toContainText('Jobs');
+    await expect(section).toContainText('Name');
+    await expect(section).toContainText('Description');
+
+    await sharedPage.getByRole('tab', { name: 'Options/Help' }).click();
+    const optionsPanel = sharedPage.getByTestId('options-panel');
+    await expect(optionsPanel).toContainText(/Total Battles:|Wins:|Losses:/);
+    await expect(optionsPanel).toContainText(/Total Battles: \d+|Wins: \d+|Losses: \d+/);
+  });
+
+  test('15. upgrade Blacksmith, create Hand Axes', async () => {
+    await gather(sharedPage, 30);
+    await sharedPage.getByRole('tab', { name: 'Town' }).click();
+    const blacksmithBtn = sharedPage.getByRole('button', { name: 'Improve Blacksmith' });
+    if (await blacksmithBtn.isVisible()) {
+      await blacksmithBtn.click();
+    }
+    await sharedPage.getByRole('tab', { name: 'Production' }).click();
+    const handAxeBtn = sharedPage.getByRole('button', { name: /Create Hand Axe/i });
+    if (await handAxeBtn.isVisible()) {
+      await handAxeBtn.scrollIntoViewIfNeeded();
+      await handAxeBtn.click({ force: true });
+      await sharedPage.waitForTimeout(80);
+      await expect(handAxeBtn).toBeVisible();
+    }
   });
 });

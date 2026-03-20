@@ -12,7 +12,7 @@ export default function startGameLoopRunner(api, store) {
   }
 
   const state = api.getState();
-  const gameLoopMs = Math.max(10, Math.min(5000, state.gameLoop || 1000));
+  const gameLoopMs = Math.max(2, Math.min(5000, state.gameLoop || 1000));
   const saveIntervalMs = 30000;
 
   /** Thunk: run work + rest (HeroService dispatches REPLACE_STATE). */

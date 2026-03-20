@@ -163,6 +163,7 @@ function BuildingServiceFactory(GameStateService, GameUiService, DungeonService,
             case 7:
                 state.buildings[7].enabled = false;
             case 9: {
+                if (state.tutorialStepIndex === 20) actions.nextTutorial();
                 if (actions.openWorkerDialog) actions.openWorkerDialog();
                 break;
             }
@@ -188,9 +189,14 @@ function BuildingServiceFactory(GameStateService, GameUiService, DungeonService,
             return;
         }
         blueprint.enabled = false;
+        blueprint.cost = 0;
+        var stateBlueprint = state.blueprints && state.blueprints[blueprint.id];
+        if (stateBlueprint) {
+            stateBlueprint.enabled = false;
+            stateBlueprint.cost = 0;
+        }
         if (blueprint.buildingID > 0) {
             state.buildings[blueprint.buildingID].enabled = true;
-            blueprint.cost = 0;
             if (state.tutorialStepIndex === 13) actions.nextTutorial();
         } else {
             switch (blueprint.buildingID) {
