@@ -36,7 +36,7 @@ const state = GameStateService.getState();
 EconomyService.bindState(state);
 
 if (typeof window !== 'undefined' && window.__HEROVILLE_E2E_FAST_TICK__ != null) {
-  const ms = Math.max(10, Math.min(500, Number(window.__HEROVILLE_E2E_FAST_TICK__) || 100));
+  const ms = Math.max(2, Math.min(500, Number(window.__HEROVILLE_E2E_FAST_TICK__) || 100));
   state.gameLoop = ms;
 }
 

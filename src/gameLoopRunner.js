@@ -12,7 +12,13 @@ export default function startGameLoopRunner(api, store) {
   }
 
   const state = api.getState();
-  const gameLoopMs = Math.max(10, Math.min(5000, state.gameLoop || 1000));
+  const isFastTickAllowed =
+    (typeof window !== 'undefined' && window.__HEROVILLE_E2E_FAST_TICK__) ||
+    (typeof import.meta !== 'undefined' &&
+      import.meta.env &&
+      import.meta.env.MODE === 'test');
+  const minGameLoopMs = isFastTickAllowed ? 2 : 10;
+  const gameLoopMs = Math.max(minGameLoopMs, Math.min(5000, state.gameLoop || 1000));
   const saveIntervalMs = 30000;
 
   /** Thunk: run work + rest (HeroService dispatches REPLACE_STATE). */

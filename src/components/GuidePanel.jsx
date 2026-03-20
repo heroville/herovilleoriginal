@@ -31,6 +31,7 @@ export default function GuidePanel() {
             type="button"
             id="infobutton"
             className="hv-guide-panel__next"
+            data-testid="tutorial-next"
             onClick={() => dispatch(advanceTutorial())}
           >
             Next

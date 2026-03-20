@@ -20,7 +20,7 @@ export const TUTORIAL_STEPS = [
   },
   {
     id: 3,
-    text: "You have your first hero. Open the Heroes tab to see their level, health, XP, inventory, and adventure status.",
+    text: "You have your first hero. Open the Heroes tab to see their level, health, XP, inventory, and adventure status. You can build more tents later to get more heroes when the cost is low.",
     showNext: true
   },
   {
@@ -30,7 +30,7 @@ export const TUTORIAL_STEPS = [
   },
   {
     id: 5,
-    text: "Expand the Stockpile to store gold: gather 25 resources, then click Improve Stockpile on the Town tab.",
+    text: "Expand the Stockpile to store gold: gather 25 resources, then click Improve Stockpile on the Town tab. You can build another tent to get a second hero—more heroes help earn gold and unlock upgrades like Save Point later.",
     showNext: false
   },
   {
@@ -110,11 +110,26 @@ export const TUTORIAL_STEPS = [
   },
   {
     id: 21,
-    text: "That’s the basics. This guide will become a game log for events. More features unlock as you play. Good luck!",
+    text: "Build the Work Hut (Town tab) to hire workers. Gather 100 resources and click Improve Work Hut, then create a worker. You can assign them a job in the Heroes tab.",
     showNext: true
   },
   {
     id: 22,
+    text: "Assign your worker a job using the dropdown and Change button in the Workers section of the Heroes tab (e.g. Gather, Apothecary, or Smith).",
+    showNext: true
+  },
+  {
+    id: 23,
+    text: "That's the basics. This guide will become a game log for events. More features unlock as you play. Good luck!",
+    showNext: true
+  },
+  {
+    id: 24,
+    text: "End game tips: Get a hero to level 10 to unlock the Academy. Unlock the Bestiary by defeating new dungeon bosses.",
+    showNext: true
+  },
+  {
+    id: 25,
     text: "",
     showNext: false
   }
@@ -154,7 +169,10 @@ export function getTutorialStepFromState(flat) {
   const blacksmithBlueprintBought = blueprints[0] != null && (blueprints[0].cost === 0) && (buildings[3]?.enabled === true || blacksmithCount >= 1);
   const dungeonCount = dungeons.length;
 
+  const workHutCount = buildings[9]?.count ?? 0;
+
   // Highest first: return first (highest) step whose goal is already met
+  if (workHutCount >= 1) return 22;
   if (tavernCount >= 1) return 19;
   if (savePointBought) return 18;
   if (hasWeapon) return 16;

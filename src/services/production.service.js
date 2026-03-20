@@ -166,7 +166,7 @@ function ProductionServiceFactory(EconomyService, GameUiService) {
 
     function activateBlueprint(value) {
         const s = EconomyService.getState();
-        if (!s.blueprints[value].enabled && !s.blueprints[value].cost == 0) {
+        if (!s.blueprints[value].enabled && s.blueprints[value].cost !== 0) {
             s.blueprints[value].enabled = true;
             syncStoreIfBound();
         }

@@ -61,7 +61,7 @@ test.describe.serial('Visual capture', () => {
 
   test('2. after gather – resources updated', async () => {
     const gather = sharedPage.getByTestId('gather-trigger');
-    for (let i = 0; i < 5; i++) await gather.click();
+    await gather.click({ clickCount: 5 });
     await sharedPage.waitForTimeout(200);
     await sharedPage.screenshot({ path: screenshotPath('02-after-gather') });
   });
@@ -74,7 +74,7 @@ test.describe.serial('Visual capture', () => {
 
   test('4. Hero dialog (buy new hero)', async () => {
     const gather = sharedPage.getByTestId('gather-trigger');
-    for (let i = 0; i < 6; i++) await gather.click();
+    await gather.click({ clickCount: 6 });
     await sharedPage.getByRole('tab', { name: 'Town' }).click();
     await sharedPage.getByRole('button', { name: 'Improve Tent' }).click();
     await expect(sharedPage.locator('.heroPopup')).toBeVisible({ timeout: 5000 });
@@ -92,10 +92,10 @@ test.describe.serial('Visual capture', () => {
 
   test('6. Town – Stockpile + second dungeon', async () => {
     const gather = sharedPage.getByTestId('gather-trigger');
-    for (let i = 0; i < 25; i++) await gather.click();
+    await gather.click({ clickCount: 25 });
     await sharedPage.getByRole('tab', { name: 'Town' }).click();
     await sharedPage.getByRole('button', { name: 'Improve Stockpile' }).click();
-    for (let i = 0; i < 25; i++) await gather.click();
+    await gather.click({ clickCount: 25 });
     await sharedPage.getByRole('tab', { name: 'Town' }).click();
     await sharedPage.getByRole('button', { name: 'Improve Dungeons' }).click();
     const townPanel = sharedPage.getByTestId('town-tab');
