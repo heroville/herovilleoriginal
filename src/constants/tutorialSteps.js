@@ -172,7 +172,7 @@ export function getTutorialStepFromState(flat) {
   const workHutCount = buildings[9]?.count ?? 0;
 
   // Highest first: return first (highest) step whose goal is already met
-  if (workHutCount >= 1) return 21;
+  if (workHutCount >= 1) return 22;
   if (tavernCount >= 1) return 19;
   if (savePointBought) return 18;
   if (hasWeapon) return 16;
