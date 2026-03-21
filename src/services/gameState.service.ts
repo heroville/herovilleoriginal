@@ -7,7 +7,7 @@ import DEFAULT_UPGRADES from '../../public/models/upgrades.json';
 import type { GameConfig, FlatGameState } from '../types/index.ts';
 
 function deepCopy<T>(obj: T): T {
-  return JSON.parse(JSON.stringify(obj)) as T;
+  return structuredClone(obj) as T;
 }
 
 function GameStateServiceFactory(GameConfig: GameConfig): { getState: () => FlatGameState } {

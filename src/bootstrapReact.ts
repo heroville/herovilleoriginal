@@ -18,6 +18,7 @@ export default function bootstrapReact(api: GameApi, store: AppStore): void {
   if (appRoot) {
     const app = React.createElement(App);
     const withGame = React.createElement(GameProvider, { api }, app);
+    // eslint-disable-next-line react/no-children-prop
     const withStore = store ? React.createElement(Provider, { store, children: withGame }) : withGame;
     createRoot(appRoot).render(withStore);
     startGameLoopRunner(api, store);

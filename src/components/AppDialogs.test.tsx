@@ -16,10 +16,10 @@ describe('AppDialogs', () => {
   });
 
   it('renders hero dialog when dialogState.hero is true', () => {
-    let listener: (() => void) | undefined;
+    let _listener: (() => void) | undefined;
     const api = makeGameApi({
       getDialogState: () => ({ ...noDialogs, hero: true }),
-      registerDialogListener: (fn) => { listener = fn as unknown as () => void; return () => {}; },
+      registerDialogListener: (_fn) => { _listener = _fn as unknown as () => void; return () => {}; },
       newHeroName: () => 'Test Hero',
     });
     renderWithProviders(<AppDialogs />, { gameApi: api });
@@ -29,7 +29,7 @@ describe('AppDialogs', () => {
   it('shows validation error when hero Accept clicked with empty name', async () => {
     const api = makeGameApi({
       getDialogState: () => ({ ...noDialogs, hero: true }),
-      registerDialogListener: (fn) => () => {},
+      registerDialogListener: (_fn) => () => {},
       newHeroName: () => '',
       getState: () => ({ heroList: [] } as unknown as FlatGameState),
     });
@@ -45,7 +45,7 @@ describe('AppDialogs', () => {
     const setDialogState = vi.fn();
     const api = makeGameApi({
       getDialogState: () => ({ ...noDialogs, hero: true }),
-      registerDialogListener: (fn) => () => {},
+      registerDialogListener: (_fn) => () => {},
       newHeroName: () => 'Warrior',
       getState: () => ({ heroList: [] } as unknown as FlatGameState),
       addHero,

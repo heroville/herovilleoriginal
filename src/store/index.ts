@@ -14,7 +14,7 @@ import type { FlatGameState } from '../types/index.ts';
 export function createGameStore(preloadedFlatState?: Partial<FlatGameState>) {
   const preloadedState =
     preloadedFlatState != null
-      ? stateToSlices(JSON.parse(JSON.stringify(preloadedFlatState)) as Partial<FlatGameState>)
+      ? stateToSlices(structuredClone(preloadedFlatState) as Partial<FlatGameState>)
       : undefined;
   return configureStore({
     reducer: rootReducer,

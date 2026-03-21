@@ -3,7 +3,7 @@
  * Reads current economy from the Redux store; all updates dispatch fine-grained slice actions.
  * No mutable state held here — Redux is the single source of truth.
  */
-import { setResources, setGold, setIncr, setMaxResources, setMaxGold } from '../store/slices/economySlice.ts';
+import { setResources, setGold, setMaxResources, setMaxGold } from '../store/slices/economySlice.ts';
 import { incrementClicks } from '../store/slices/gameStatsSlice.ts';
 import type { AppStore } from '../store/index.ts';
 import type { GameUiServiceInstance } from './gameUi.service.ts';

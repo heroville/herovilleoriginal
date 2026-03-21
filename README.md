@@ -5,6 +5,7 @@ A browser-based incremental/idle RPG. Recruit heroes, build your town, craft gea
 ## Stack
 
 - **React 18** + **Redux Toolkit** — UI and state management
+- **TypeScript** — strict mode, type-checked with `tsc --noEmit`
 - **Vite** — build tool
 - **Playwright** — E2E regression tests
 - **Vitest** — unit tests
@@ -33,20 +34,24 @@ npm run dev        # dev server at http://localhost:5173
 
 ```
 src/
-  bootstrap.js          # App entry — wires services, store, game API, mounts React
-  gameLoopRunner.js     # Tick (work/rest) and save intervals
-  container.js          # Manual dependency injection for services
-  components/           # React components (one per file, functional only)
+  bootstrap.ts          # App entry — wires services, store, game API, mounts React
+  gameLoopRunner.ts     # Tick (work/rest) and save intervals
+  container.ts          # Manual dependency injection for services
+  api.ts                # GameApi interface + factory consumed by React via GameContext
+  components/           # React components (.tsx, one per file, functional only)
   services/             # All game logic (hero, combat, dungeon, production, economy …)
   store/                # Redux store + slices (economy, heroes, dungeons, production …)
   contexts/             # GameContext — provides game API via useGame() hook
-  constants/            # gameConfig.data.js (game data), tutorialSteps.js
-  styles/               # index.css (CSS variables, dark theme)
+  constants/            # gameConfig.data.ts (thin importer), gameConstants.ts, tutorialSteps.ts
+  styles/               # Component-scoped CSS + base/layout/buttons/tables
+  types/                # Shared TypeScript interfaces (FlatGameState, Hero, Weapon …)
+public/
+  models/               # Game data as JSON (buildings, weapons, potions, dungeons …)
 ```
 
 **State flow:** Services dispatch Redux actions → Redux store → React components read via `useSelector`.
 
-**Game loop:** `gameLoopRunner.js` dispatches tick thunks every N ms (configurable). Each tick calls `HeroService.work()` and `HeroService.rest()`. Auto-save runs every 30 s.
+**Game loop:** `gameLoopRunner.ts` dispatches tick thunks every N ms (configurable). Each tick calls `HeroService.work()` and `HeroService.rest()`. Auto-save runs every 30 s.
 
 **Save/load:** `localStorage` via `SaveLoadService`. Export/import JSON available in the Options tab.
 
