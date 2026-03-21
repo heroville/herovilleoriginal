@@ -3,17 +3,7 @@
  */
 import { useSelector } from 'react-redux';
 import { selectFullState } from '../store/index.js';
-
-function orderBy(list, key, reverse = false) {
-  if (!key || !Array.isArray(list)) return list;
-  const sorted = [...list].sort((a, b) => {
-    const va = a[key];
-    const vb = b[key];
-    if (va === vb) return 0;
-    return va < vb ? -1 : 1;
-  });
-  return reverse ? sorted.reverse() : sorted;
-}
+import { orderBy } from '../services/util.service.js';
 
 export default function BestiaryTab() {
   const state = useSelector(selectFullState);

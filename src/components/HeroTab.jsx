@@ -11,31 +11,7 @@ import {
   filterHeroWorker,
   filterHeroBattle,
 } from '../services/heroFilters.js';
-
-function getByPath(obj, path) {
-  if (obj == null) return undefined;
-  const keys = Array.isArray(path) ? path : String(path).split('.');
-  let v = obj;
-  for (const k of keys) v = v?.[k];
-  return v;
-}
-
-function orderBy(list, sortKey, reverse) {
-  const keys = Array.isArray(sortKey) ? sortKey : [sortKey];
-  const arr = [...list];
-  arr.sort((a, b) => {
-    for (const key of keys) {
-      const va = getByPath(a, key);
-      const vb = getByPath(b, key);
-      if (va !== vb) {
-        const cmp = va < vb ? -1 : va > vb ? 1 : 0;
-        return reverse ? -cmp : cmp;
-      }
-    }
-    return 0;
-  });
-  return arr;
-}
+import { orderBy } from '../services/util.service.js';
 
 export default function HeroTab() {
   const game = useGame();

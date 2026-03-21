@@ -2,6 +2,42 @@
  * Pure helpers: no scope. Used for filters and checks.
  */
 
+/**
+ * Get a value from an object by a dot-path string or array of keys.
+ * e.g. getByPath(obj, 'a.b.c') or getByPath(obj, ['a', 'b', 'c'])
+ */
+export function getByPath(obj, path) {
+  if (obj == null) return undefined;
+  const keys = Array.isArray(path) ? path : String(path).split('.');
+  let v = obj;
+  for (const k of keys) v = v?.[k];
+  return v;
+}
+
+/**
+ * Sort a list by one or more keys (dot-path supported). Returns a new array.
+ * @param {Array} list
+ * @param {string|string[]} sortKey - single key or array of keys for tiebreaking
+ * @param {boolean} reverse
+ */
+export function orderBy(list, sortKey, reverse = false) {
+  if (!sortKey || !Array.isArray(list)) return list;
+  const keys = Array.isArray(sortKey) ? sortKey : [sortKey];
+  const arr = [...list];
+  arr.sort((a, b) => {
+    for (const key of keys) {
+      const va = getByPath(a, key);
+      const vb = getByPath(b, key);
+      if (va !== vb) {
+        const cmp = va < vb ? -1 : va > vb ? 1 : 0;
+        return reverse ? -cmp : cmp;
+      }
+    }
+    return 0;
+  });
+  return arr;
+}
+
 /** Format a number of seconds as HH:MM:SS. */
 export function formatSeconds(totalSeconds) {
   const sec = Math.floor(totalSeconds);

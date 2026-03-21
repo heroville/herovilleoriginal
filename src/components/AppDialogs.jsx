@@ -5,47 +5,9 @@
  */
 import { useState, useEffect, useRef, useCallback } from 'react';
 import { useGame } from '../contexts/GameContext.jsx';
+import { useFocusTrap } from '../hooks/useFocusTrap.js';
 
 /** Backdrop and dialog use CSS classes so modals respect dark theme (--hv-bg, --hv-text, --hv-border). */
-
-const FOCUSABLE = 'button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])';
-
-function useFocusTrap(containerRef, isActive) {
-  const previousFocusRef = useRef(null);
-  useEffect(() => {
-    if (!isActive || !containerRef.current) return;
-    previousFocusRef.current = document.activeElement;
-    const el = containerRef.current;
-    const focusable = el.querySelectorAll(FOCUSABLE);
-    const first = focusable[0];
-    const _last = focusable[focusable.length - 1];
-    if (first && typeof first.focus === 'function') first.focus();
-    const handleKey = (e) => {
-      if (e.key !== 'Tab') return;
-      const focusableList = el.querySelectorAll(FOCUSABLE);
-      const firstEl = focusableList[0];
-      const lastEl = focusableList[focusableList.length - 1];
-      if (e.shiftKey) {
-        if (document.activeElement === firstEl && lastEl) {
-          e.preventDefault();
-          lastEl.focus();
-        }
-      } else {
-        if (document.activeElement === lastEl && firstEl) {
-          e.preventDefault();
-          firstEl.focus();
-        }
-      }
-    };
-    el.addEventListener('keydown', handleKey);
-    return () => {
-      el.removeEventListener('keydown', handleKey);
-      if (previousFocusRef.current && typeof previousFocusRef.current.focus === 'function') {
-        previousFocusRef.current.focus();
-      }
-    };
-  }, [isActive, containerRef]);
-}
 
 export default function AppDialogs() {
   const game = useGame();
