@@ -60,69 +60,41 @@ export default function App() {
           <TopBar />
           <div className="hv-viewport__body">
             <main className="hv-main">
-              <div
-                className="hv-content"
-                style={{ display: activeSection === 'town' ? 'block' : 'none' }}
-                role="tabpanel"
-                id="town-react-root"
-                aria-hidden={activeSection !== 'town'}
-              >
-                <TownTab />
-              </div>
-              <div
-                className="hv-content hv-content--heroes"
-                style={{ display: activeSection === 'hero' ? 'block' : 'none' }}
-                role="tabpanel"
-                id="hero-react-root"
-                aria-hidden={activeSection !== 'hero'}
-              >
-                <HeroTab />
-              </div>
-              <div
-                className="hv-content"
-                style={{ display: activeSection === 'production' ? 'block' : 'none' }}
-                role="tabpanel"
-                id="production-react-root"
-                aria-hidden={activeSection !== 'production'}
-              >
-                <ProductionTab />
-              </div>
-              <div
-                className="hv-content"
-                style={{ display: activeSection === 'professions' ? 'block' : 'none' }}
-                role="tabpanel"
-                id="professions-react-root"
-                aria-hidden={activeSection !== 'professions'}
-              >
-                <ProfessionsTab />
-              </div>
-              <div
-                className="hv-content"
-                style={{ display: activeSection === 'bestiary' ? 'block' : 'none' }}
-                role="tabpanel"
-                id="bestiary-react-root"
-                aria-hidden={activeSection !== 'bestiary'}
-              >
-                <BestiaryTab />
-              </div>
-              <div
-                className="hv-content"
-                style={{ display: activeSection === 'upgrades' ? 'block' : 'none' }}
-                role="tabpanel"
-                id="upgrades-react-root"
-                aria-hidden={activeSection !== 'upgrades'}
-              >
-                <UpgradesTab />
-              </div>
-              <div
-                className="hv-content"
-                style={{ display: activeSection === 'options' ? 'block' : 'none' }}
-                role="tabpanel"
-                id="options-react-root"
-                aria-hidden={activeSection !== 'options'}
-              >
-                <OptionsTab />
-              </div>
+              {activeSection === 'town' && (
+                <div className="hv-content" role="tabpanel" id="town-react-root">
+                  <TownTab />
+                </div>
+              )}
+              {activeSection === 'hero' && (
+                <div className="hv-content hv-content--heroes" role="tabpanel" id="hero-react-root">
+                  <HeroTab />
+                </div>
+              )}
+              {activeSection === 'production' && (
+                <div className="hv-content" role="tabpanel" id="production-react-root">
+                  <ProductionTab />
+                </div>
+              )}
+              {activeSection === 'professions' && (
+                <div className="hv-content" role="tabpanel" id="professions-react-root">
+                  <ProfessionsTab />
+                </div>
+              )}
+              {activeSection === 'bestiary' && (
+                <div className="hv-content" role="tabpanel" id="bestiary-react-root">
+                  <BestiaryTab />
+                </div>
+              )}
+              {activeSection === 'upgrades' && (
+                <div className="hv-content" role="tabpanel" id="upgrades-react-root">
+                  <UpgradesTab />
+                </div>
+              )}
+              {activeSection === 'options' && (
+                <div className="hv-content" role="tabpanel" id="options-react-root">
+                  <OptionsTab />
+                </div>
+              )}
             </main>
             <GuidePanel />
           </div>
