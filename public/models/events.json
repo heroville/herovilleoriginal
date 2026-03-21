@@ -1,0 +1,14 @@
+[
+  {
+    "type": "Wealth",
+    "image": "E_Gold02.png"
+  },
+  {
+    "type": "Power",
+    "image": "S_Shadow07.png"
+  },
+  {
+    "type": "Speed",
+    "image": "S_Buff11.png"
+  }
+]
