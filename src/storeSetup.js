@@ -8,7 +8,6 @@ import {
   HeroService,
   BuildingService,
   ProductionService,
-  UiService,
   DungeonService,
   CombatService,
 } from './container.js';
@@ -37,7 +36,6 @@ export function setupStore(state) {
   HeroService.bindStore(store);
   ProductionService.bindStore(store);
   SaveLoadService.bindStore(store);
-  UiService.bindStore(store);
   DungeonService.bindStore(store);
   CombatService.bindStore(store);
 

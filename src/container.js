@@ -7,7 +7,6 @@ import GameStateServiceFactory from './services/gameState.service.js';
 import GameUiServiceFactory from './services/gameUi.service.js';
 import EconomyServiceFactory from './services/economy.service.js';
 import UtilServiceFactory from './services/util.service.js';
-import UiServiceFactory from './services/ui.service.js';
 import SaveLoadServiceFactory from './services/saveLoad.service.js';
 import ProductionServiceFactory from './services/production.service.js';
 import DungeonServiceFactory from './services/dungeon.service.js';
@@ -24,7 +23,6 @@ container.GameStateService = GameStateServiceFactory(container.GameConfig);
 container.GameUiService = GameUiServiceFactory();
 container.EconomyService = EconomyServiceFactory(container.GameUiService);
 container.UtilService = UtilServiceFactory();
-container.UiService = UiServiceFactory(container.GameStateService);
 container.SaveLoadService = SaveLoadServiceFactory(
   container.GameConfig,
   container.GameUiService,
@@ -66,7 +64,6 @@ export const SaveLoadService = container.SaveLoadService;
 export const HeroService = container.HeroService;
 export const BuildingService = container.BuildingService;
 export const ProductionService = container.ProductionService;
-export const UiService = container.UiService;
 export const DungeonService = container.DungeonService;
 export const CombatService = container.CombatService;
 export const UtilService = container.UtilService;

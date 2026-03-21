@@ -4,6 +4,16 @@
  * Each service calls createStoreBinding(getStateFn) once inside its factory.
  * bindStore(store) is called from storeSetup.js at startup.
  * syncStoreIfBound() dispatches REPLACE_STATE with a structuredClone of current state.
+ *
+ * Migration path to eliminate this module (Task 15 — full Redux redesign):
+ * 1. For each service, replace direct GameStateService mutations with Redux Toolkit
+ *    slice actions (e.g. heroesSlice.addHero, buildingsSlice.upgradeBuilding)
+ * 2. Have services receive `store` as a constructor arg, read via store.getState(),
+ *    and write via store.dispatch(sliceAction(...))
+ * 3. Once all services dispatch fine-grained actions, remove REPLACE_STATE,
+ *    this module, and GameStateService entirely
+ * 4. EconomyService is already partially migrated (dispatches setResources/setGold)
+ *    and is the template for the full migration
  */
 import { REPLACE_STATE } from '../store/sliceState.js';
 
