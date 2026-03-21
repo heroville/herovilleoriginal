@@ -2,7 +2,13 @@
 import { defineConfig } from 'vitest/config';
 
 export default defineConfig({
+  esbuild: {
+    jsx: 'automatic',
+  },
   test: {
-    exclude: ['**/node_modules/**', '**/e2e/**', '**/dist/**']
-  }
+    environment: 'jsdom',
+    globals: true,
+    setupFiles: ['./src/test-setup.js'],
+    exclude: ['**/node_modules/**', '**/e2e/**', '**/dist/**'],
+  },
 });
