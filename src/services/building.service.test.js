@@ -22,7 +22,7 @@ describe('BuildingService with store', () => {
         { id: 6, name: 'Dungeons', count: 1, enabled: false },
         { id: 7, name: 'Academy', count: 0, enabled: false },
         { id: 8, name: 'Other', count: 0, enabled: false },
-        { id: 9, name: 'Other2', count: 0, enabled: false }
+        { id: 9, name: 'Other2', count: 0, enabled: false },
       ],
       jobs: [{ id: 0 }, { id: 1, enabled: false }, { id: 2, enabled: false }],
       upgrades: [],
@@ -35,20 +35,30 @@ describe('BuildingService with store', () => {
       upgEnabled: true,
       panelNumber: 0,
       bestiary: false,
-      beastEnabled: true
+      beastEnabled: true,
     };
     const GameStateService = { getState: () => state };
-    const GameUiService = { showError: () => {}, nextTutorial: () => {}, openHeroDialog: () => {}, openWorkerDialog: () => {} };
+    const GameUiService = {
+      showError: () => {},
+      nextTutorial: () => {},
+      openHeroDialog: () => {},
+      openWorkerDialog: () => {},
+    };
     const DungeonService = { activateDungeon: () => {}, createMonster: () => {} };
     const ProductionService = { activateBlueprint: () => {} };
 
     const store = createGameStore(state);
-    const BuildingService = BuildingServiceFactory(GameStateService, GameUiService, DungeonService, ProductionService);
+    const BuildingService = BuildingServiceFactory(
+      GameStateService,
+      GameUiService,
+      DungeonService,
+      ProductionService
+    );
     BuildingService.bindStore(store);
 
     const { state: st, actions } = BuildingService.buildStateAndActions({
       decResources: () => true,
-      decGold: () => true
+      decGold: () => true,
     });
     const building = st.buildings[0];
 
@@ -68,7 +78,13 @@ describe('BuildingService with store', () => {
         { id: 0, name: 'Tent', count: 0, cost: 5, multiplier: 4, enabled: true },
         { id: 1, name: 'Stockpile', count: 0, cost: 25, multiplier: 5, enabled: true },
         { id: 2, name: 'Market', count: 0, enabled: false },
-        { id: 3 }, { id: 4 }, { id: 5 }, { id: 6 }, { id: 7 }, { id: 8 }, { id: 9 }
+        { id: 3 },
+        { id: 4 },
+        { id: 5 },
+        { id: 6 },
+        { id: 7 },
+        { id: 8 },
+        { id: 9 },
       ],
       jobs: [{ id: 0 }, { id: 1, enabled: false }, { id: 2, enabled: false }],
       upgrades: [],
@@ -81,7 +97,7 @@ describe('BuildingService with store', () => {
       upgEnabled: true,
       panelNumber: 0,
       bestiary: false,
-      beastEnabled: true
+      beastEnabled: true,
     };
     const GameStateService = { getState: () => state };
     const GameUiService = { showError: () => {}, nextTutorial: () => {} };
@@ -89,7 +105,12 @@ describe('BuildingService with store', () => {
     const ProductionService = { activateBlueprint: () => {} };
 
     const store = createGameStore(state);
-    const BuildingService = BuildingServiceFactory(GameStateService, GameUiService, DungeonService, ProductionService);
+    const BuildingService = BuildingServiceFactory(
+      GameStateService,
+      GameUiService,
+      DungeonService,
+      ProductionService
+    );
     BuildingService.bindStore(store);
 
     const decResources = (amount) => {
@@ -99,7 +120,7 @@ describe('BuildingService with store', () => {
     };
     const { state: st, actions } = BuildingService.buildStateAndActions({
       decResources,
-      decGold: () => true
+      decGold: () => true,
     });
     const building = st.buildings[1];
 
@@ -120,7 +141,16 @@ describe('BuildingService with store', () => {
       gold: 100,
       maxGold: 100,
       buildings: [
-        { id: 0 }, { id: 1 }, { id: 2, enabled: true }, { id: 3 }, { id: 4 }, { id: 5 }, { id: 6 }, { id: 7 }, { id: 8 }, { id: 9 }
+        { id: 0 },
+        { id: 1 },
+        { id: 2, enabled: true },
+        { id: 3 },
+        { id: 4 },
+        { id: 5 },
+        { id: 6 },
+        { id: 7 },
+        { id: 8 },
+        { id: 9 },
       ],
       jobs: [],
       upgrades: [],
@@ -130,21 +160,16 @@ describe('BuildingService with store', () => {
       dungeons: [],
       panelNumber: 0,
       bestiary: false,
-      beastEnabled: true
+      beastEnabled: true,
     };
     const GameStateService = { getState: () => state };
     const store = createGameStore(state);
-    const BuildingService = BuildingServiceFactory(
-      GameStateService,
-      {},
-      {},
-      {}
-    );
+    const BuildingService = BuildingServiceFactory(GameStateService, {}, {}, {});
     BuildingService.bindStore(store);
 
     const { state: st, actions } = BuildingService.buildStateAndActions({
       decResources: () => true,
-      decGold: () => true
+      decGold: () => true,
     });
     const blueprint = st.blueprints[0];
 

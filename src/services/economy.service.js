@@ -10,7 +10,7 @@ import {
   setMaxGold,
   setIncr,
   setDamageMulti,
-  setGoldMulti
+  setGoldMulti,
 } from '../store/slices/economySlice.js';
 import { incrementClicks } from '../store/slices/gameStatsSlice.js';
 
@@ -126,7 +126,7 @@ function EconomyServiceFactory(GameUiService) {
     incGold,
     decGold,
     incrRes,
-    getState
+    getState,
   };
 }
 

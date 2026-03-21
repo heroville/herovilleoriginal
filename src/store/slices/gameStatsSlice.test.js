@@ -11,7 +11,7 @@ const initialState = {
   weaponsAuto: 0,
   weaponsManual: [],
   buffs: 0,
-  clicks: 0
+  clicks: 0,
 };
 
 describe('gameStatsSlice', () => {

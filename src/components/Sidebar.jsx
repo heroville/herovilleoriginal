@@ -50,12 +50,27 @@ export default function Sidebar({ activeSection, onSelectSection }) {
               aria-selected={isActive}
               aria-disabled={disabled}
               aria-controls={`${section.id}-react-root`}
-              tabIndex={disabled ? -1 : (isActive ? 0 : -1)}
+              tabIndex={disabled ? -1 : isActive ? 0 : -1}
               className={`hv-sidebar__link ${isActive ? 'hv-sidebar__link--active' : ''} ${disabled ? 'hv-sidebar__link--disabled' : ''}`}
               data-testid={`tab-${section.id}`}
-              onClick={(e) => { e.preventDefault(); if (!disabled) onSelectSection(section.id); }}
-              onKeyDown={(e) => { if (disabled) return; if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); onSelectSection(section.id); } }}
-              title={disabled ? (section.unlockByGold ? `${section.name} (unlock when you earn your first gold)` : `${section.name} (unlock by progressing)`) : undefined}
+              onClick={(e) => {
+                e.preventDefault();
+                if (!disabled) onSelectSection(section.id);
+              }}
+              onKeyDown={(e) => {
+                if (disabled) return;
+                if (e.key === 'Enter' || e.key === ' ') {
+                  e.preventDefault();
+                  onSelectSection(section.id);
+                }
+              }}
+              title={
+                disabled
+                  ? section.unlockByGold
+                    ? `${section.name} (unlock when you earn your first gold)`
+                    : `${section.name} (unlock by progressing)`
+                  : undefined
+              }
             >
               {section.name}
             </a>
@@ -66,7 +81,12 @@ export default function Sidebar({ activeSection, onSelectSection }) {
           role="button"
           tabIndex={0}
           onClick={() => game.showVersion?.()}
-          onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); game.showVersion?.(); } }}
+          onKeyDown={(e) => {
+            if (e.key === 'Enter' || e.key === ' ') {
+              e.preventDefault();
+              game.showVersion?.();
+            }
+          }}
           title="Version information and patch notes"
         >
           Version {version} · Meredori © 2017

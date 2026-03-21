@@ -11,7 +11,7 @@ describe('UiService with store', () => {
       panel: ['Initial'],
       panelNumber: 0,
       showTutorial: true,
-      panelInfo: false
+      panelInfo: false,
     };
     const scope = { state };
     const GameStateService = { getState: () => state };

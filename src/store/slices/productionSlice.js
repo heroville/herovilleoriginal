@@ -7,7 +7,7 @@ const initialState = {
   potion: {},
   potions: [],
   weapons: [],
-  blueprints: []
+  blueprints: [],
 };
 
 const productionSlice = createSlice({
@@ -19,8 +19,8 @@ const productionSlice = createSlice({
         return { ...initialState, ...action.payload };
       }
       return state;
-    }
-  }
+    },
+  },
 });
 
 export const { replaceProduction } = productionSlice.actions;

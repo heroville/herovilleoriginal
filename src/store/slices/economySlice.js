@@ -11,7 +11,7 @@ const initialState = {
   maxGold: 0,
   incr: 1,
   damageMulti: 1,
-  goldMulti: 1
+  goldMulti: 1,
 };
 
 const economySlice = createSlice({
@@ -59,8 +59,8 @@ const economySlice = createSlice({
         return { ...initialState, ...action.payload };
       }
       return state;
-    }
-  }
+    },
+  },
 });
 
 export const {
@@ -71,7 +71,7 @@ export const {
   setIncr,
   setDamageMulti,
   setGoldMulti,
-  replaceEconomy
+  replaceEconomy,
 } = economySlice.actions;
 
 export default economySlice.reducer;

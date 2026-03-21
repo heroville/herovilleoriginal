@@ -28,7 +28,7 @@ const combinedReducer = combineReducers({
   production: productionReducer,
   jobs: jobsReducer,
   upgrades: upgradesReducer,
-  gameStats: gameStatsReducer
+  gameStats: gameStatsReducer,
 });
 
 /**
@@ -50,7 +50,8 @@ export default function rootReducer(state, action) {
       const current = next.tutorial.tutorialStepIndex ?? 0;
       if (fromState > current) {
         next.tutorial = { ...next.tutorial, tutorialStepIndex: fromState };
-        if (fromState >= TUTORIAL_LAST_STEP_INDEX) next.tutorial = { ...next.tutorial, tutorialCompleted: true };
+        if (fromState >= TUTORIAL_LAST_STEP_INDEX)
+          next.tutorial = { ...next.tutorial, tutorialCompleted: true };
       }
     }
     return next;

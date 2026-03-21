@@ -8,7 +8,7 @@ const initialState = {
   battles: [],
   journeys: [],
   party: [],
-  bossBattle: []
+  bossBattle: [],
 };
 
 const heroesSlice = createSlice({
@@ -20,8 +20,8 @@ const heroesSlice = createSlice({
         return { ...initialState, ...action.payload };
       }
       return state;
-    }
-  }
+    },
+  },
 });
 
 export const { replaceHeroes } = heroesSlice.actions;

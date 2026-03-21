@@ -11,7 +11,7 @@ const initialState = {
   weaponsAuto: 0,
   weaponsManual: [],
   buffs: 0,
-  clicks: 0
+  clicks: 0,
 };
 
 const gameStatsSlice = createSlice({
@@ -27,10 +27,9 @@ const gameStatsSlice = createSlice({
         return { ...initialState, ...action.payload };
       }
       return state;
-    }
-  }
+    },
+  },
 });
 
 export const { incrementClicks, replaceGameStats } = gameStatsSlice.actions;
 export default gameStatsSlice.reducer;
-

@@ -6,7 +6,7 @@ import { createSlice } from '@reduxjs/toolkit';
 const initialState = {
   dungeons: [],
   monsters: [],
-  bosses: []
+  bosses: [],
 };
 
 const dungeonsSlice = createSlice({
@@ -18,8 +18,8 @@ const dungeonsSlice = createSlice({
         return { ...initialState, ...action.payload };
       }
       return state;
-    }
-  }
+    },
+  },
 });
 
 export const { replaceDungeons } = dungeonsSlice.actions;

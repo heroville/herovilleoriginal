@@ -10,8 +10,8 @@ const upgradesSlice = createSlice({
   reducers: {
     replaceUpgrades(state, action) {
       return Array.isArray(action.payload) ? action.payload : state;
-    }
-  }
+    },
+  },
 });
 
 export const { replaceUpgrades } = upgradesSlice.actions;

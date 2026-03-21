@@ -14,7 +14,7 @@ export default function GuidePanel() {
   const showTutorial = !tutorialCompleted && step;
   const showNext = showTutorial && step.showNext;
   const content = showTutorial ? step.text : '';
-  const lines = tutorialCompleted ? gameLog : (content ? [content] : []);
+  const lines = tutorialCompleted ? gameLog : content ? [content] : [];
 
   return (
     <div className="hv-guide-panel" id="guide-panel">

@@ -19,7 +19,7 @@ export function createGameStore(preloadedFlatState) {
       : undefined;
   return configureStore({
     reducer: rootReducer,
-    preloadedState
+    preloadedState,
   });
 }
 
@@ -33,7 +33,7 @@ export function replaceStateFromFlat(store, flatState) {
   if (store && flatState) {
     store.dispatch({
       type: REPLACE_STATE,
-      payload: JSON.parse(JSON.stringify(flatState))
+      payload: JSON.parse(JSON.stringify(flatState)),
     });
   }
 }

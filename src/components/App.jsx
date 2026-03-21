@@ -31,13 +31,16 @@ export default function App() {
   const game = useGame();
   const state = useSelector(selectFullState);
   const heroEnabled = !!state.heroEnabled;
-  const upgradesUnlocked = (state.gold ?? 0) >= 1 || (state.upgrades || []).some((u) => u.purchased === true);
+  const upgradesUnlocked =
+    (state.gold ?? 0) >= 1 || (state.upgrades || []).some((u) => u.purchased === true);
   const [activeSection, setActiveSection] = useState('town');
 
   useEffect(() => {
     if (typeof window !== 'undefined' && window.__HEROVILLE_E2E_FAST_TICK__ != null) {
       window.__HEROVILLE_E2E_STATE__ = () => game.getState();
-      return () => { delete window.__HEROVILLE_E2E_STATE__; };
+      return () => {
+        delete window.__HEROVILLE_E2E_STATE__;
+      };
     }
   }, [game]);
 
@@ -57,25 +60,67 @@ export default function App() {
           <TopBar />
           <div className="hv-viewport__body">
             <main className="hv-main">
-              <div className="hv-content" style={{ display: activeSection === 'town' ? 'block' : 'none' }} role="tabpanel" id="town-react-root" aria-hidden={activeSection !== 'town'}>
+              <div
+                className="hv-content"
+                style={{ display: activeSection === 'town' ? 'block' : 'none' }}
+                role="tabpanel"
+                id="town-react-root"
+                aria-hidden={activeSection !== 'town'}
+              >
                 <TownTab />
               </div>
-              <div className="hv-content hv-content--heroes" style={{ display: activeSection === 'hero' ? 'block' : 'none' }} role="tabpanel" id="hero-react-root" aria-hidden={activeSection !== 'hero'}>
+              <div
+                className="hv-content hv-content--heroes"
+                style={{ display: activeSection === 'hero' ? 'block' : 'none' }}
+                role="tabpanel"
+                id="hero-react-root"
+                aria-hidden={activeSection !== 'hero'}
+              >
                 <HeroTab />
               </div>
-              <div className="hv-content" style={{ display: activeSection === 'production' ? 'block' : 'none' }} role="tabpanel" id="production-react-root" aria-hidden={activeSection !== 'production'}>
+              <div
+                className="hv-content"
+                style={{ display: activeSection === 'production' ? 'block' : 'none' }}
+                role="tabpanel"
+                id="production-react-root"
+                aria-hidden={activeSection !== 'production'}
+              >
                 <ProductionTab />
               </div>
-              <div className="hv-content" style={{ display: activeSection === 'professions' ? 'block' : 'none' }} role="tabpanel" id="professions-react-root" aria-hidden={activeSection !== 'professions'}>
+              <div
+                className="hv-content"
+                style={{ display: activeSection === 'professions' ? 'block' : 'none' }}
+                role="tabpanel"
+                id="professions-react-root"
+                aria-hidden={activeSection !== 'professions'}
+              >
                 <ProfessionsTab />
               </div>
-              <div className="hv-content" style={{ display: activeSection === 'bestiary' ? 'block' : 'none' }} role="tabpanel" id="bestiary-react-root" aria-hidden={activeSection !== 'bestiary'}>
+              <div
+                className="hv-content"
+                style={{ display: activeSection === 'bestiary' ? 'block' : 'none' }}
+                role="tabpanel"
+                id="bestiary-react-root"
+                aria-hidden={activeSection !== 'bestiary'}
+              >
                 <BestiaryTab />
               </div>
-              <div className="hv-content" style={{ display: activeSection === 'upgrades' ? 'block' : 'none' }} role="tabpanel" id="upgrades-react-root" aria-hidden={activeSection !== 'upgrades'}>
+              <div
+                className="hv-content"
+                style={{ display: activeSection === 'upgrades' ? 'block' : 'none' }}
+                role="tabpanel"
+                id="upgrades-react-root"
+                aria-hidden={activeSection !== 'upgrades'}
+              >
                 <UpgradesTab />
               </div>
-              <div className="hv-content" style={{ display: activeSection === 'options' ? 'block' : 'none' }} role="tabpanel" id="options-react-root" aria-hidden={activeSection !== 'options'}>
+              <div
+                className="hv-content"
+                style={{ display: activeSection === 'options' ? 'block' : 'none' }}
+                role="tabpanel"
+                id="options-react-root"
+                aria-hidden={activeSection !== 'options'}
+              >
                 <OptionsTab />
               </div>
             </main>

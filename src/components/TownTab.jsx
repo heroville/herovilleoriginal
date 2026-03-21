@@ -21,7 +21,9 @@ export default function TownTab() {
             <table className="hv-table">
               <thead>
                 <tr>
-                  <th colSpan={4} className="hv-text-center">Buildings</th>
+                  <th colSpan={4} className="hv-text-center">
+                    Buildings
+                  </th>
                 </tr>
                 <tr>
                   <th>Name</th>
@@ -34,8 +36,16 @@ export default function TownTab() {
                 {buildings.map((building) => (
                   <tr key={building.id}>
                     <td title={building.description}>{building.name}</td>
-                    <td>{typeof building.count === 'number' ? building.count.toLocaleString() : building.count}</td>
-                    <td>{typeof building.cost === 'number' ? building.cost.toLocaleString() : building.cost}</td>
+                    <td>
+                      {typeof building.count === 'number'
+                        ? building.count.toLocaleString()
+                        : building.count}
+                    </td>
+                    <td>
+                      {typeof building.cost === 'number'
+                        ? building.cost.toLocaleString()
+                        : building.cost}
+                    </td>
                     <td>
                       <button
                         type="button"
@@ -53,35 +63,37 @@ export default function TownTab() {
           </div>
         </div>
         {dungeons.length > 0 && (
-        <div className="hv-panel hv-table-card">
-          <div className="hv-panel__body hv-panel__body--no-pad">
-            <table className="hv-table">
-              <thead>
-                <tr>
-                  <th colSpan={5} className="hv-text-center">Dungeons</th>
-                </tr>
-                <tr>
-                  <th>Name</th>
-                  <th>Level</th>
-                  <th>Boss</th>
-                  <th>Length</th>
-                  <th>Encounter Rate</th>
-                </tr>
-              </thead>
-              <tbody>
-                {dungeons.map((dungeon) => (
-                  <tr key={dungeon.id ?? dungeon.name}>
-                    <td>{dungeon.name}</td>
-                    <td>{dungeon.level}</td>
-                    <td>{bosses[dungeon.bossID]?.name ?? '—'}</td>
-                    <td>{dungeon.steps}</td>
-                    <td>{dungeon.encounterRate}%</td>
+          <div className="hv-panel hv-table-card">
+            <div className="hv-panel__body hv-panel__body--no-pad">
+              <table className="hv-table">
+                <thead>
+                  <tr>
+                    <th colSpan={5} className="hv-text-center">
+                      Dungeons
+                    </th>
                   </tr>
-                ))}
-              </tbody>
-            </table>
+                  <tr>
+                    <th>Name</th>
+                    <th>Level</th>
+                    <th>Boss</th>
+                    <th>Length</th>
+                    <th>Encounter Rate</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {dungeons.map((dungeon) => (
+                    <tr key={dungeon.id ?? dungeon.name}>
+                      <td>{dungeon.name}</td>
+                      <td>{dungeon.level}</td>
+                      <td>{bosses[dungeon.bossID]?.name ?? '—'}</td>
+                      <td>{dungeon.steps}</td>
+                      <td>{dungeon.encounterRate}%</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
           </div>
-        </div>
         )}
       </div>
     </section>

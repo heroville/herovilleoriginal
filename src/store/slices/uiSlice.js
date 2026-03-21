@@ -23,7 +23,7 @@ const initialState = {
   version: '2.0',
   bestiary: false,
   predicate: 'name',
-  selectedDungeon: 0
+  selectedDungeon: 0,
 };
 
 const uiSlice = createSlice({
@@ -38,8 +38,8 @@ const uiSlice = createSlice({
     },
     toggleDark(state) {
       state.dark = !state.dark;
-    }
-  }
+    },
+  },
 });
 
 export const { replaceUi, toggleDark } = uiSlice.actions;

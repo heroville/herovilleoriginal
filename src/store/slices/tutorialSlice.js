@@ -9,7 +9,7 @@ import { TUTORIAL_TOTAL_STEPS, TUTORIAL_LAST_STEP_INDEX } from '../../constants/
 const initialState = {
   tutorialStepIndex: 0,
   tutorialCompleted: false,
-  gameLog: []
+  gameLog: [],
 };
 
 const tutorialSlice = createSlice({
@@ -44,10 +44,11 @@ const tutorialSlice = createSlice({
         if (!formatted) return;
         state.gameLog.unshift(formatted);
         if (state.gameLog.length > 10) state.gameLog.pop();
-      }
-    }
-  }
+      },
+    },
+  },
 });
 
-export const { advanceTutorial, skipTutorial, setTutorialFromSave, addGameLogMessage } = tutorialSlice.actions;
+export const { advanceTutorial, skipTutorial, setTutorialFromSave, addGameLogMessage } =
+  tutorialSlice.actions;
 export default tutorialSlice.reducer;

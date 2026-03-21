@@ -10,7 +10,7 @@ import economyReducer, {
   setIncr,
   setDamageMulti,
   setGoldMulti,
-  replaceEconomy
+  replaceEconomy,
 } from './economySlice.js';
 
 const initialState = {
@@ -20,7 +20,7 @@ const initialState = {
   maxGold: 0,
   incr: 1,
   damageMulti: 1,
-  goldMulti: 1
+  goldMulti: 1,
 };
 
 describe('economySlice', () => {

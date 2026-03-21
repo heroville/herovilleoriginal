@@ -21,7 +21,7 @@ describe('rootReducer', () => {
       maxResources: 100,
       gold: 10,
       heroList: [{ id: 1, name: 'Test' }],
-      panelNumber: 5
+      panelNumber: 5,
     };
     const state = rootReducer(undefined, { type: REPLACE_STATE, payload: flat });
     expect(state.economy.resources).toBe(42);
@@ -36,7 +36,7 @@ describe('rootReducer', () => {
     const initialState = rootReducer(undefined, { type: '@@init' });
     const state = rootReducer(initialState, {
       type: 'economy/setResources',
-      payload: 15
+      payload: 15,
     });
     expect(state.economy.resources).toBe(15);
   });

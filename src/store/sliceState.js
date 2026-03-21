@@ -19,12 +19,12 @@ export function stateToSlices(flat) {
       maxGold: flat.maxGold ?? 0,
       incr: flat.incr ?? 1,
       damageMulti: flat.damageMulti ?? 1,
-      goldMulti: flat.goldMulti ?? 1
+      goldMulti: flat.goldMulti ?? 1,
     },
     tutorial: {
       tutorialStepIndex: flat.tutorialStepIndex ?? 0,
       tutorialCompleted: flat.tutorialCompleted ?? false,
-      gameLog: flat.gameLog ?? []
+      gameLog: flat.gameLog ?? [],
     },
     ui: {
       panel: flat.panel ?? [],
@@ -48,7 +48,7 @@ export function stateToSlices(flat) {
       version: flat.version ?? '2.0',
       bestiary: flat.bestiary ?? false,
       predicate: flat.predicate ?? 'name',
-      selectedDungeon: flat.selectedDungeon ?? 0
+      selectedDungeon: flat.selectedDungeon ?? 0,
     },
     config: {
       gameLoop: flat.gameLoop ?? 1000,
@@ -61,7 +61,7 @@ export function stateToSlices(flat) {
       tempClass: flat.tempClass,
       tempHero: flat.tempHero,
       events: flat.events ?? [],
-      heroClass: flat.heroClass ?? []
+      heroClass: flat.heroClass ?? [],
     },
     buildings: flat.buildings ?? [],
     heroes: {
@@ -69,22 +69,22 @@ export function stateToSlices(flat) {
       battles: flat.battles ?? [],
       journeys: flat.journeys ?? [],
       party: flat.party ?? [],
-      bossBattle: flat.bossBattle ?? []
+      bossBattle: flat.bossBattle ?? [],
     },
     dungeons: {
       dungeons: flat.dungeons ?? [],
       monsters: flat.monsters ?? [],
-      bosses: flat.bosses ?? []
+      bosses: flat.bosses ?? [],
     },
     production: {
       potion: flat.potion ?? {},
       potions: flat.potions ?? [],
       weapons: flat.weapons ?? [],
-      blueprints: flat.blueprints ?? []
+      blueprints: flat.blueprints ?? [],
     },
     jobs: flat.jobs ?? [],
     upgrades: flat.upgrades ?? [],
-    gameStats: flat.gameStats ? { ...flat.gameStats } : {}
+    gameStats: flat.gameStats ? { ...flat.gameStats } : {},
   };
 }
 
@@ -99,7 +99,7 @@ function getEmptySlices() {
     maxGold: 0,
     panel: [],
     panelNumber: 0,
-    showTutorial: true
+    showTutorial: true,
   });
 }
 
@@ -138,7 +138,7 @@ function selectFullStateUnmemoized(state) {
     potions: p.potions ?? [],
     weapons: p.weapons ?? [],
     blueprints: p.blueprints ?? [],
-    gameStats: state.gameStats ?? {}
+    gameStats: state.gameStats ?? {},
   };
 }
 
@@ -157,9 +157,21 @@ export const selectFullState = createSelector(
     (state) => state?.production,
     (state) => state?.jobs,
     (state) => state?.upgrades,
-    (state) => state?.gameStats
+    (state) => state?.gameStats,
   ],
-  (economy, ui, tutorial, config, buildings, heroes, dungeons, production, jobs, upgrades, gameStats) =>
+  (
+    economy,
+    ui,
+    tutorial,
+    config,
+    buildings,
+    heroes,
+    dungeons,
+    production,
+    jobs,
+    upgrades,
+    gameStats
+  ) =>
     selectFullStateUnmemoized({
       economy,
       ui,
@@ -171,7 +183,7 @@ export const selectFullState = createSelector(
       production,
       jobs,
       upgrades,
-      gameStats
+      gameStats,
     })
 );
 

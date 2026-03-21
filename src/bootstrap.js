@@ -13,7 +13,7 @@ import {
   ProductionService,
   UiService,
   DungeonService,
-  CombatService
+  CombatService,
 } from './container.js';
 import bootstrapReact from './bootstrapReact.js';
 import { createGameStore, selectFullState, replaceStateFromFlat } from './store/index.js';
@@ -158,12 +158,12 @@ const api = {
     incrBuilding(building) {
       const { state: st, actions } = BuildingService.buildStateAndActions({
         decResources: (v) => EconomyService.decResources(v),
-        decGold: (v) => EconomyService.decGold(v)
+        decGold: (v) => EconomyService.decGold(v),
       });
       BuildingService.incrBuilding(st, actions, building);
       /* BuildingService dispatches REPLACE_STATE; ensure store has latest (E2E: React reads store). */
       syncStoreFromGameState();
-    }
+    },
   },
   hero: {
     heroProfession(selectedJobId, heroId) {
@@ -174,7 +174,7 @@ const api = {
       HeroService.heroClassChange(selectedClassID, heroID);
       api.setDialogState('confirm', true);
       /* HeroService dispatches REPLACE_STATE internally. */
-    }
+    },
   },
   production: {
     create(itemID) {
@@ -190,7 +190,7 @@ const api = {
         },
         get tutorialStepIndex() {
           return s.tutorialStepIndex;
-        }
+        },
       };
       const createActions = {
         decResources: (v) => EconomyService.decResources(v),
@@ -198,7 +198,7 @@ const api = {
         nextTutorial: () => GameUiService.nextTutorial(),
         disablePotionButton: () => {},
         startCreatePotion: () => ProductionService.createPotion(true, 0, 0, () => {}),
-        startCreatePotions: (id) => ProductionService.createPotions(id, true, 0, 0, () => {})
+        startCreatePotions: (id) => ProductionService.createPotions(id, true, 0, 0, () => {}),
       };
       ProductionService.create(createState, createActions, itemID);
       /* ProductionService dispatches REPLACE_STATE internally. */
@@ -218,14 +218,14 @@ const api = {
         },
         get tutorialStepIndex() {
           return s.tutorialStepIndex;
-        }
+        },
       };
       const purchaseWeaponActions = {
         decResources: (v) => EconomyService.decResources(v),
         showError: (m) => GameUiService.showError(m),
         nextTutorial: () => GameUiService.nextTutorial(),
         disableWeaponButton: () => {},
-        startBuyWeapon: (id) => ProductionService.buyWeapon(id, true, 0, 0, () => {})
+        startBuyWeapon: (id) => ProductionService.buyWeapon(id, true, 0, 0, () => {}),
       };
       ProductionService.purchaseWeapon(purchaseWeaponState, purchaseWeaponActions, weaponID);
       /* ProductionService dispatches REPLACE_STATE internally. */
@@ -233,11 +233,11 @@ const api = {
     incrBlueprint(blueprint) {
       const { state: st, actions } = BuildingService.buildStateAndActions({
         decResources: (v) => EconomyService.decResources(v),
-        decGold: (v) => EconomyService.decGold(v)
+        decGold: (v) => EconomyService.decGold(v),
       });
       BuildingService.incrBlueprint(st, actions, blueprint);
       /* BuildingService dispatches REPLACE_STATE internally. */
-    }
+    },
   },
   options: {
     save(opts) {
@@ -263,7 +263,7 @@ const api = {
     },
     skipTut() {
       store.dispatch(skipTutorial());
-    }
+    },
   },
   nextTutorial() {
     store.dispatch(advanceTutorial());
@@ -299,7 +299,7 @@ const api = {
       s.randomE = s.events[Math.floor(Math.random() * s.events.length)];
       syncStoreFromGameState();
     }
-  }
+  },
 };
 
 /** Context passed to services that need state + UI callbacks (replaces legacy scope). */
@@ -313,7 +313,7 @@ const appContext = {
   setDialogState: (type, open) => api.setDialogState(type, open),
   nextTutorial: () => store.dispatch(advanceTutorial()),
   skipTut: () => store.dispatch(skipTutorial()),
-  changeTheme: () => store.dispatch(toggleDark())
+  changeTheme: () => store.dispatch(toggleDark()),
 };
 
 api.showError = (msg) => api.notifyError(msg);
@@ -367,7 +367,7 @@ async function loadConfig() {
     const [heroNameRes, monsterRes, dungeonRes] = await Promise.all([
       fetch(base + 'models/heroName.json').then((r) => r.json()),
       fetch(base + 'models/monsterList.json').then((r) => r.json()),
-      fetch(base + 'models/dungeons.json').then((r) => r.json())
+      fetch(base + 'models/dungeons.json').then((r) => r.json()),
     ]);
     state.heroName = heroNameRes;
     state.monsterList = monsterRes;

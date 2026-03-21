@@ -13,7 +13,7 @@ describe('EconomyService with store', () => {
       gold: 0,
       maxGold: 100,
       incr: 1,
-      gameStats: { clicks: 0 }
+      gameStats: { clicks: 0 },
     };
     const store = createGameStore(state);
     const getFlatState = () => selectFullState(store.getState());
@@ -37,7 +37,7 @@ describe('EconomyService with store', () => {
       maxResources: 25,
       gold: 0,
       maxGold: 100,
-      gameStats: {}
+      gameStats: {},
     };
     const store = createGameStore(state);
     const EconomyService = EconomyServiceFactory({});

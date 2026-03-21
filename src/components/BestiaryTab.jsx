@@ -39,7 +39,9 @@ export default function BestiaryTab() {
             <table className="hv-table">
               <thead>
                 <tr>
-                  <th colSpan={4} className="hv-text-center">Monsters</th>
+                  <th colSpan={4} className="hv-text-center">
+                    Monsters
+                  </th>
                 </tr>
                 <tr>
                   <th>Name</th>
@@ -53,7 +55,9 @@ export default function BestiaryTab() {
                   <tr key={monster.id ?? monster.name}>
                     <td>{monster.name}</td>
                     <td>{monster.value}</td>
-                    <td>{monster.minDamage}-{monster.maxDamage}</td>
+                    <td>
+                      {monster.minDamage}-{monster.maxDamage}
+                    </td>
                     <td>{monster.health}</td>
                   </tr>
                 ))}
@@ -66,7 +70,9 @@ export default function BestiaryTab() {
             <table className="hv-table">
               <thead>
                 <tr>
-                  <th colSpan={4} className="hv-text-center">Bosses</th>
+                  <th colSpan={4} className="hv-text-center">
+                    Bosses
+                  </th>
                 </tr>
                 <tr>
                   <th>Name</th>
@@ -84,7 +90,9 @@ export default function BestiaryTab() {
                         <div key={name}>{name}</div>
                       ))}
                     </td>
-                    <td>{boss.minDamage}-{boss.maxDamage}</td>
+                    <td>
+                      {boss.minDamage}-{boss.maxDamage}
+                    </td>
                     <td>{boss.health}</td>
                   </tr>
                 ))}

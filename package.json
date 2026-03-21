@@ -2,6 +2,7 @@
   "name": "herovilleoriginal",
   "version": "1.0.0",
   "private": true,
+  "type": "module",
   "engines": {
     "node": ">=18.0.0"
   },
@@ -12,7 +13,10 @@
     "test": "npm run build && playwright test",
     "test:e2e": "npm run test",
     "test:unit": "vitest run",
-    "test:visual": "npm run build && playwright test e2e/visual-capture.spec.js"
+    "test:visual": "npm run build && playwright test e2e/visual-capture.spec.js",
+    "lint": "eslint src",
+    "lint:fix": "eslint src --fix",
+    "format": "prettier --write src"
   },
   "dependencies": {
     "@reduxjs/toolkit": "^2.11.2",
@@ -21,8 +25,15 @@
     "react-redux": "^9.2.0"
   },
   "devDependencies": {
+    "@eslint/js": "^10.0.1",
     "@playwright/test": "^1.58.2",
     "@types/node": "^25.3.0",
+    "eslint": "^9.39.4",
+    "eslint-config-prettier": "^10.1.8",
+    "eslint-plugin-react": "^7.37.5",
+    "eslint-plugin-react-hooks": "^7.0.1",
+    "globals": "^17.4.0",
+    "prettier": "^3.8.1",
     "vite": "^7.3.1",
     "vite-plugin-static-copy": "^3.1.4",
     "vitest": "^4.0.18"

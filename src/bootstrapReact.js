@@ -16,9 +16,7 @@ export default function bootstrapReact(api, store) {
   if (appRoot) {
     const app = React.createElement(App);
     const withGame = React.createElement(GameProvider, { api }, app);
-    const withStore = store
-      ? React.createElement(Provider, { store }, withGame)
-      : withGame;
+    const withStore = store ? React.createElement(Provider, { store }, withGame) : withGame;
     createRoot(appRoot).render(withStore);
     startGameLoopRunner(api, store);
   }

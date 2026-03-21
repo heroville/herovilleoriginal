@@ -25,8 +25,15 @@ container.GameUiService = GameUiServiceFactory();
 container.EconomyService = EconomyServiceFactory(container.GameUiService);
 container.UtilService = UtilServiceFactory();
 container.UiService = UiServiceFactory(container.GameStateService);
-container.SaveLoadService = SaveLoadServiceFactory(container.GameConfig, container.GameUiService, container.GameStateService);
-container.ProductionService = ProductionServiceFactory(container.EconomyService, container.GameUiService);
+container.SaveLoadService = SaveLoadServiceFactory(
+  container.GameConfig,
+  container.GameUiService,
+  container.GameStateService
+);
+container.ProductionService = ProductionServiceFactory(
+  container.EconomyService,
+  container.GameUiService
+);
 container.DungeonService = DungeonServiceFactory(container.GameStateService, $timeout, $injector);
 container.HeroService = HeroServiceFactory(
   container.GameConfig,

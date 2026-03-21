@@ -8,16 +8,16 @@
  * @returns {Array} Battles that include the given hero
  */
 export function filterHeroBattle(items, value) {
-    const filtered = [];
-    for (let i = 0; i < items.length; i++) {
-        for (let j = 0; j < items[i].hero.length; j++) {
-            if (items[i].hero[j].id === value.id) {
-                filtered.push(items[i]);
-                break;
-            }
-        }
+  const filtered = [];
+  for (let i = 0; i < items.length; i++) {
+    for (let j = 0; j < items[i].hero.length; j++) {
+      if (items[i].hero[j].id === value.id) {
+        filtered.push(items[i]);
+        break;
+      }
     }
-    return filtered;
+  }
+  return filtered;
 }
 
 /**
@@ -25,13 +25,13 @@ export function filterHeroBattle(items, value) {
  * @returns {Array} Heroes with academy.id === 1 (workers)
  */
 export function filterHeroWorker(heroList) {
-    const filtered = [];
-    for (let i = 0; i < heroList.length; i++) {
-        if (heroList[i].academy.id === 1) {
-            filtered.push(heroList[i]);
-        }
+  const filtered = [];
+  for (let i = 0; i < heroList.length; i++) {
+    if (heroList[i].academy.id === 1) {
+      filtered.push(heroList[i]);
     }
-    return filtered;
+  }
+  return filtered;
 }
 
 /**
@@ -39,11 +39,11 @@ export function filterHeroWorker(heroList) {
  * @returns {Array} Heroes with academy.id === 0 or 2 (adventure)
  */
 export function filterHeroAdventure(heroList) {
-    const filtered = [];
-    for (let i = 0; i < heroList.length; i++) {
-        if (heroList[i].academy.id === 0 || heroList[i].academy.id === 2) {
-            filtered.push(heroList[i]);
-        }
+  const filtered = [];
+  for (let i = 0; i < heroList.length; i++) {
+    if (heroList[i].academy.id === 0 || heroList[i].academy.id === 2) {
+      filtered.push(heroList[i]);
     }
-    return filtered;
+  }
+  return filtered;
 }

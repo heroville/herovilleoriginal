@@ -6,133 +6,133 @@ export const TUTORIAL_STEPS = [
   {
     id: 0,
     text: "Welcome to HeroVille. You're in charge of a new town. Attract heroes, have them adventure and spend gold so your town can grow.",
-    showNext: true
+    showNext: true,
   },
   {
     id: 1,
-    text: "Start by gathering resources: click the resource count at the top until you have 5, then open Town and click Improve Tent to build your first tent.",
-    showNext: false
+    text: 'Start by gathering resources: click the resource count at the top until you have 5, then open Town and click Improve Tent to build your first tent.',
+    showNext: false,
   },
   {
     id: 2,
-    text: "Click Improve Tent (costs 5 resources) to build the tent and unlock your first hero. You can name them or keep the default.",
-    showNext: false
+    text: 'Click Improve Tent (costs 5 resources) to build the tent and unlock your first hero. You can name them or keep the default.',
+    showNext: false,
   },
   {
     id: 3,
-    text: "You have your first hero. Open the Heroes tab to see their level, health, XP, inventory, and adventure status. You can build more tents later to get more heroes when the cost is low.",
-    showNext: true
+    text: 'You have your first hero. Open the Heroes tab to see their level, health, XP, inventory, and adventure status. You can build more tents later to get more heroes when the cost is low.',
+    showNext: true,
   },
   {
     id: 4,
-    text: "Heroes earn gold in dungeons but won’t hand it over for free. You need to offer items and services so they spend gold in town.",
-    showNext: true
+    text: 'Heroes earn gold in dungeons but won’t hand it over for free. You need to offer items and services so they spend gold in town.',
+    showNext: true,
   },
   {
     id: 5,
-    text: "Expand the Stockpile to store gold: gather 25 resources, then click Improve Stockpile on the Town tab. You can build another tent to get a second hero—more heroes help earn gold and unlock upgrades like Save Point later.",
-    showNext: false
+    text: 'Expand the Stockpile to store gold: gather 25 resources, then click Improve Stockpile on the Town tab. You can build another tent to get a second hero—more heroes help earn gold and unlock upgrades like Save Point later.',
+    showNext: false,
   },
   {
     id: 6,
-    text: "The Stockpile also unlocks Production. Gather 25 resources, open Production, and click Create Potion.",
-    showNext: false
+    text: 'The Stockpile also unlocks Production. Gather 25 resources, open Production, and click Create Potion.',
+    showNext: false,
   },
   {
     id: 7,
-    text: "Production takes a few seconds. When your hero returns damaged, they’ll buy the potion for 1 gold and heal; that gold goes to the town.",
-    showNext: true
+    text: 'Production takes a few seconds. When your hero returns damaged, they’ll buy the potion for 1 gold and heal; that gold goes to the town.',
+    showNext: true,
   },
   {
     id: 8,
-    text: "Spend your first gold on the Bonus Resources I upgrade (Upgrades tab) to get 2 resources per click instead of 1.",
-    showNext: false
+    text: 'Spend your first gold on the Bonus Resources I upgrade (Upgrades tab) to get 2 resources per click instead of 1.',
+    showNext: false,
   },
   {
     id: 9,
-    text: "Upgrades are permanent. Keep an eye on the Upgrades tab for more bonuses.",
-    showNext: true
+    text: 'Upgrades are permanent. Keep an eye on the Upgrades tab for more bonuses.',
+    showNext: true,
   },
   {
     id: 10,
-    text: "Heroes stop gaining XP at level 3 until they fight in harder dungeons. On Town, gather 25 resources and click Improve Dungeons.",
-    showNext: false
+    text: 'Heroes stop gaining XP at level 3 until they fight in harder dungeons. On Town, gather 25 resources and click Improve Dungeons.',
+    showNext: false,
   },
   {
     id: 11,
-    text: "New dungeons appear on the Town tab. Heroes will try them after enough wins in the previous dungeon. Keep upgrading dungeons for more XP.",
-    showNext: true
+    text: 'New dungeons appear on the Town tab. Heroes will try them after enough wins in the previous dungeon. Keep upgrading dungeons for more XP.',
+    showNext: true,
   },
   {
     id: 12,
-    text: "Stronger dungeons need better gear. Build a Market first: gather 40 resources and click Improve Market.",
-    showNext: false
+    text: 'Stronger dungeons need better gear. Build a Market first: gather 40 resources and click Improve Market.',
+    showNext: false,
   },
   {
     id: 13,
-    text: "The Market unlocks blueprints. In Production, buy the Blacksmith Blueprint for 1 gold. You can create more potions or another tent while you wait.",
-    showNext: false
+    text: 'The Market unlocks blueprints. In Production, buy the Blacksmith Blueprint for 1 gold. You can create more potions or another tent while you wait.',
+    showNext: false,
   },
   {
     id: 14,
-    text: "Build the Blacksmith from the Town tab. Expand the Stockpile if needed, then gather 100 resources and click Improve Blacksmith.",
-    showNext: false
+    text: 'Build the Blacksmith from the Town tab. Expand the Stockpile if needed, then gather 100 resources and click Improve Blacksmith.',
+    showNext: false,
   },
   {
     id: 15,
-    text: "In Production, the Dagger is now available. Gather 15 resources and click Create Dagger so your hero can clear tougher dungeons.",
-    showNext: false
+    text: 'In Production, the Dagger is now available. Gather 15 resources and click Create Dagger so your hero can clear tougher dungeons.',
+    showNext: false,
   },
   {
     id: 16,
-    text: "Weapons have durability and break after use. If one breaks in a dungeon, the hero fights with their fists until they return.",
-    showNext: true
+    text: 'Weapons have durability and break after use. If one breaks in a dungeon, the hero fights with their fists until they return.',
+    showNext: true,
   },
   {
     id: 17,
-    text: "When a hero loses a fight they reset to level 1. The Save Point upgrade (3 gold) lets them keep XP and gold on defeat. Use potions and weapons to earn 3 gold and buy it.",
-    showNext: false
+    text: 'When a hero loses a fight they reset to level 1. The Save Point upgrade (3 gold) lets them keep XP and gold on defeat. Use potions and weapons to earn 3 gold and buy it.',
+    showNext: false,
   },
   {
     id: 18,
-    text: "At level 5, the Tavern blueprint appears (5 gold). It unlocks classes: Adventurer and Labourer. Buy the blueprint, then gather 150 and click Improve Tavern on Town.",
-    showNext: false
+    text: 'At level 5, the Tavern blueprint appears (5 gold). It unlocks classes: Adventurer and Labourer. Buy the blueprint, then gather 150 and click Improve Tavern on Town.',
+    showNext: false,
   },
   {
     id: 19,
-    text: "The Professions tab lists classes and heroes without one. Adventurers can equip better weapons; Labourers gather and produce for the town but cannot adventure.",
-    showNext: true
+    text: 'The Professions tab lists classes and heroes without one. Adventurers can equip better weapons; Labourers gather and produce for the town but cannot adventure.',
+    showNext: true,
   },
   {
     id: 20,
-    text: "Labourers are permanent. Don’t make everyone a Labourer. At level 10 the Academy unlocks more classes—see the Professions tab for details.",
-    showNext: true
+    text: 'Labourers are permanent. Don’t make everyone a Labourer. At level 10 the Academy unlocks more classes—see the Professions tab for details.',
+    showNext: true,
   },
   {
     id: 21,
-    text: "Build the Work Hut (Town tab) to hire workers. Gather 100 resources and click Improve Work Hut, then create a worker. You can assign them a job in the Heroes tab.",
-    showNext: true
+    text: 'Build the Work Hut (Town tab) to hire workers. Gather 100 resources and click Improve Work Hut, then create a worker. You can assign them a job in the Heroes tab.',
+    showNext: true,
   },
   {
     id: 22,
-    text: "Assign your worker a job using the dropdown and Change button in the Workers section of the Heroes tab (e.g. Gather, Apothecary, or Smith).",
-    showNext: true
+    text: 'Assign your worker a job using the dropdown and Change button in the Workers section of the Heroes tab (e.g. Gather, Apothecary, or Smith).',
+    showNext: true,
   },
   {
     id: 23,
     text: "That's the basics. This guide will become a game log for events. More features unlock as you play. Good luck!",
-    showNext: true
+    showNext: true,
   },
   {
     id: 24,
-    text: "End game tips: Get a hero to level 10 to unlock the Academy. Unlock the Bestiary by defeating new dungeon bosses.",
-    showNext: true
+    text: 'End game tips: Get a hero to level 10 to unlock the Academy. Unlock the Bestiary by defeating new dungeon bosses.',
+    showNext: true,
   },
   {
     id: 25,
-    text: "",
-    showNext: false
-  }
+    text: '',
+    showNext: false,
+  },
 ];
 
 export const TUTORIAL_TOTAL_STEPS = TUTORIAL_STEPS.length;
@@ -165,8 +165,12 @@ export function getTutorialStepFromState(flat) {
   const bonusResBought = upgrades[0]?.purchased === true;
   const savePointBought = upgrades[1]?.purchased === true;
   const potionCount = (potion.count ?? 0) + (potion.working ?? 0);
-  const hasWeapon = weapons.length > 0 && (weapons[0]?.count ?? 0) + (weapons[0]?.working ?? 0) >= 1;
-  const blacksmithBlueprintBought = blueprints[0] != null && (blueprints[0].cost === 0) && (buildings[3]?.enabled === true || blacksmithCount >= 1);
+  const hasWeapon =
+    weapons.length > 0 && (weapons[0]?.count ?? 0) + (weapons[0]?.working ?? 0) >= 1;
+  const blacksmithBlueprintBought =
+    blueprints[0] != null &&
+    blueprints[0].cost === 0 &&
+    (buildings[3]?.enabled === true || blacksmithCount >= 1);
   const dungeonCount = dungeons.length;
 
   const workHutCount = buildings[9]?.count ?? 0;

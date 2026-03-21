@@ -12,7 +12,7 @@ const initialState = {
   tempClass: null,
   tempHero: null,
   events: [],
-  heroClass: []
+  heroClass: [],
 };
 
 const configSlice = createSlice({
@@ -24,8 +24,8 @@ const configSlice = createSlice({
         return { ...initialState, ...action.payload };
       }
       return state;
-    }
-  }
+    },
+  },
 });
 
 export const { replaceConfig } = configSlice.actions;

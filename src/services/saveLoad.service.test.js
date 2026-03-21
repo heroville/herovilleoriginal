@@ -16,7 +16,7 @@ describe('SaveLoadService with store', () => {
       restAmount: 2,
       buildings: [
         { id: 0, cost: 5, count: 0, tier: 0, enabled: true },
-        { id: 1, cost: 25, count: 0, tier: 0, enabled: false }
+        { id: 1, cost: 25, count: 0, tier: 0, enabled: false },
       ],
       blueprints: [{ enabled: false }],
       upgrades: [{ enabled: true }, { enabled: false }],
@@ -40,7 +40,7 @@ describe('SaveLoadService with store', () => {
       showTutorial: true,
       panel: [],
       version: '1.3',
-      bestiary: false
+      bestiary: false,
     };
     const scope = { state, skipTut: () => {}, nextTutorial: () => {}, showError: () => {} };
     const GameConfig = { heroClasses: [] };
@@ -60,7 +60,7 @@ describe('SaveLoadService with store', () => {
       restAmount: 3,
       buildings: [
         { cost: 5, count: 1, tier: 0, enabled: true },
-        { cost: 25, count: 0, tier: 0, enabled: false }
+        { cost: 25, count: 0, tier: 0, enabled: false },
       ],
       blueprints: [{ enabled: true }],
       upgrades: [{ enabled: false }, { enabled: true }],
@@ -78,7 +78,7 @@ describe('SaveLoadService with store', () => {
       party: [],
       gameStats: {},
       panelNumber: 1,
-      showTutorial: false
+      showTutorial: false,
     };
 
     const result = SaveLoadService.loadData(scope, savedData);

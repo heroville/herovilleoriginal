@@ -9,8 +9,8 @@ const mockGameConfig = {
   heroClasses: [
     { id: 0, name: 'Gatherer' },
     { id: 1, name: 'Apothecary' },
-    { id: 2, name: 'Fighter' }
-  ]
+    { id: 2, name: 'Fighter' },
+  ],
 };
 
 function makeState(overrides = {}) {
@@ -18,16 +18,23 @@ function makeState(overrides = {}) {
     resources: 10,
     gold: 0,
     buildings: [
-      { id: 0 }, { id: 1 }, { id: 2 }, { id: 3, count: 1 }, { id: 4 }, { id: 5 }, { id: 6 }, { id: 7 }, { id: 8 }, { id: 9 }
+      { id: 0 },
+      { id: 1 },
+      { id: 2 },
+      { id: 3, count: 1 },
+      { id: 4 },
+      { id: 5 },
+      { id: 6 },
+      { id: 7 },
+      { id: 8 },
+      { id: 9 },
     ],
     jobs: [
       { id: 0, name: 'Gather', current: 0, limit: 100, enabled: true },
       { id: 1, name: 'Apothecary', current: 0, limit: 1, enabled: true },
-      { id: 2, name: 'Smith', current: 0, limit: 1, enabled: true }
+      { id: 2, name: 'Smith', current: 0, limit: 1, enabled: true },
     ],
-    heroClass: [
-      { id: 0 }, { id: 1 }, { id: 2 }
-    ],
+    heroClass: [{ id: 0 }, { id: 1 }, { id: 2 }],
     heroList: [],
     weapons: [{ id: 0, durability: 100, minDamage: 1, sellPrice: 0, count: 0 }],
     potions: [],
@@ -35,7 +42,7 @@ function makeState(overrides = {}) {
     dungeons: [{ name: 'Home' }],
     tempClass: null,
     tempHero: null,
-    ...overrides
+    ...overrides,
   };
   return state;
 }
@@ -69,15 +76,7 @@ describe('HeroService with store', () => {
     const state = makeState();
     const GameStateService = { getState: () => state };
     const store = createGameStore(state);
-    const HeroService = HeroServiceFactory(
-      mockGameConfig,
-      {},
-      GameStateService,
-      {},
-      {},
-      {},
-      {}
-    );
+    const HeroService = HeroServiceFactory(mockGameConfig, {}, GameStateService, {}, {}, {}, {});
     HeroService.bindStore(store);
 
     HeroService.addWorker('WorkerOne');
@@ -89,7 +88,7 @@ describe('HeroService with store', () => {
   it('heroProfession updates jobs and heroList in store when bound', () => {
     const state = makeState();
     state.heroList = [
-      { id: 0, name: 'H', job: state.jobs[0], progress: 'Idle', academy: state.heroClass[2] }
+      { id: 0, name: 'H', job: state.jobs[0], progress: 'Idle', academy: state.heroClass[2] },
     ];
     const GameStateService = { getState: () => state };
     const store = createGameStore(state);

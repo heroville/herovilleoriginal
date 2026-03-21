@@ -13,7 +13,7 @@ describe('DungeonService with store', () => {
       bosses: [],
       dungeonNames: { dungeons: ['Cave', 'Forest'] },
       monsterList: { monsters: [{ name: 'Goblin' }, { name: 'Orc' }, { name: 'Dragon' }] },
-      gameLoop: 1000
+      gameLoop: 1000,
     };
     const GameStateService = { getState: () => state };
     const $timeout = (fn) => fn();

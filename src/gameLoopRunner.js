@@ -7,16 +7,17 @@
 export default function startGameLoopRunner(api, store) {
   if (!api || !api.getState) return;
   if (!store) {
-    setInterval(() => { if (api.work) api.work(); if (api.rest) api.rest(); }, api.getState().gameLoop || 1000);
+    setInterval(() => {
+      if (api.work) api.work();
+      if (api.rest) api.rest();
+    }, api.getState().gameLoop || 1000);
     return;
   }
 
   const state = api.getState();
   const isFastTickAllowed =
     (typeof window !== 'undefined' && window.__HEROVILLE_E2E_FAST_TICK__) ||
-    (typeof import.meta !== 'undefined' &&
-      import.meta.env &&
-      import.meta.env.MODE === 'test');
+    (typeof import.meta !== 'undefined' && import.meta.env && import.meta.env.MODE === 'test');
   const minGameLoopMs = isFastTickAllowed ? 2 : 10;
   const gameLoopMs = Math.max(minGameLoopMs, Math.min(5000, state.gameLoop || 1000));
   const saveIntervalMs = 30000;
@@ -37,7 +38,8 @@ export default function startGameLoopRunner(api, store) {
   setInterval(() => store.dispatch(runGameTick()), gameLoopMs);
   setInterval(() => store.dispatch(runSave()), saveIntervalMs);
 
-  const initialRandomEventDelay = state.randomEventTimer || (600000 + Math.floor(Math.random() * 600000));
+  const initialRandomEventDelay =
+    state.randomEventTimer || 600000 + Math.floor(Math.random() * 600000);
   setTimeout(() => {
     if (api.scheduleNextRandomEvent) api.scheduleNextRandomEvent();
   }, initialRandomEventDelay);

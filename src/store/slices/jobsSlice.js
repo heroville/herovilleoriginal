@@ -10,8 +10,8 @@ const jobsSlice = createSlice({
   reducers: {
     replaceJobs(state, action) {
       return Array.isArray(action.payload) ? action.payload : state;
-    }
-  }
+    },
+  },
 });
 
 export const { replaceJobs } = jobsSlice.actions;

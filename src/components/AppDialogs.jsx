@@ -81,11 +81,24 @@ export default function AppDialogs() {
       else if (dialogState.confirm) close('confirm');
       else if (dialogState.loading) close('loading');
     };
-    if (dialogState.hero || dialogState.worker || dialogState.version || dialogState.confirm || dialogState.loading) {
+    if (
+      dialogState.hero ||
+      dialogState.worker ||
+      dialogState.version ||
+      dialogState.confirm ||
+      dialogState.loading
+    ) {
       window.addEventListener('keydown', handleKeyDown);
       return () => window.removeEventListener('keydown', handleKeyDown);
     }
-  }, [dialogState.hero, dialogState.worker, dialogState.version, dialogState.confirm, dialogState.loading, close]);
+  }, [
+    dialogState.hero,
+    dialogState.worker,
+    dialogState.version,
+    dialogState.confirm,
+    dialogState.loading,
+    close,
+  ]);
 
   useEffect(() => {
     if (dialogState.hero) {
@@ -143,7 +156,13 @@ export default function AppDialogs() {
     close('loading');
   };
 
-  if (!dialogState.hero && !dialogState.worker && !dialogState.version && !dialogState.confirm && !dialogState.loading) {
+  if (
+    !dialogState.hero &&
+    !dialogState.worker &&
+    !dialogState.version &&
+    !dialogState.confirm &&
+    !dialogState.loading
+  ) {
     return null;
   }
 
@@ -151,14 +170,41 @@ export default function AppDialogs() {
     <>
       {dialogState.hero && (
         <div className="hv-modal-backdrop" onClick={() => close('hero')} role="presentation">
-          <div ref={heroDialogRef} className="heroPopup hv-modal-dialog" onClick={(e) => e.stopPropagation()} role="dialog" aria-modal="true" aria-labelledby="hero-dialog-title" aria-describedby="hero-dialog-desc">
-            <div className="hv-modal-header"><h3 id="hero-dialog-title">New Hero</h3></div>
+          <div
+            ref={heroDialogRef}
+            className="heroPopup hv-modal-dialog"
+            onClick={(e) => e.stopPropagation()}
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby="hero-dialog-title"
+            aria-describedby="hero-dialog-desc"
+          >
+            <div className="hv-modal-header">
+              <h3 id="hero-dialog-title">New Hero</h3>
+            </div>
             <div className="hv-modal-body">
-              <div id="error" role="alert">{heroError && <span className="text-danger">{heroError}</span>}</div>
+              <div id="error" role="alert">
+                {heroError && <span className="text-danger">{heroError}</span>}
+              </div>
               <p id="hero-dialog-desc">Enter a name for the hero.</p>
-              <input type="text" id="name" name="name" data-testid="hero-name-input" value={heroName} onChange={(e) => setHeroName(e.target.value)} onKeyDown={(e) => e.key === 'Enter' && handleHeroAccept()} className="hv-w-100" />
+              <input
+                type="text"
+                id="name"
+                name="name"
+                data-testid="hero-name-input"
+                value={heroName}
+                onChange={(e) => setHeroName(e.target.value)}
+                onKeyDown={(e) => e.key === 'Enter' && handleHeroAccept()}
+                className="hv-w-100"
+              />
               <div className="hv-modal-actions">
-                <button type="button" className="hv-btn-primary hv-btn-auto" onClick={handleHeroAccept}>Accept</button>
+                <button
+                  type="button"
+                  className="hv-btn-primary hv-btn-auto"
+                  onClick={handleHeroAccept}
+                >
+                  Accept
+                </button>
               </div>
             </div>
           </div>
@@ -167,14 +213,41 @@ export default function AppDialogs() {
 
       {dialogState.worker && (
         <div className="hv-modal-backdrop" onClick={() => close('worker')} role="presentation">
-          <div ref={workerDialogRef} className="workerPopup hv-modal-dialog" onClick={(e) => e.stopPropagation()} role="dialog" aria-modal="true" aria-labelledby="worker-dialog-title" aria-describedby="worker-dialog-desc">
-            <div className="hv-modal-header"><h3 id="worker-dialog-title">New Worker</h3></div>
+          <div
+            ref={workerDialogRef}
+            className="workerPopup hv-modal-dialog"
+            onClick={(e) => e.stopPropagation()}
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby="worker-dialog-title"
+            aria-describedby="worker-dialog-desc"
+          >
+            <div className="hv-modal-header">
+              <h3 id="worker-dialog-title">New Worker</h3>
+            </div>
             <div className="hv-modal-body">
-              <div role="alert">{workerError && <span className="text-danger">{workerError}</span>}</div>
+              <div role="alert">
+                {workerError && <span className="text-danger">{workerError}</span>}
+              </div>
               <p id="worker-dialog-desc">Enter a name for the worker.</p>
-              <input type="text" id="name2" name="name2" data-testid="worker-name-input" value={workerName} onChange={(e) => setWorkerName(e.target.value)} onKeyDown={(e) => e.key === 'Enter' && handleWorkerAccept()} className="hv-w-100" />
+              <input
+                type="text"
+                id="name2"
+                name="name2"
+                data-testid="worker-name-input"
+                value={workerName}
+                onChange={(e) => setWorkerName(e.target.value)}
+                onKeyDown={(e) => e.key === 'Enter' && handleWorkerAccept()}
+                className="hv-w-100"
+              />
               <div className="hv-modal-actions">
-                <button type="button" className="hv-btn-primary hv-btn-auto" onClick={handleWorkerAccept}>Accept</button>
+                <button
+                  type="button"
+                  className="hv-btn-primary hv-btn-auto"
+                  onClick={handleWorkerAccept}
+                >
+                  Accept
+                </button>
               </div>
             </div>
           </div>
@@ -183,17 +256,36 @@ export default function AppDialogs() {
 
       {dialogState.version && (
         <div className="hv-modal-backdrop" onClick={() => close('version')} role="presentation">
-          <div ref={versionDialogRef} className="hv-modal-dialog" onClick={(e) => e.stopPropagation()} role="dialog" aria-modal="true" aria-labelledby="version-dialog-title">
-            <div className="hv-modal-header"><h3 id="version-dialog-title">Version Information</h3></div>
+          <div
+            ref={versionDialogRef}
+            className="hv-modal-dialog"
+            onClick={(e) => e.stopPropagation()}
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby="version-dialog-title"
+          >
+            <div className="hv-modal-header">
+              <h3 id="version-dialog-title">Version Information</h3>
+            </div>
             <div className="hv-modal-body">
-              <p><strong>Version 2.0</strong></p>
+              <p>
+                <strong>Version 2.0</strong>
+              </p>
               <ul className="hv-version-notes">
                 <li>UI overhaul: dark mode only, major layout and visual update</li>
-                <li>Migration to a modern framework for better performance, security and modernization</li>
+                <li>
+                  Migration to a modern framework for better performance, security and modernization
+                </li>
                 <li>Game functionality has been maintained</li>
               </ul>
               <div className="hv-modal-actions">
-                <button type="button" className="hv-btn-secondary hv-btn-auto" onClick={() => close('version')}>Close</button>
+                <button
+                  type="button"
+                  className="hv-btn-secondary hv-btn-auto"
+                  onClick={() => close('version')}
+                >
+                  Close
+                </button>
               </div>
             </div>
           </div>
@@ -202,13 +294,34 @@ export default function AppDialogs() {
 
       {dialogState.confirm && (
         <div className="hv-modal-backdrop" onClick={() => close('confirm')} role="presentation">
-          <div ref={confirmDialogRef} className="hv-modal-dialog" onClick={(e) => e.stopPropagation()} role="dialog" aria-modal="true" aria-labelledby="confirm-dialog-title">
-            <div className="hv-modal-header"><h3 id="confirm-dialog-title">Confirmation Required</h3></div>
+          <div
+            ref={confirmDialogRef}
+            className="hv-modal-dialog"
+            onClick={(e) => e.stopPropagation()}
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby="confirm-dialog-title"
+          >
+            <div className="hv-modal-header">
+              <h3 id="confirm-dialog-title">Confirmation Required</h3>
+            </div>
             <div className="hv-modal-body">
               <p>This change is permanent, are you sure this is what you want to do?</p>
               <div className="hv-modal-actions">
-                <button type="button" className="hv-btn-primary hv-btn-auto" onClick={handleConfirmConfirm}>Confirm</button>
-                <button type="button" className="hv-btn-secondary hv-btn-auto" onClick={() => close('confirm')}>Cancel</button>
+                <button
+                  type="button"
+                  className="hv-btn-primary hv-btn-auto"
+                  onClick={handleConfirmConfirm}
+                >
+                  Confirm
+                </button>
+                <button
+                  type="button"
+                  className="hv-btn-secondary hv-btn-auto"
+                  onClick={() => close('confirm')}
+                >
+                  Cancel
+                </button>
               </div>
             </div>
           </div>
@@ -217,13 +330,38 @@ export default function AppDialogs() {
 
       {dialogState.loading && (
         <div className="hv-modal-backdrop" onClick={() => close('loading')} role="presentation">
-          <div ref={loadingDialogRef} className="hv-modal-dialog" onClick={(e) => e.stopPropagation()} role="dialog" aria-modal="true" aria-labelledby="loading-dialog-title">
-            <div className="hv-modal-header"><h3 id="loading-dialog-title">Old Version</h3></div>
+          <div
+            ref={loadingDialogRef}
+            className="hv-modal-dialog"
+            onClick={(e) => e.stopPropagation()}
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby="loading-dialog-title"
+          >
+            <div className="hv-modal-header">
+              <h3 id="loading-dialog-title">Old Version</h3>
+            </div>
             <div className="hv-modal-body">
-              <p>You are loading from an old version, there may be errors. If the game does not load correctly try starting a new game by refreshing the page. Continue to load the save anyway, or Reset to start fresh.</p>
+              <p>
+                You are loading from an old version, there may be errors. If the game does not load
+                correctly try starting a new game by refreshing the page. Continue to load the save
+                anyway, or Reset to start fresh.
+              </p>
               <div className="hv-modal-actions">
-                <button type="button" className="hv-btn-primary hv-btn-auto" onClick={handleLoadingAccept}>Continue</button>
-                <button type="button" className="hv-btn-secondary hv-btn-auto" onClick={() => game?.options?.reset?.()}>Reset</button>
+                <button
+                  type="button"
+                  className="hv-btn-primary hv-btn-auto"
+                  onClick={handleLoadingAccept}
+                >
+                  Continue
+                </button>
+                <button
+                  type="button"
+                  className="hv-btn-secondary hv-btn-auto"
+                  onClick={() => game?.options?.reset?.()}
+                >
+                  Reset
+                </button>
               </div>
             </div>
           </div>

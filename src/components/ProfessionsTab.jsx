@@ -19,7 +19,9 @@ export default function ProfessionsTab() {
             <table className="hv-table">
               <thead>
                 <tr>
-                  <th colSpan={2} className="hv-text-center">Jobs</th>
+                  <th colSpan={2} className="hv-text-center">
+                    Jobs
+                  </th>
                 </tr>
                 <tr>
                   <th>Name</th>
