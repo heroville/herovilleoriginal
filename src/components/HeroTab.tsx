@@ -316,7 +316,7 @@ export default function HeroTab() {
             </table>
           )}
         </div>
-        <div style={workers.length === 0 ? { display: 'none' } : undefined}>
+        {workers.length > 0 && <div>
           <div className="hv-panel hv-table-card">
             <div className="hv-panel__body hv-panel__body--no-pad">
               <table className="hv-table">
@@ -391,7 +391,7 @@ export default function HeroTab() {
               </table>
             </div>
           </div>
-        </div>
+        </div>}
       </div>
     </section>
   );

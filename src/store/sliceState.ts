@@ -186,5 +186,3 @@ export const selectFullState = createSelector(
     })
 );
 
-/** Action type for replacing entire store state from flat state. */
-export const REPLACE_STATE = 'game/replaceState';

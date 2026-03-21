@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { stateToSlices, selectFullState, REPLACE_STATE } from './sliceState.ts';
+import { stateToSlices, selectFullState } from './sliceState.ts';
 import type { FlatGameState, RootState } from '../types/index.ts';
 
 describe('stateToSlices', () => {
@@ -28,8 +28,3 @@ describe('selectFullState', () => {
   });
 });
 
-describe('REPLACE_STATE', () => {
-  it('is game/replaceState', () => {
-    expect(REPLACE_STATE).toBe('game/replaceState');
-  });
-});

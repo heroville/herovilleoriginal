@@ -1,6 +1,6 @@
 /**
  * Root reducer: combines all slice reducers.
- * REPLACE_STATE is no longer used — services dispatch fine-grained slice actions directly.
+ * Services dispatch fine-grained slice actions directly.
  */
 import { combineReducers } from '@reduxjs/toolkit';
 import economyReducer from './slices/economySlice.ts';
