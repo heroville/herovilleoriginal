@@ -30,50 +30,37 @@ function DungeonServiceFactory(GameStateService, $timeout, $injector) {
   function dungeonName() {
     const s = GameStateService.getState();
     if (!s.dungeonNames || !s.dungeonNames.dungeons) return 'Dungeon';
-    const dList = s.dungeonNames.dungeons.slice();
-    for (let i = 0; i < s.dungeons.length; i++) {
-      for (let j = 0; j < dList.length; j++) {
-        if (dList[j] === s.dungeons[i].name) {
-          dList.splice(j, 1);
-        }
-      }
-    }
-    if (dList.length === 0) return 'Dungeon';
-    const random = Math.floor(Math.random() * dList.length);
-    return dList[random];
+    const usedNames = new Set(s.dungeons.map((d) => d.name));
+    const available = s.dungeonNames.dungeons.filter((name) => !usedNames.has(name));
+    if (available.length === 0) return 'Dungeon';
+    return available[Math.floor(Math.random() * available.length)];
   }
 
   function createMonster(level) {
     const s = GameStateService.getState();
     if (!s.monsterList || !s.monsterList.monsters) return;
-    const monsterList = s.monsterList.monsters;
-    for (let i = 0; i < s.monsters.length; i++) {
-      for (let j = 0; j < monsterList.length; j++) {
-        if (monsterList[j].name === s.monsters[i].name) {
-          monsterList.splice(j, 1);
-        }
-      }
-    }
+    const usedNames = new Set(s.monsters.map((m) => m.name));
+    const available = s.monsterList.monsters.filter((m) => !usedNames.has(m.name));
     for (let i = 0; i < MONSTERS_PER_BATCH; i++) {
-      if (monsterList.length === 0) break;
-      const random = Math.floor(Math.random() * monsterList.length);
+      if (available.length === 0) break;
+      const idx = Math.floor(Math.random() * available.length);
       const randomMax = Math.ceil(Math.random() * (level * level + 1));
       const randomMin = Math.ceil(Math.random() * randomMax);
       const averagedmg = Math.ceil((randomMax + randomMin) / 2);
       const mobHealth = Math.floor(
         ((MONSTER_HEALTH_MULTIPLIER * level) / averagedmg) * (level * level)
       );
-      s.monsters[s.monsters.length] = {
+      s.monsters.push({
         id: s.monsters.length,
-        name: monsterList[random].name,
+        name: available[idx].name,
         value: level,
         minDamage: randomMin,
         maxDamage: randomMax,
         health: mobHealth,
         low: 'Junk;j;' + level * MONSTER_LOOT_MULTIPLIER,
         high: 'Gold;g;' + level,
-      };
-      monsterList.splice(random, 1);
+      });
+      available.splice(idx, 1);
     }
   }
 
@@ -81,38 +68,31 @@ function DungeonServiceFactory(GameStateService, $timeout, $injector) {
     const s = GameStateService.getState();
     if (!s.monsterList || !s.monsterList.monsters) return;
     level += BOSS_LEVEL_OFFSET;
-    const monsterList = s.monsterList.monsters;
-    for (let i = 0; i < s.bosses.length; i++) {
-      for (let j = 0; j < monsterList.length; j++) {
-        if (monsterList[j].name === s.bosses[i].name) {
-          monsterList.splice(j, 1);
-        }
-      }
-    }
-    if (monsterList.length === 0) return;
-    const random = Math.floor(Math.random() * monsterList.length);
+    const usedNames = new Set(s.bosses.map((b) => b.name));
+    const available = s.monsterList.monsters.filter((m) => !usedNames.has(m.name));
+    if (available.length === 0) return;
+    const idx = Math.floor(Math.random() * available.length);
     const randomMax = Math.ceil(Math.random() * (level * level + 1));
     const randomMin = Math.ceil(Math.random() * randomMax);
     const averagedmg = Math.ceil((randomMax + randomMin) / 2);
     const mobHealth = Math.floor(
       ((MONSTER_HEALTH_MULTIPLIER * level) / averagedmg) * (level * level)
     );
-    s.bosses[s.bosses.length] = {
+    s.bosses.push({
       id: s.bosses.length,
-      name: monsterList[random].name,
+      name: available[idx].name,
       value: level,
       minDamage: randomMin,
       maxDamage: randomMax,
       health: mobHealth,
       low: 'Junk;j;' + level * MONSTER_LOOT_MULTIPLIER,
       high: 'Gold;g;' + level,
-    };
-    monsterList.splice(random, 1);
+    });
   }
 
   function activateDungeon() {
     const s = GameStateService.getState();
-    s.dungeons[s.dungeons.length] = {
+    s.dungeons.push({
       id: s.dungeons.length,
       name: dungeonName(),
       level: s.dungeons.length + 1,
@@ -122,7 +102,7 @@ function DungeonServiceFactory(GameStateService, $timeout, $injector) {
       bossID: s.dungeons.length,
       enabled: true,
       reward: 'Gold;g;' + (s.dungeons.length + 1),
-    };
+    });
     createMonster(s.dungeons.length);
     createBoss(s.dungeons.length - 1);
     syncStoreIfBound();

@@ -61,7 +61,7 @@ function HeroServiceFactory(
   function addHero(heroName) {
     const s = GameStateService.getState();
     const hero = s.heroList;
-    hero[hero.length] = {
+    hero.push({
       id: hero.length,
       name: heroName,
       currHealth: HERO_BASE_HEALTH,
@@ -78,14 +78,14 @@ function HeroServiceFactory(
       job: s.jobs[0],
       academy: s.heroClass[2],
       party: false,
-    };
+    });
     syncStoreIfBound();
   }
 
   function addWorker(heroName) {
     const s = GameStateService.getState();
     const hero = s.heroList;
-    hero[hero.length] = {
+    hero.push({
       id: hero.length,
       name: heroName,
       currHealth: HERO_BASE_HEALTH,
@@ -102,7 +102,7 @@ function HeroServiceFactory(
       job: s.jobs[0],
       academy: s.heroClass[1],
       party: false,
-    };
+    });
     syncStoreIfBound();
   }
 

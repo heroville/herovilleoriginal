@@ -114,7 +114,7 @@ function CombatServiceFactory(
         // already dead
       } else if (enemyL[i].health < damage) {
         enemyL[i].health = 0;
-        tempDead[tempDead.length] = enemyL[i];
+        tempDead.push(enemyL[i]);
         damage = 0;
       } else {
         enemyL[i].health -= damage;
@@ -285,16 +285,16 @@ function CombatServiceFactory(
 
   function startFight(monList, journey, boss) {
     const s = GameStateService.getState();
-    const thisBattle = s.battles.length;
-    s.battles[thisBattle] = {
-      id: thisBattle,
+    const thisBattle = {
+      id: s.battles.length,
       hero: journey.hero,
       copyMonsters: monList.slice(),
       experience: 0,
       boss: boss,
     };
+    s.battles.push(thisBattle);
     activatePotions(journey.hero);
-    takeTurn(s.battles[thisBattle], journey);
+    takeTurn(thisBattle, journey);
   }
 
   return {
