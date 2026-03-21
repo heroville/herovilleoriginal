@@ -32,7 +32,7 @@
  * @property {function(): void} [openHeroDialog]
  * @property {function(): void} [openWorkerDialog]
  */
-import { REPLACE_STATE } from '../store/sliceState.js';
+import { createStoreBinding } from './storeSync.js';
 import {
   BUILDING_TENT,
   BUILDING_STOCKPILE,
@@ -53,19 +53,7 @@ function BuildingServiceFactory(
   DungeonService,
   ProductionService
 ) {
-  var _dispatch = null;
-
-  /** Binds the Redux store; after incrBuilding/incrBlueprint we dispatch REPLACE_STATE so the store stays in sync. */
-  function bindStore(store) {
-    if (store) _dispatch = store.dispatch;
-  }
-
-  function syncStoreIfBound() {
-    if (_dispatch) {
-      const flat = GameStateService.getState();
-      _dispatch({ type: REPLACE_STATE, payload: JSON.parse(JSON.stringify(flat)) });
-    }
-  }
+  const { bindStore, syncStoreIfBound } = createStoreBinding(() => GameStateService.getState());
 
   function incrBuilding(state, actions, building) {
     if (!building || building.id == null) return;

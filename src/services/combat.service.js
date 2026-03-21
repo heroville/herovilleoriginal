@@ -2,7 +2,7 @@
  * Combat/battle resolution: turns, damage, loot, potions.
  * When store is bound via bindStore(store), dispatches REPLACE_STATE after takeTurn mutations (battles, heroes, gameStats).
  */
-import { REPLACE_STATE } from '../store/sliceState.js';
+import { createStoreBinding } from './storeSync.js';
 import {
   HERO_BASE_HEALTH,
   HERO_BASE_XP_THRESHOLD,
@@ -26,18 +26,7 @@ function CombatServiceFactory(
   $timeout
 ) {
   const HERO_CLASSES = GameConfig.heroClasses || [];
-  var _dispatch = null;
-
-  function bindStore(store) {
-    if (store) _dispatch = store.dispatch;
-  }
-
-  function syncStoreIfBound() {
-    if (_dispatch) {
-      const flat = GameStateService.getState();
-      _dispatch({ type: REPLACE_STATE, payload: JSON.parse(JSON.stringify(flat)) });
-    }
-  }
+  const { bindStore, syncStoreIfBound } = createStoreBinding(() => GameStateService.getState());
 
   function activatePotions(hero) {
     for (let i = 0; i < hero.length; i++) {

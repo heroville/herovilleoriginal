@@ -2,21 +2,10 @@
  * UI / Tutorial: tutorial steps, error display, theme toggle.
  * When store is bound via bindStore(store), dispatches REPLACE_STATE after nextTutorial and showError (when panel mutates).
  */
-import { REPLACE_STATE } from '../store/sliceState.js';
+import { createStoreBinding } from './storeSync.js';
 
 function UiServiceFactory(GameStateService) {
-  var _dispatch = null;
-
-  function bindStore(store) {
-    if (store) _dispatch = store.dispatch;
-  }
-
-  function syncStoreIfBound() {
-    if (_dispatch) {
-      const flat = GameStateService.getState();
-      _dispatch({ type: REPLACE_STATE, payload: JSON.parse(JSON.stringify(flat)) });
-    }
-  }
+  const { bindStore, syncStoreIfBound } = createStoreBinding(() => GameStateService.getState());
 
   function startInfo(scope) {
     if (scope.state) scope.state.panelInfo = true;

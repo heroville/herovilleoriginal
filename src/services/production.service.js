@@ -3,24 +3,13 @@
  * When store is bound via bindStore(store), dispatches REPLACE_STATE after create, purchaseWeapon,
  * buyUpgrade, activateBlueprint and when async production (createPotion/createPotions/buyWeapon) completes.
  */
-import { REPLACE_STATE } from '../store/sliceState.js';
+import { createStoreBinding } from './storeSync.js';
 import { formatSeconds } from './util.service.js';
 import { PROGRESS_SYNC_THROTTLE_MS } from '../constants/gameConstants.js';
 
 function ProductionServiceFactory(EconomyService, GameUiService) {
-  var _dispatch = null;
+  const { bindStore, syncStoreIfBound } = createStoreBinding(() => EconomyService.getState());
   var _lastProgressSync = 0;
-
-  function bindStore(store) {
-    if (store) _dispatch = store.dispatch;
-  }
-
-  function syncStoreIfBound() {
-    if (_dispatch) {
-      const flat = EconomyService.getState();
-      _dispatch({ type: REPLACE_STATE, payload: JSON.parse(JSON.stringify(flat)) });
-    }
-  }
 
   /** Throttled sync for progress ticks to avoid full clone every gameLoop ms. Always call syncStoreIfBound on completion. */
   function syncProgressIfNeeded() {

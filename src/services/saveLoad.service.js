@@ -2,22 +2,11 @@
  * Save/Load/Reset game state to localStorage.
  * When store is bound via bindStore(store), dispatches REPLACE_STATE after loadData so the Redux store stays in sync.
  */
-import { REPLACE_STATE } from '../store/sliceState.js';
+import { createStoreBinding } from './storeSync.js';
 
 function SaveLoadServiceFactory(GameConfig, GameUiService, GameStateService) {
   const HERO_CLASSES = GameConfig.heroClasses || [];
-  var _dispatch = null;
-
-  function bindStore(store) {
-    if (store) _dispatch = store.dispatch;
-  }
-
-  function syncStoreIfBound() {
-    if (_dispatch) {
-      const flat = GameStateService.getState();
-      _dispatch({ type: REPLACE_STATE, payload: JSON.parse(JSON.stringify(flat)) });
-    }
-  }
+  const { bindStore, syncStoreIfBound } = createStoreBinding(() => GameStateService.getState());
 
   function reset() {
     const raw = localStorage.getItem('data');

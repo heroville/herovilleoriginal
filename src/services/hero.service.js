@@ -3,7 +3,7 @@
  * Uses GameStateService, GameUiService, DungeonService, ProductionService, UtilService, EconomyService (no scope param).
  * When store is bound via bindStore(store), dispatches REPLACE_STATE after mutations so the Redux store stays in sync.
  */
-import { REPLACE_STATE } from '../store/sliceState.js';
+import { createStoreBinding } from './storeSync.js';
 import {
   HERO_BASE_HEALTH,
   HERO_BASE_XP_THRESHOLD,
@@ -35,18 +35,7 @@ function HeroServiceFactory(
   UtilService
 ) {
   const HERO_CLASSES = GameConfig.heroClasses || [];
-  let _dispatch = null;
-
-  function bindStore(store) {
-    if (store) _dispatch = store.dispatch;
-  }
-
-  function syncStoreIfBound() {
-    if (_dispatch) {
-      const flat = GameStateService.getState();
-      _dispatch({ type: REPLACE_STATE, payload: JSON.parse(JSON.stringify(flat)) });
-    }
-  }
+  const { bindStore, syncStoreIfBound } = createStoreBinding(() => GameStateService.getState());
 
   function defaultEquip() {
     const s = GameStateService.getState();
