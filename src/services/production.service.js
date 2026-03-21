@@ -4,6 +4,7 @@
  * buyUpgrade, activateBlueprint and when async production (createPotion/createPotions/buyWeapon) completes.
  */
 import { REPLACE_STATE } from '../store/sliceState.js';
+import { formatSeconds } from './util.service.js';
 
 const PROGRESS_SYNC_THROTTLE_MS = 500;
 
@@ -38,10 +39,10 @@ function ProductionServiceFactory(EconomyService, GameUiService) {
     }
     if (s.potion.prodTime > start) {
       if (button) {
-        s.potion.progress = (s.potion.prodTime - start).toString().toHHMMSS();
+        s.potion.progress = formatSeconds(s.potion.prodTime - start);
         syncProgressIfNeeded();
       } else if (heroID >= 0) {
-        s.heroList[heroID].progress = (s.potion.prodTime - start).toString().toHHMMSS();
+        s.heroList[heroID].progress = formatSeconds(s.potion.prodTime - start);
       }
       setTimeout(function () {
         createPotion(button, start + 1, heroID, onDone);
@@ -67,10 +68,10 @@ function ProductionServiceFactory(EconomyService, GameUiService) {
     const acc = s.potions[potionID];
     if (acc.prodTime > start) {
       if (button) {
-        acc.progress = (acc.prodTime - start).toString().toHHMMSS();
+        acc.progress = formatSeconds(acc.prodTime - start);
         syncProgressIfNeeded();
       } else if (heroID >= 0) {
-        s.heroList[heroID].progress = (acc.prodTime - start).toString().toHHMMSS();
+        s.heroList[heroID].progress = formatSeconds(acc.prodTime - start);
       }
       setTimeout(function () {
         createPotions(potionID, button, start + 1, heroID, onDone);
@@ -96,10 +97,10 @@ function ProductionServiceFactory(EconomyService, GameUiService) {
     const weapon = s.weapons[weaponID];
     if (weapon.prodTime > start) {
       if (button) {
-        weapon.progress = (weapon.prodTime - start).toString().toHHMMSS();
+        weapon.progress = formatSeconds(weapon.prodTime - start);
         syncProgressIfNeeded();
       } else if (heroID >= 0) {
-        s.heroList[heroID].progress = (weapon.prodTime - start).toString().toHHMMSS();
+        s.heroList[heroID].progress = formatSeconds(weapon.prodTime - start);
       }
       setTimeout(function () {
         buyWeapon(weaponID, button, start + 1, heroID, onDone);

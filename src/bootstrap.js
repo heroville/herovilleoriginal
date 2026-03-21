@@ -20,17 +20,6 @@ import { createGameStore, selectFullState, replaceStateFromFlat } from './store/
 import { toggleDark } from './store/slices/uiSlice.js';
 import { advanceTutorial, skipTutorial, addGameLogMessage } from './store/slices/tutorialSlice.js';
 
-// String.prototype.toHHMMSS used by ProductionService progress display
-if (typeof String.prototype.toHHMMSS !== 'function') {
-  String.prototype.toHHMMSS = function () {
-    const secNum = parseInt(this, 10);
-    const hours = Math.floor(secNum / 3600);
-    const minutes = Math.floor((secNum - hours * 3600) / 60);
-    const seconds = secNum - hours * 3600 - minutes * 60;
-    const pad = (n) => (n < 10 ? '0' + n : '' + n);
-    return pad(hours) + ':' + pad(minutes) + ':' + pad(seconds);
-  };
-}
 
 const state = GameStateService.getState();
 EconomyService.bindState(state);
