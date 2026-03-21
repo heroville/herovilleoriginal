@@ -23,8 +23,9 @@ export default function startGameLoopRunner(api, store) {
 
   const state = api.getState();
   const isFastTickAllowed =
-    (typeof window !== 'undefined' && window.__HEROVILLE_E2E_FAST_TICK__) ||
-    (typeof import.meta !== 'undefined' && import.meta.env && import.meta.env.MODE === 'test');
+    import.meta.env.DEV &&
+    ((typeof window !== 'undefined' && window.__HEROVILLE_E2E_FAST_TICK__) ||
+      import.meta.env.MODE === 'test');
   const minGameLoopMs = isFastTickAllowed ? 2 : 10;
   const gameLoopMs = Math.max(minGameLoopMs, Math.min(MAX_GAME_LOOP_MS, state.gameLoop || DEFAULT_GAME_LOOP_MS));
   const saveIntervalMs = SAVE_INTERVAL_MS;

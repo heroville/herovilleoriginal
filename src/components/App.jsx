@@ -36,7 +36,7 @@ export default function App() {
   const [activeSection, setActiveSection] = useState('town');
 
   useEffect(() => {
-    if (typeof window !== 'undefined' && window.__HEROVILLE_E2E_FAST_TICK__ != null) {
+    if (import.meta.env.DEV && typeof window !== 'undefined' && window.__HEROVILLE_E2E_FAST_TICK__ != null) {
       window.__HEROVILLE_E2E_STATE__ = () => game.getState();
       return () => {
         delete window.__HEROVILLE_E2E_STATE__;
