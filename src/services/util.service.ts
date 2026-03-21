@@ -74,4 +74,6 @@ function UtilServiceFactory() {
   };
 }
 
+export type UtilServiceInstance = ReturnType<typeof UtilServiceFactory>;
+
 export default UtilServiceFactory;
