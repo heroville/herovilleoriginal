@@ -1,8 +1,11 @@
 /**
  * Combat/battle resolution: turns, damage, loot, potions.
- * When store is bound via bindStore(store), dispatches REPLACE_STATE after takeTurn mutations (battles, heroes, gameStats).
+ * Reads state from the Redux store; dispatches heroes + gameStats slices after mutations.
+ * No GameStateService — Redux is the single source of truth.
  */
-import { createStoreBinding } from './storeSync.js';
+import { getFlatState, dispatchHeroes, dispatchGameStats } from './stateHelpers.js';
+import { replaceHeroes } from '../store/slices/heroesSlice.js';
+import { replaceGameStats } from '../store/slices/gameStatsSlice.js';
 import {
   HERO_BASE_HEALTH,
   HERO_BASE_XP_THRESHOLD,
@@ -18,7 +21,7 @@ import {
 } from '../constants/gameConstants.js';
 
 function CombatServiceFactory(
-  GameStateService,
+  store,
   HeroService,
   DungeonService,
   GameUiService,
@@ -26,7 +29,6 @@ function CombatServiceFactory(
   $timeout
 ) {
   const HERO_CLASSES = GameConfig.heroClasses || [];
-  const { bindStore, syncStoreIfBound } = createStoreBinding(() => GameStateService.getState());
 
   function activatePotions(hero) {
     for (let i = 0; i < hero.length; i++) {
@@ -48,8 +50,9 @@ function CombatServiceFactory(
   }
 
   function heroDamage(hero) {
-    const s = GameStateService.getState();
-    if (hero.equip.weapon.id !== s.weapons[0].id) {
+    const economy = store.getState().economy;
+    const production = store.getState().production;
+    if (hero.equip.weapon.id !== production.weapons[0].id) {
       if (hero.equip.weapon.broken === false) {
         if (hero.equip.weapon.durability <= 0) {
           hero.equip.weapon.minDamage = Math.ceil(hero.equip.weapon.minDamage / 2);
@@ -66,9 +69,9 @@ function CombatServiceFactory(
       if (hero.equip.potions[POTION_POWER].active === true) {
         heroDamageMulti = POWER_POTION_DAMAGE_MULTIPLIER;
       }
-      return Math.ceil(damage * s.damageMulti * heroDamageMulti);
+      return Math.ceil(damage * economy.damageMulti * heroDamageMulti);
     }
-    return 1 * s.damageMulti;
+    return 1 * economy.damageMulti;
   }
 
   function monstersAlive(monsterList) {
@@ -87,12 +90,14 @@ function CombatServiceFactory(
   }
 
   function heroTurn(heroL, enemyL) {
-    const s = GameStateService.getState();
+    const potions = store.getState().production.potions;
     let damage = 0;
     for (let i = 0; i < heroL.length; i++) {
       if (heroL[i].currHealth > 0) {
         if (heroL[i].equip.potions[POTION_REGEN].active) {
-          HeroService.heal(i, s.potions[POTION_REGEN].value, 1);
+          const regenVal = potions[POTION_REGEN] ? potions[POTION_REGEN].value : 0;
+          const healPct = Math.floor((heroL[i].health / 100) * regenVal);
+          heroL[i].currHealth = Math.min(heroL[i].health, heroL[i].currHealth + healPct);
         }
         damage += heroDamage(heroL[i]);
       }
@@ -114,7 +119,7 @@ function CombatServiceFactory(
   }
 
   function enemyTurn(hero, monsterList) {
-    const s = GameStateService.getState();
+    const potions = store.getState().production.potions;
     let turnDamage = 0;
     for (let i = 0; i < monsterList.length; i++) {
       if (monsterList[i].health > 0) {
@@ -137,28 +142,30 @@ function CombatServiceFactory(
           heroDamageAmount++;
         }
         hero[k].currHealth -= heroDamageAmount;
-        const potions = s.potions;
         if (
           hero[k].equip.potions[POTION_GREAT_HEALTH] &&
           hero[k].equip.potions[POTION_GREAT_HEALTH].count > 0 &&
+          potions[POTION_GREAT_HEALTH] &&
           hero[k].health - hero[k].currHealth > potions[POTION_GREAT_HEALTH].value
         ) {
           hero[k].equip.potions[POTION_GREAT_HEALTH].count--;
-          HeroService.heal(k, potions[POTION_GREAT_HEALTH].value);
+          hero[k].currHealth = Math.min(hero[k].health, hero[k].currHealth + potions[POTION_GREAT_HEALTH].value);
         } else if (
           hero[k].equip.potions[POTION_GOOD_HEALTH] &&
           hero[k].equip.potions[POTION_GOOD_HEALTH].count > 0 &&
+          potions[POTION_GOOD_HEALTH] &&
           hero[k].health - hero[k].currHealth > potions[POTION_GOOD_HEALTH].value
         ) {
           hero[k].equip.potions[POTION_GOOD_HEALTH].count--;
-          HeroService.heal(k, potions[POTION_GOOD_HEALTH].value);
+          hero[k].currHealth = Math.min(hero[k].health, hero[k].currHealth + potions[POTION_GOOD_HEALTH].value);
         } else if (
           hero[k].equip.potions[POTION_HEALTH] &&
           hero[k].equip.potions[POTION_HEALTH].count > 0 &&
+          potions[POTION_HEALTH] &&
           hero[k].health - hero[k].currHealth > potions[POTION_HEALTH].value
         ) {
           hero[k].equip.potions[POTION_HEALTH].count--;
-          HeroService.heal(k, potions[POTION_HEALTH].value);
+          hero[k].currHealth = Math.min(hero[k].health, hero[k].currHealth + potions[POTION_HEALTH].value);
         }
       }
     }
@@ -184,7 +191,7 @@ function CombatServiceFactory(
   }
 
   function takeTurn(battle, journey) {
-    const s = GameStateService.getState();
+    const s = getFlatState(store);
     const hero = journey.hero;
     const monstersList = battle.copyMonsters;
 
@@ -226,23 +233,31 @@ function CombatServiceFactory(
           hero[k].progress =
             Math.round((journey.steps / journey.dungeon.steps) * 100) + '%' + ' Complete';
         }
+        const gameLoop = store.getState().config.gameLoop;
         $timeout(function () {
           DungeonService.travel(journey);
-        }, s.gameLoop);
+        }, gameLoop);
       }
       for (let i = 0; i < hero.length; i++) {
         HeroService.gainExp(hero[i], battle.experience);
       }
-      s.battles.splice(s.battles.indexOf(battle), 1);
-      syncStoreIfBound();
+      s.battles.splice(s.battles.findIndex((b) => b.id === battle.id), 1);
+      // Sync hero mutations from journey.hero back to the flat snapshot
+      for (const h of hero) {
+        const idx = s.heroList.findIndex((hl) => hl.id === h.id);
+        if (idx !== -1) s.heroList[idx] = h;
+      }
+      dispatchHeroes(store, s);
+      dispatchGameStats(store, s);
     } else if (enemyTurn(hero, monstersList)) {
-      s.battles.splice(s.battles.indexOf(battle), 1);
+      s.battles.splice(s.battles.findIndex((b) => b.id === battle.id), 1);
       s.gameStats.losses++;
+      const weapons = store.getState().production.weapons;
       for (let i = 0; i < hero.length; i++) {
         hero[i].location = 'Home';
         hero[i].currHealth = 0;
         hero[i].progress = 'Resting';
-        hero[i].equip.weapon = JSON.parse(JSON.stringify(s.weapons[0]));
+        hero[i].equip.weapon = structuredClone(weapons[0]);
         clearPotions(hero[i]);
         if (s.buildings[BUILDING_TENT].tier === 1) {
           hero[i].experience = 0;
@@ -263,17 +278,37 @@ function CombatServiceFactory(
           );
         }
       }
-      syncStoreIfBound();
+      // Sync hero mutations back
+      for (const h of hero) {
+        const idx = s.heroList.findIndex((hl) => hl.id === h.id);
+        if (idx !== -1) s.heroList[idx] = h;
+      }
+      dispatchHeroes(store, s);
+      dispatchGameStats(store, s);
     } else {
-      syncStoreIfBound();
+      // Sync progress updates after each turn
+      const currentHeroes = store.getState().heroes;
+      const updatedHeroList = currentHeroes.heroList.map((hl) => {
+        const inBattle = hero.find((h) => h.id === hl.id);
+        // Clone so Immer does not freeze the live journey.hero objects
+        return inBattle ? structuredClone(inBattle) : hl;
+      });
+      store.dispatch(
+        replaceHeroes({
+          ...currentHeroes,
+          heroList: updatedHeroList,
+          battles: [...currentHeroes.battles],
+        })
+      );
+      const gameLoop = store.getState().config.gameLoop;
       $timeout(function () {
         takeTurn(battle, journey);
-      }, s.gameLoop);
+      }, gameLoop);
     }
   }
 
   function startFight(monList, journey, boss) {
-    const s = GameStateService.getState();
+    const s = getFlatState(store);
     const thisBattle = {
       id: s.battles.length,
       hero: journey.hero,
@@ -282,12 +317,12 @@ function CombatServiceFactory(
       boss: boss,
     };
     s.battles.push(thisBattle);
+    dispatchHeroes(store, s);
     activatePotions(journey.hero);
     takeTurn(thisBattle, journey);
   }
 
   return {
-    bindStore,
     startFight,
     activatePotions,
     takeTurn,

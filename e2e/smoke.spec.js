@@ -1,5 +1,5 @@
 // @ts-check
-const { test, expect } = require('@playwright/test');
+import { test, expect } from '@playwright/test';
 
 /**
  * Heroville E2E tests follow the in-game tutorial to completion. One shared page, no reload between tests.
@@ -122,6 +122,8 @@ test.describe.serial('Heroville E2E – tutorial flow', () => {
 
   test.beforeAll(async ({ browser }) => {
     sharedContext = await browser.newContext();
+    // Block external requests (fonts, analytics) that would hang in sandboxed CI environments.
+    await sharedContext.route(/googleapis|google-analytics|googletagmanager/, (route) => route.abort());
     await sharedContext.addInitScript(() => {
       window['__HEROVILLE_E2E_FAST_TICK__'] = 2;
     });

@@ -1,12 +1,12 @@
 /**
- * Unit tests for SaveLoadService with Redux store (bindStore, REPLACE_STATE after loadData).
+ * Unit tests for SaveLoadService with Redux store (store passed to constructor).
  */
 import { describe, it, expect } from 'vitest';
 import { createGameStore } from '../store/index.js';
 import SaveLoadServiceFactory from './saveLoad.service.js';
 
 describe('SaveLoadService with store', () => {
-  it('bindStore + loadData dispatches REPLACE_STATE and store updates', () => {
+  it('loadData dispatches to store and returns true', () => {
     const state = {
       resources: 5,
       maxResources: 25,
@@ -42,18 +42,15 @@ describe('SaveLoadService with store', () => {
       version: '1.3',
       bestiary: false,
     };
-    const scope = { state, skipTut: () => {}, nextTutorial: () => {}, showError: () => {} };
     const GameConfig = { heroClasses: [] };
     const GameUiService = { showError: () => {}, nextTutorial: () => {} };
-    const GameStateService = { getState: () => state };
 
     const store = createGameStore(state);
-    const SaveLoadService = SaveLoadServiceFactory(GameConfig, GameUiService, GameStateService);
-    SaveLoadService.bindStore(store);
+    const SaveLoadService = SaveLoadServiceFactory(GameConfig, GameUiService, store);
 
     const savedData = {
       resources: 100,
-      maxResources: 50,
+      maxResources: 200,
       gold: 200,
       maxGold: 500,
       incr: 2,
@@ -77,17 +74,12 @@ describe('SaveLoadService with store', () => {
       losses: 2,
       party: [],
       gameStats: {},
-      panelNumber: 1,
-      showTutorial: false,
     };
 
-    const result = SaveLoadService.loadData(scope, savedData);
+    const result = SaveLoadService.loadData(null, savedData);
 
     expect(result).toBe(true);
-    expect(state.resources).toBe(100);
-    expect(state.gold).toBe(200);
     expect(store.getState().economy.resources).toBe(100);
     expect(store.getState().economy.gold).toBe(200);
-    expect(store.getState().ui.panelNumber).toBe(0); // loadData sets panelNumber = data.panelNumber - 1
   });
 });

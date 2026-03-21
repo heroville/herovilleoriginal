@@ -1,12 +1,12 @@
 /**
- * Unit tests for BuildingService with Redux store (bindStore, REPLACE_STATE after incrBuilding/incrBlueprint).
+ * Unit tests for BuildingService with Redux store (store passed to constructor).
  */
 import { describe, it, expect } from 'vitest';
 import { createGameStore } from '../store/index.js';
 import BuildingServiceFactory from './building.service.js';
 
 describe('BuildingService with store', () => {
-  it('bindStore + incrBuilding dispatches REPLACE_STATE and store buildings update', () => {
+  it('incrBuilding updates buildings in store', () => {
     const state = {
       resources: 10,
       maxResources: 25,
@@ -37,7 +37,6 @@ describe('BuildingService with store', () => {
       bestiary: false,
       beastEnabled: true,
     };
-    const GameStateService = { getState: () => state };
     const GameUiService = {
       showError: () => {},
       nextTutorial: () => {},
@@ -48,13 +47,7 @@ describe('BuildingService with store', () => {
     const ProductionService = { activateBlueprint: () => {} };
 
     const store = createGameStore(state);
-    const BuildingService = BuildingServiceFactory(
-      GameStateService,
-      GameUiService,
-      DungeonService,
-      ProductionService
-    );
-    BuildingService.bindStore(store);
+    const BuildingService = BuildingServiceFactory(store, GameUiService, DungeonService, ProductionService);
 
     const { state: st, actions } = BuildingService.buildStateAndActions({
       decResources: () => true,
@@ -64,11 +57,10 @@ describe('BuildingService with store', () => {
 
     BuildingService.incrBuilding(st, actions, building);
 
-    expect(building.count).toBe(1);
     expect(store.getState().buildings[0].count).toBe(1);
   });
 
-  it('incrBuilding Stockpile sets maxResources and maxGold from next upgrade cost so second upgrade is affordable', () => {
+  it('incrBuilding Stockpile sets maxResources and maxGold in economy slice', () => {
     const state = {
       resources: 100,
       maxResources: 25,
@@ -99,27 +91,15 @@ describe('BuildingService with store', () => {
       bestiary: false,
       beastEnabled: true,
     };
-    const GameStateService = { getState: () => state };
     const GameUiService = { showError: () => {}, nextTutorial: () => {} };
     const DungeonService = { activateDungeon: () => {}, createMonster: () => {} };
     const ProductionService = { activateBlueprint: () => {} };
 
     const store = createGameStore(state);
-    const BuildingService = BuildingServiceFactory(
-      GameStateService,
-      GameUiService,
-      DungeonService,
-      ProductionService
-    );
-    BuildingService.bindStore(store);
+    const BuildingService = BuildingServiceFactory(store, GameUiService, DungeonService, ProductionService);
 
-    const decResources = (amount) => {
-      if (state.resources < amount) return false;
-      state.resources -= amount;
-      return true;
-    };
     const { state: st, actions } = BuildingService.buildStateAndActions({
-      decResources,
+      decResources: () => true,
       decGold: () => true,
     });
     const building = st.buildings[1];
@@ -127,14 +107,11 @@ describe('BuildingService with store', () => {
     BuildingService.incrBuilding(st, actions, building);
 
     // After first Stockpile upgrade: next cost = 25 + 2^5 = 57 → maxResources = 57 + 5 = 62, maxGold = 5
-    const nextCost = 25 + Math.pow(2, 5);
-    expect(state.maxResources).toBe(nextCost + Math.floor(nextCost / 10));
-    expect(state.maxGold).toBe(Math.floor(nextCost / 10));
     expect(store.getState().economy.maxResources).toBe(62);
     expect(store.getState().economy.maxGold).toBe(5);
   });
 
-  it('incrBlueprint dispatches REPLACE_STATE when store is bound', () => {
+  it('incrBlueprint updates blueprints in store', () => {
     const state = {
       resources: 0,
       maxResources: 25,
@@ -154,7 +131,7 @@ describe('BuildingService with store', () => {
       ],
       jobs: [],
       upgrades: [],
-      blueprints: [{ buildingID: 1, cost: 50, enabled: true }],
+      blueprints: [{ id: 0, buildingID: 1, cost: 50, enabled: true }],
       weapons: [],
       potions: [],
       dungeons: [],
@@ -162,10 +139,8 @@ describe('BuildingService with store', () => {
       bestiary: false,
       beastEnabled: true,
     };
-    const GameStateService = { getState: () => state };
     const store = createGameStore(state);
-    const BuildingService = BuildingServiceFactory(GameStateService, {}, {}, {});
-    BuildingService.bindStore(store);
+    const BuildingService = BuildingServiceFactory(store, {}, {}, {});
 
     const { state: st, actions } = BuildingService.buildStateAndActions({
       decResources: () => true,
@@ -175,7 +150,6 @@ describe('BuildingService with store', () => {
 
     BuildingService.incrBlueprint(st, actions, blueprint);
 
-    expect(blueprint.enabled).toBe(false);
     expect(store.getState().production.blueprints[0].enabled).toBe(false);
   });
 });

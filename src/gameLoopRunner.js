@@ -23,7 +23,7 @@ export default function startGameLoopRunner(api, store) {
 
   const state = api.getState();
   const isFastTickAllowed =
-    import.meta.env.DEV &&
+    (import.meta.env.DEV || import.meta.env.VITE_E2E) &&
     ((typeof window !== 'undefined' && window.__HEROVILLE_E2E_FAST_TICK__) ||
       import.meta.env.MODE === 'test');
   const minGameLoopMs = isFastTickAllowed ? 2 : 10;

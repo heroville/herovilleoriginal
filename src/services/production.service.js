@@ -1,27 +1,28 @@
 /**
  * Production: potions, weapons, upgrades, blueprints.
- * When store is bound via bindStore(store), dispatches REPLACE_STATE after create, purchaseWeapon,
- * buyUpgrade, activateBlueprint and when async production (createPotion/createPotions/buyWeapon) completes.
+ * Reads state from the Redux store; dispatches production/ui/upgrades slices after mutations.
+ * No GameStateService — Redux is the single source of truth.
  */
-import { createStoreBinding } from './storeSync.js';
+import { getFlatState, dispatchProduction, dispatchUpgrades, dispatchUi, dispatchHeroes, dispatchGameStats } from './stateHelpers.js';
 import { formatSeconds } from './util.service.js';
 import { PROGRESS_SYNC_THROTTLE_MS } from '../constants/gameConstants.js';
+import { setIncr } from '../store/slices/economySlice.js';
 
-function ProductionServiceFactory(EconomyService, GameUiService) {
-  const { bindStore, syncStoreIfBound } = createStoreBinding(() => EconomyService.getState());
+function ProductionServiceFactory(EconomyService, GameUiService, store) {
   var _lastProgressSync = 0;
 
-  /** Throttled sync for progress ticks to avoid full clone every gameLoop ms. Always call syncStoreIfBound on completion. */
   function syncProgressIfNeeded() {
     const now = Date.now();
     if (now - _lastProgressSync >= PROGRESS_SYNC_THROTTLE_MS) {
       _lastProgressSync = now;
-      syncStoreIfBound();
+      const s = getFlatState(store);
+      dispatchProduction(store, s);
+      dispatchHeroes(store, s);
     }
   }
 
   function createPotion(button, start, heroID, onDone) {
-    const s = EconomyService.getState();
+    const s = getFlatState(store);
     if (heroID !== 0) {
       heroID = heroID || -1;
     }
@@ -31,25 +32,29 @@ function ProductionServiceFactory(EconomyService, GameUiService) {
         syncProgressIfNeeded();
       } else if (heroID >= 0) {
         s.heroList[heroID].progress = formatSeconds(s.potion.prodTime - start);
+        syncProgressIfNeeded();
       }
+      const gameLoop = store.getState().config.gameLoop;
       setTimeout(function () {
         createPotion(button, start + 1, heroID, onDone);
-      }, s.gameLoop);
+      }, gameLoop);
     } else {
-      s.potion.working--;
-      s.potion.count++;
+      const s2 = getFlatState(store);
+      s2.potion.working--;
+      s2.potion.count++;
       if (button) {
-        s.potion.progress = 'Create Potion';
+        s2.potion.progress = 'Create Potion';
         if (onDone) onDone();
       } else if (heroID >= 0) {
-        s.heroList[heroID].progress = 'Idle';
+        s2.heroList[heroID].progress = 'Idle';
       }
-      syncStoreIfBound();
+      dispatchProduction(store, s2);
+      dispatchHeroes(store, s2);
     }
   }
 
   function createPotions(potionID, button, start, heroID, onDone) {
-    const s = EconomyService.getState();
+    const s = getFlatState(store);
     if (heroID !== 0) {
       heroID = heroID || -1;
     }
@@ -60,25 +65,29 @@ function ProductionServiceFactory(EconomyService, GameUiService) {
         syncProgressIfNeeded();
       } else if (heroID >= 0) {
         s.heroList[heroID].progress = formatSeconds(acc.prodTime - start);
+        syncProgressIfNeeded();
       }
+      const gameLoop = store.getState().config.gameLoop;
       setTimeout(function () {
         createPotions(potionID, button, start + 1, heroID, onDone);
-      }, s.gameLoop);
+      }, gameLoop);
     } else {
-      acc.count++;
-      acc.working--;
+      const s2 = getFlatState(store);
+      s2.potions[potionID].count++;
+      s2.potions[potionID].working--;
       if (button) {
-        acc.progress = 'Create ' + acc.name;
+        s2.potions[potionID].progress = 'Create ' + s2.potions[potionID].name;
         if (onDone) onDone();
       } else if (heroID >= 0) {
-        s.heroList[heroID].progress = 'Idle';
+        s2.heroList[heroID].progress = 'Idle';
       }
-      syncStoreIfBound();
+      dispatchProduction(store, s2);
+      dispatchHeroes(store, s2);
     }
   }
 
   function buyWeapon(weaponID, button, start, heroID, onDone) {
-    const s = EconomyService.getState();
+    const s = getFlatState(store);
     if (heroID !== 0) {
       heroID = heroID || -1;
     }
@@ -89,25 +98,29 @@ function ProductionServiceFactory(EconomyService, GameUiService) {
         syncProgressIfNeeded();
       } else if (heroID >= 0) {
         s.heroList[heroID].progress = formatSeconds(weapon.prodTime - start);
+        syncProgressIfNeeded();
       }
+      const gameLoop = store.getState().config.gameLoop;
       setTimeout(function () {
         buyWeapon(weaponID, button, start + 1, heroID, onDone);
-      }, s.gameLoop);
+      }, gameLoop);
     } else {
-      weapon.count++;
-      weapon.working--;
+      const s2 = getFlatState(store);
+      s2.weapons[weaponID].count++;
+      s2.weapons[weaponID].working--;
       if (button) {
-        weapon.progress = 'Create ' + weapon.name;
+        s2.weapons[weaponID].progress = 'Create ' + s2.weapons[weaponID].name;
         if (onDone) onDone();
       } else if (heroID >= 0) {
-        s.heroList[heroID].progress = 'Idle';
+        s2.heroList[heroID].progress = 'Idle';
       }
-      syncStoreIfBound();
+      dispatchProduction(store, s2);
+      dispatchHeroes(store, s2);
     }
   }
 
   function buyUpgrade(upgradeID) {
-    const s = EconomyService.getState();
+    const s = getFlatState(store);
     if (upgradeID == null || upgradeID < 0 || upgradeID >= s.upgrades.length) return;
     if (!s.upgrades[upgradeID]) return;
     if (s.upgrades[upgradeID].price <= s.gold) {
@@ -116,7 +129,7 @@ function ProductionServiceFactory(EconomyService, GameUiService) {
       s.upgrades[upgradeID].purchased = true;
       switch (upgradeID) {
         case 0: {
-          s.incr++;
+          store.dispatch(setIncr(s.incr + 1));
           if (s.tutorialStepIndex === 8) {
             GameUiService.nextTutorial();
           }
@@ -140,32 +153,32 @@ function ProductionServiceFactory(EconomyService, GameUiService) {
         case 7:
         case 8:
         case 9: {
-          s.incr = s.incr * 2;
+          store.dispatch(setIncr(s.incr * 2));
           s.upgrades[upgradeID + 1].enabled = true;
           break;
         }
         case 10: {
-          s.incr = s.incr * 2;
+          store.dispatch(setIncr(s.incr * 2));
           break;
         }
       }
+      dispatchUpgrades(store, s);
+      dispatchUi(store, s);
     } else {
       GameUiService.showError('You do not have enough Gold');
     }
   }
 
   function activateBlueprint(value) {
-    const s = EconomyService.getState();
+    const s = getFlatState(store);
     if (!s.blueprints[value].enabled && s.blueprints[value].cost !== 0) {
       s.blueprints[value].enabled = true;
-      syncStoreIfBound();
+      dispatchProduction(store, s);
     }
   }
 
   /**
    * Start potion/potions production (entry point). Uses explicit state and actions.
-   * @param {{ potion: object, potions: array, resources: number, panelNumber: number }} state
-   * @param {{ decResources: function(number): boolean, showError: function(string), nextTutorial: function(), disablePotionButton: function(number), startCreatePotion: function(), startCreatePotions: function(number) }} actions
    */
   function create(state, actions, itemID) {
     if (itemID === -1) {
@@ -192,13 +205,12 @@ function ProductionServiceFactory(EconomyService, GameUiService) {
       state.potions[itemID].working++;
       actions.startCreatePotions(itemID);
     }
-    syncStoreIfBound();
+    const s = getFlatState(store);
+    dispatchProduction(store, { ...s, potion: state.potion, potions: state.potions });
   }
 
   /**
    * Start weapon production (entry point). Uses explicit state and actions.
-   * @param {{ weapons: array, resources: number, buildings: array, upgrades: array, gameStats: object, panelNumber: number }} state
-   * @param {{ decResources: function(number): boolean, showError: function(string), nextTutorial: function(), disableWeaponButton: function(number), startBuyWeapon: function(number) }} actions
    */
   function purchaseWeapon(state, actions, weaponID) {
     if (weaponID == null || weaponID < 0 || !state.weapons || weaponID >= state.weapons.length) return;
@@ -217,11 +229,13 @@ function ProductionServiceFactory(EconomyService, GameUiService) {
       state.gameStats.weaponsManual[weaponID] = 0;
     state.gameStats.weaponsManual[weaponID]++;
     actions.startBuyWeapon(weaponID);
-    syncStoreIfBound();
+    const s = getFlatState(store);
+    dispatchProduction(store, { ...s, weapons: state.weapons });
+    dispatchUpgrades(store, { ...s, upgrades: state.upgrades });
+    dispatchGameStats(store, { ...s, gameStats: state.gameStats });
   }
 
   return {
-    bindStore,
     createPotion,
     createPotions,
     buyWeapon,

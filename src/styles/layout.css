@@ -186,6 +186,7 @@
 .hv-sidebar__upgrade-cost {
   font-size: 0.75rem;
   opacity: 0.9;
+}
 
 /* Viewport = top bar + body (main + guide panel) */
 .hv-viewport {
@@ -239,6 +240,7 @@
 }
 .hv-content--heroes {
   max-width: 1400px;
+}
 
 /* Guide panel – fixed bottom-right */
 .hv-guide-panel {
@@ -326,6 +328,7 @@
   .hv-grid--2 {
     grid-template-columns: 1fr;
   }
+}
 /* Header: logo, side panels                                                   */
 /* --------------------------------------------------------------------------- */
 .hv-logo-wrap {

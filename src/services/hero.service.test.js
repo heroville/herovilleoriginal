@@ -1,5 +1,5 @@
 /**
- * Unit tests for HeroService with Redux store (bindStore, REPLACE_STATE after addHero/addWorker/heroProfession/etc).
+ * Unit tests for HeroService with Redux store (store passed to constructor).
  */
 import { describe, it, expect } from 'vitest';
 import { createGameStore } from '../store/index.js';
@@ -48,36 +48,30 @@ function makeState(overrides = {}) {
 }
 
 describe('HeroService with store', () => {
-  it('bindStore + addHero dispatches REPLACE_STATE and store heroList updates', () => {
+  it('addHero updates store heroList', () => {
     const state = makeState();
-    const GameStateService = { getState: () => state };
-    const noop = () => {};
     const store = createGameStore(state);
+    const noop = () => {};
     const HeroService = HeroServiceFactory(
       mockGameConfig,
       {},
-      GameStateService,
+      store,
       { showError: noop },
       {},
       {},
       {}
     );
-    HeroService.bindStore(store);
 
     HeroService.addHero('TestHero');
 
-    expect(state.heroList).toHaveLength(1);
-    expect(state.heroList[0].name).toBe('TestHero');
     expect(store.getState().heroes.heroList).toHaveLength(1);
     expect(store.getState().heroes.heroList[0].name).toBe('TestHero');
   });
 
-  it('addWorker updates store when bound', () => {
+  it('addWorker updates store heroList', () => {
     const state = makeState();
-    const GameStateService = { getState: () => state };
     const store = createGameStore(state);
-    const HeroService = HeroServiceFactory(mockGameConfig, {}, GameStateService, {}, {}, {}, {});
-    HeroService.bindStore(store);
+    const HeroService = HeroServiceFactory(mockGameConfig, {}, store, {}, {}, {}, {});
 
     HeroService.addWorker('WorkerOne');
 
@@ -85,23 +79,21 @@ describe('HeroService with store', () => {
     expect(store.getState().heroes.heroList[0].name).toBe('WorkerOne');
   });
 
-  it('heroProfession updates jobs and heroList in store when bound', () => {
+  it('heroProfession updates jobs and heroList in store', () => {
     const state = makeState();
     state.heroList = [
       { id: 0, name: 'H', job: state.jobs[0], progress: 'Idle', academy: state.heroClass[2] },
     ];
-    const GameStateService = { getState: () => state };
     const store = createGameStore(state);
     const HeroService = HeroServiceFactory(
       mockGameConfig,
       {},
-      GameStateService,
+      store,
       { showError: () => {} },
       {},
       {},
       {}
     );
-    HeroService.bindStore(store);
 
     HeroService.heroProfession(1, 0);
 

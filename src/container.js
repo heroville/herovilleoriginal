@@ -1,6 +1,7 @@
 /**
  * Service container: wires all game services.
- * Uses setTimeout for delayed calls and a getter for lazy resolution (e.g. DungeonService → CombatService).
+ * Creates the Redux store first (from GameConfig initial state), then passes it to each service.
+ * Services read/write state exclusively via the Redux store — no GameStateService.
  */
 import gameConfig from './constants/gameConfig.data.js';
 import GameStateServiceFactory from './services/gameState.service.js';
@@ -13,37 +14,44 @@ import DungeonServiceFactory from './services/dungeon.service.js';
 import HeroServiceFactory from './services/hero.service.js';
 import CombatServiceFactory from './services/combat.service.js';
 import BuildingServiceFactory from './services/building.service.js';
+import { createGameStore } from './store/index.js';
 
 const container = {};
 const $timeout = (fn, ms) => setTimeout(fn, ms || 0);
 const $injector = { get: (name) => container[name] };
 
 container.GameConfig = gameConfig;
-container.GameStateService = GameStateServiceFactory(container.GameConfig);
+
+// Use GameStateServiceFactory only to produce the initial flat state for store hydration.
+// After the store is created, GameStateService is not used by any service at runtime.
+const _initialFlat = GameStateServiceFactory(container.GameConfig).getState();
+export const store = createGameStore(_initialFlat);
+
 container.GameUiService = GameUiServiceFactory();
-container.EconomyService = EconomyServiceFactory(container.GameUiService);
+container.EconomyService = EconomyServiceFactory(container.GameUiService, store);
 container.UtilService = UtilServiceFactory();
 container.SaveLoadService = SaveLoadServiceFactory(
   container.GameConfig,
   container.GameUiService,
-  container.GameStateService
+  store
 );
 container.ProductionService = ProductionServiceFactory(
   container.EconomyService,
-  container.GameUiService
+  container.GameUiService,
+  store
 );
-container.DungeonService = DungeonServiceFactory(container.GameStateService, $timeout, $injector);
+container.DungeonService = DungeonServiceFactory(store, $timeout, $injector);
 container.HeroService = HeroServiceFactory(
   container.GameConfig,
   container.EconomyService,
-  container.GameStateService,
+  store,
   container.GameUiService,
   container.DungeonService,
   container.ProductionService,
   container.UtilService
 );
 container.CombatService = CombatServiceFactory(
-  container.GameStateService,
+  store,
   container.HeroService,
   container.DungeonService,
   container.GameUiService,
@@ -51,13 +59,12 @@ container.CombatService = CombatServiceFactory(
   $timeout
 );
 container.BuildingService = BuildingServiceFactory(
-  container.GameStateService,
+  store,
   container.GameUiService,
   container.DungeonService,
   container.ProductionService
 );
 
-export const GameStateService = container.GameStateService;
 export const GameUiService = container.GameUiService;
 export const EconomyService = container.EconomyService;
 export const SaveLoadService = container.SaveLoadService;

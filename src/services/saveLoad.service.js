@@ -1,12 +1,14 @@
 /**
  * Save/Load/Reset game state to localStorage.
- * When store is bound via bindStore(store), dispatches REPLACE_STATE after loadData so the Redux store stays in sync.
+ * Reads from Redux store for save; dispatches all slices on load.
+ * No GameStateService — Redux is the single source of truth.
  */
-import { createStoreBinding } from './storeSync.js';
+import { getFlatState, dispatchAll } from './stateHelpers.js';
+import { setResources, setGold, setMaxResources, setMaxGold, setIncr } from '../store/slices/economySlice.js';
+import { setTutorialFromSave } from '../store/slices/tutorialSlice.js';
 
-function SaveLoadServiceFactory(GameConfig, GameUiService, GameStateService) {
+function SaveLoadServiceFactory(GameConfig, GameUiService, store) {
   const HERO_CLASSES = GameConfig.heroClasses || [];
-  const { bindStore, syncStoreIfBound } = createStoreBinding(() => GameStateService.getState());
 
   function reset() {
     const raw = localStorage.getItem('data');
@@ -28,7 +30,7 @@ function SaveLoadServiceFactory(GameConfig, GameUiService, GameStateService) {
   }
 
   function buildSavePayload(scope, opts) {
-    const s = scope.state;
+    const s = getFlatState(store);
     const heroTable = opts && opts.heroTable !== undefined ? opts.heroTable : s.heroTable;
     return {
       resources: s.resources,
@@ -71,8 +73,7 @@ function SaveLoadServiceFactory(GameConfig, GameUiService, GameStateService) {
   }
 
   /**
-   * Apply saved data onto scope (same shape as controller's loadData).
-   * If data is omitted, reads from localStorage and applies.
+   * Apply saved data to the Redux store.
    * @param {object} scope - Game scope (must have skipTut, nextTutorial, showError)
    * @param {object} [data] - Parsed save object; if undefined, read from localStorage
    * @returns {boolean} - true if data was applied, false if no data or parse error
@@ -92,7 +93,9 @@ function SaveLoadServiceFactory(GameConfig, GameUiService, GameStateService) {
       }
     }
 
-    const s = scope.state;
+    // Read current store state to preserve static config (buildings template, weapons template etc.)
+    const s = getFlatState(store);
+
     s.resources = data.resources;
     s.maxResources = data.maxResources;
     s.gold = data.gold;
@@ -192,13 +195,27 @@ function SaveLoadServiceFactory(GameConfig, GameUiService, GameStateService) {
     if (s.tutorialCompleted) {
       s.panel = ['Game successfully loaded'];
     }
-    syncStoreIfBound();
+
+    // Dispatch all non-economy slices
+    dispatchAll(store, s);
+    // Dispatch economy: set max values first so resources/gold are clamped correctly
+    store.dispatch(setMaxResources(s.maxResources));
+    store.dispatch(setMaxGold(s.maxGold));
+    store.dispatch(setResources(s.resources));
+    store.dispatch(setGold(s.gold));
+    store.dispatch(setIncr(s.incr));
+    // Dispatch tutorial state
+    store.dispatch(setTutorialFromSave({
+      tutorialStepIndex: s.tutorialStepIndex,
+      tutorialCompleted: s.tutorialCompleted,
+      gameLog: s.gameLog,
+    }));
+
     return true;
   }
 
   /**
    * Load from localStorage; check version; apply if match.
-   * @param {object} scope - Must have version, forceReset, showError; skipTut/nextTutorial used by loadData
    * @returns {'loaded'|'version_mismatch'|'no_data'|'parse_error'}
    */
   function load(scope) {
@@ -219,10 +236,8 @@ function SaveLoadServiceFactory(GameConfig, GameUiService, GameStateService) {
       localStorage.removeItem('data');
       return 'no_data';
     }
-    if (test.saveVersion !== scope.state.version) {
-      if (scope.forceReset) {
-        // legacy: optional clear
-      }
+    const currentVersion = store.getState().ui.version;
+    if (test.saveVersion !== currentVersion) {
       return 'version_mismatch';
     }
     loadData(scope, test);
@@ -230,7 +245,6 @@ function SaveLoadServiceFactory(GameConfig, GameUiService, GameStateService) {
   }
 
   return {
-    bindStore,
     reset,
     save,
     load,

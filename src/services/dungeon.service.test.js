@@ -1,12 +1,12 @@
 /**
- * Unit tests for DungeonService with Redux store (bindStore, REPLACE_STATE after activateDungeon).
+ * Unit tests for DungeonService with Redux store (store passed to constructor).
  */
 import { describe, it, expect } from 'vitest';
 import { createGameStore } from '../store/index.js';
 import DungeonServiceFactory from './dungeon.service.js';
 
 describe('DungeonService with store', () => {
-  it('bindStore + activateDungeon dispatches REPLACE_STATE and store dungeons update', () => {
+  it('activateDungeon updates store dungeons', () => {
     const state = {
       dungeons: [],
       monsters: [],
@@ -15,18 +15,15 @@ describe('DungeonService with store', () => {
       monsterList: { monsters: [{ name: 'Goblin' }, { name: 'Orc' }, { name: 'Dragon' }] },
       gameLoop: 1000,
     };
-    const GameStateService = { getState: () => state };
     const $timeout = (fn) => fn();
     const $injector = { get: () => ({ startFight: () => {} }) };
 
     const store = createGameStore(state);
-    const DungeonService = DungeonServiceFactory(GameStateService, $timeout, $injector);
-    DungeonService.bindStore(store);
+    const DungeonService = DungeonServiceFactory(store, $timeout, $injector);
 
     DungeonService.activateDungeon();
 
-    expect(state.dungeons.length).toBe(1);
-    expect(state.dungeons[0].name).toBeDefined();
     expect(store.getState().dungeons.dungeons.length).toBe(1);
+    expect(store.getState().dungeons.dungeons[0].name).toBeDefined();
   });
 });

@@ -1,14 +1,16 @@
 /**
- * Unit tests for ProductionService with Redux store (bindStore, REPLACE_STATE after create, purchaseWeapon, buyUpgrade).
+ * Unit tests for ProductionService with Redux store (store passed to constructor).
  */
 import { describe, it, expect } from 'vitest';
 import { createGameStore } from '../store/index.js';
+import EconomyServiceFactory from './economy.service.js';
 import ProductionServiceFactory from './production.service.js';
 
 describe('ProductionService with store', () => {
-  it('bindStore + create (potion) dispatches REPLACE_STATE and store production updates', () => {
+  it('create (potion) updates production in store', () => {
     const state = {
       resources: 100,
+      maxResources: 200,
       potion: {
         count: 0,
         working: 0,
@@ -20,24 +22,14 @@ describe('ProductionService with store', () => {
       potions: [],
       panelNumber: 0,
       heroList: [],
+      gameStats: { clicks: 0 },
     };
-    const EconomyService = { getState: () => state };
-    const GameUiService = { showError: () => {}, nextTutorial: () => {} };
-
     const store = createGameStore(state);
-    const ProductionService = ProductionServiceFactory(EconomyService, GameUiService);
-    ProductionService.bindStore(store);
+    const EconomyService = EconomyServiceFactory({}, store);
+    const GameUiService = { showError: () => {}, nextTutorial: () => {} };
+    const ProductionService = ProductionServiceFactory(EconomyService, GameUiService, store);
 
-    const createState = {
-      potion: state.potion,
-      potions: state.potions,
-      get resources() {
-        return state.resources;
-      },
-      get panelNumber() {
-        return state.panelNumber;
-      },
-    };
+    const flat = { ...state };
     const createActions = {
       decResources: () => true,
       showError: () => {},
@@ -47,15 +39,16 @@ describe('ProductionService with store', () => {
       startCreatePotions: () => {},
     };
 
-    ProductionService.create(createState, createActions, -1);
+    ProductionService.create(flat, createActions, -1);
 
-    expect(state.potion.working).toBe(1);
+    expect(flat.potion.working).toBe(1);
     expect(store.getState().production.potion.working).toBe(1);
   });
 
-  it('bindStore + purchaseWeapon dispatches REPLACE_STATE and store weapons/gameStats update', () => {
+  it('purchaseWeapon updates weapons and gameStats in store', () => {
     const state = {
       resources: 50,
+      maxResources: 100,
       weapons: [
         {
           id: 0,
@@ -72,26 +65,18 @@ describe('ProductionService with store', () => {
       upgrades: [{ enabled: false }, { enabled: false }],
       gameStats: { weaponsManual: {} },
       panelNumber: 0,
+      heroList: [],
+      potions: [],
+      potion: {},
+      blueprints: [],
+      gameLoop: 1000,
     };
-    const EconomyService = { getState: () => state };
-    const GameUiService = { showError: () => {}, nextTutorial: () => {} };
-
     const store = createGameStore(state);
-    const ProductionService = ProductionServiceFactory(EconomyService, GameUiService);
-    ProductionService.bindStore(store);
+    const EconomyService = EconomyServiceFactory({}, store);
+    const GameUiService = { showError: () => {}, nextTutorial: () => {} };
+    const ProductionService = ProductionServiceFactory(EconomyService, GameUiService, store);
 
-    const purchaseState = {
-      weapons: state.weapons,
-      get resources() {
-        return state.resources;
-      },
-      buildings: state.buildings,
-      upgrades: state.upgrades,
-      gameStats: state.gameStats,
-      get panelNumber() {
-        return state.panelNumber;
-      },
-    };
+    const flat = { ...state, weapons: [...state.weapons.map(w => ({ ...w }))], gameStats: { weaponsManual: {} } };
     const purchaseActions = {
       decResources: () => {},
       showError: () => {},
@@ -100,17 +85,19 @@ describe('ProductionService with store', () => {
       startBuyWeapon: () => {},
     };
 
-    ProductionService.purchaseWeapon(purchaseState, purchaseActions, 0);
+    ProductionService.purchaseWeapon(flat, purchaseActions, 0);
 
-    expect(state.weapons[0].working).toBe(1);
+    expect(flat.weapons[0].working).toBe(1);
     expect(store.getState().production.weapons[0].working).toBe(1);
     expect(store.getState().gameStats.weaponsManual[0]).toBe(1);
   });
 
-  it('bindStore + buyUpgrade mutates state and dispatches REPLACE_STATE when store is bound', () => {
+  it('buyUpgrade updates incr in economy slice', () => {
     const state = {
       resources: 0,
+      maxResources: 25,
       gold: 10,
+      maxGold: 100,
       incr: 1,
       panelNumber: 0,
       buildings: [{ tier: 0, name: 'Tent' }],
@@ -120,23 +107,22 @@ describe('ProductionService with store', () => {
         { id: 1, price: 3, enabled: false },
         { id: 2, price: 5, enabled: false },
       ],
+      gameStats: {},
+      heroList: [],
+      potions: [],
+      potion: {},
+      weapons: [],
+      blueprints: [],
     };
-    const EconomyService = {
-      getState: () => state,
-      decGold: (n) => {
-        state.gold -= n;
-      },
-    };
-    const GameUiService = { showError: () => {}, nextTutorial: () => {} };
-
     const store = createGameStore(state);
-    const ProductionService = ProductionServiceFactory(EconomyService, GameUiService);
-    ProductionService.bindStore(store);
+    const EconomyService = EconomyServiceFactory({}, store);
+    const GameUiService = { showError: () => {}, nextTutorial: () => {} };
+    const ProductionService = ProductionServiceFactory(EconomyService, GameUiService, store);
 
     ProductionService.buyUpgrade(0);
 
-    expect(state.upgrades[0].enabled).toBe(false);
-    expect(state.incr).toBe(2);
-    expect(state.upgrades[2].enabled).toBe(true);
+    expect(store.getState().economy.incr).toBe(2);
+    expect(store.getState().upgrades[0].enabled).toBe(false);
+    expect(store.getState().upgrades[2].enabled).toBe(true);
   });
 });

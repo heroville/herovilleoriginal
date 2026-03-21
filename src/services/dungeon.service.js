@@ -1,8 +1,9 @@
 /**
  * Dungeon, monster, boss creation, and journey flow.
- * When store is bound via bindStore(store), dispatches REPLACE_STATE after activateDungeon, travel (progress), and monsterFight.
+ * Reads state from the Redux store; dispatches slice actions after mutations.
+ * No GameStateService — Redux is the single source of truth.
  */
-import { createStoreBinding } from './storeSync.js';
+import { getFlatState, dispatchDungeons, dispatchHeroes } from './stateHelpers.js';
 import {
   MONSTERS_PER_BATCH,
   MONSTER_HEALTH_MULTIPLIER,
@@ -13,11 +14,9 @@ import {
   MULTI_HERO_SCALE_FACTOR,
 } from '../constants/gameConstants.js';
 
-function DungeonServiceFactory(GameStateService, $timeout, $injector) {
-  const { bindStore, syncStoreIfBound } = createStoreBinding(() => GameStateService.getState());
-
+function DungeonServiceFactory(store, $timeout, $injector) {
   function dungeonName() {
-    const s = GameStateService.getState();
+    const s = getFlatState(store);
     if (!s.dungeonNames || !s.dungeonNames.dungeons) return 'Dungeon';
     const usedNames = new Set(s.dungeons.map((d) => d.name));
     const available = s.dungeonNames.dungeons.filter((name) => !usedNames.has(name));
@@ -26,7 +25,7 @@ function DungeonServiceFactory(GameStateService, $timeout, $injector) {
   }
 
   function createMonster(level) {
-    const s = GameStateService.getState();
+    const s = getFlatState(store);
     if (!s.monsterList || !s.monsterList.monsters) return;
     const usedNames = new Set(s.monsters.map((m) => m.name));
     const available = s.monsterList.monsters.filter((m) => !usedNames.has(m.name));
@@ -51,10 +50,11 @@ function DungeonServiceFactory(GameStateService, $timeout, $injector) {
       });
       available.splice(idx, 1);
     }
+    dispatchDungeons(store, s);
   }
 
   function createBoss(level) {
-    const s = GameStateService.getState();
+    const s = getFlatState(store);
     if (!s.monsterList || !s.monsterList.monsters) return;
     level += BOSS_LEVEL_OFFSET;
     const usedNames = new Set(s.bosses.map((b) => b.name));
@@ -77,10 +77,11 @@ function DungeonServiceFactory(GameStateService, $timeout, $injector) {
       low: 'Junk;j;' + level * MONSTER_LOOT_MULTIPLIER,
       high: 'Gold;g;' + level,
     });
+    dispatchDungeons(store, s);
   }
 
   function activateDungeon() {
-    const s = GameStateService.getState();
+    const s = getFlatState(store);
     s.dungeons.push({
       id: s.dungeons.length,
       name: dungeonName(),
@@ -92,18 +93,19 @@ function DungeonServiceFactory(GameStateService, $timeout, $injector) {
       enabled: true,
       reward: 'Gold;g;' + (s.dungeons.length + 1),
     });
+    dispatchDungeons(store, s);
     createMonster(s.dungeons.length);
     createBoss(s.dungeons.length - 1);
-    syncStoreIfBound();
   }
 
   function attemptDungeon(dungeonID, hero) {
-    const s = GameStateService.getState();
+    const gameLoop = store.getState().config.gameLoop;
+    const s = getFlatState(store);
     const dungeon = s.dungeons[dungeonID];
     const journey = { hero, dungeon, steps: 0 };
     $timeout(function () {
       travel(journey);
-    }, s.gameLoop);
+    }, gameLoop);
   }
 
   function travel(journey) {
@@ -111,7 +113,6 @@ function DungeonServiceFactory(GameStateService, $timeout, $injector) {
       for (let i = 0; i < journey.hero.length; i++) {
         journey.hero[i].progress = 'Fighting Boss!';
       }
-      syncStoreIfBound();
       bossFight(journey);
     } else {
       const roll = Math.floor(Math.random() * 100 + 1);
@@ -120,24 +121,22 @@ function DungeonServiceFactory(GameStateService, $timeout, $injector) {
         for (let i = 0; i < journey.hero.length; i++) {
           journey.hero[i].progress = 'Fighting Encounter!';
         }
-        syncStoreIfBound();
       } else {
         journey.steps++;
         for (let i = 0; i < journey.hero.length; i++) {
           journey.hero[i].progress =
             Math.round((journey.steps / journey.dungeon.steps) * 100) + '%' + ' Complete';
         }
-        syncStoreIfBound();
-        const s = GameStateService.getState();
+        const gameLoop = store.getState().config.gameLoop;
         $timeout(function () {
           travel(journey);
-        }, s.gameLoop);
+        }, gameLoop);
       }
     }
   }
 
   function monsterFight(journey) {
-    const s = GameStateService.getState();
+    const s = getFlatState(store);
     const eLevel = journey.dungeon.encounterLevel;
     const validMonsters = [];
     const encounterMonsters = [];
@@ -179,12 +178,11 @@ function DungeonServiceFactory(GameStateService, $timeout, $injector) {
       monsterCount++;
       currLevel += reducedMonster[currentMonster].value;
     }
-    syncStoreIfBound();
     $injector.get('CombatService').startFight(encounterMonsters, journey, false);
   }
 
   function bossFight(journey) {
-    const s = GameStateService.getState();
+    const s = getFlatState(store);
     const bossID = journey.dungeon.bossID;
     const multi = journey.hero.length > 1 ? MULTI_HERO_SCALE_FACTOR : 1;
     const bossBattle = [
@@ -203,7 +201,6 @@ function DungeonServiceFactory(GameStateService, $timeout, $injector) {
   }
 
   return {
-    bindStore,
     activateDungeon,
     createMonster,
     createBoss,

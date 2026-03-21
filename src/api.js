@@ -1,9 +1,8 @@
 /**
  * Game API factory: builds the api object consumed by React components via GameContext.
- * api is passed to bootstrapReact and exposed on window.__HEROVILLE_E2E_STATE__ in dev.
+ * Reads all state from the Redux store; all mutations dispatch slice actions.
  */
 import {
-  GameStateService,
   GameUiService,
   EconomyService,
   SaveLoadService,
@@ -11,44 +10,51 @@ import {
   BuildingService,
   ProductionService,
 } from './container.js';
+import { getFlatState } from './services/stateHelpers.js';
 import { selectFullState } from './store/index.js';
-import { toggleDark } from './store/slices/uiSlice.js';
+import { toggleDark, replaceUi } from './store/slices/uiSlice.js';
+import { replaceConfig } from './store/slices/configSlice.js';
+import { setDamageMulti, setGoldMulti } from './store/slices/economySlice.js';
 import { advanceTutorial, skipTutorial, addGameLogMessage } from './store/slices/tutorialSlice.js';
 
-function doRandomEvent(type, state, syncStore) {
-  state.randomEventTimer = 600000 + Math.floor(Math.random() * 600000);
+function doRandomEvent(store, type) {
+  const randomEventTimer = 600000 + Math.floor(Math.random() * 600000);
   GameUiService.showError('You got ' + type);
   switch (type) {
     case 'Power':
-      state.damageMulti = 2;
-      setTimeout(() => (state.damageMulti = 1), 300000);
+      store.dispatch(setDamageMulti(2));
+      setTimeout(() => store.dispatch(setDamageMulti(1)), 300000);
       break;
     case 'Wealth':
-      state.goldMulti = 2;
-      setTimeout(() => (state.goldMulti = 1), 300000);
+      store.dispatch(setGoldMulti(2));
+      setTimeout(() => store.dispatch(setGoldMulti(1)), 300000);
       break;
     case 'Speed':
-      state.gameLoop = 500;
-      setTimeout(() => (state.gameLoop = 1000), 60000);
+      store.dispatch(replaceConfig({ ...store.getState().config, gameLoop: 500 }));
+      setTimeout(
+        () => store.dispatch(replaceConfig({ ...store.getState().config, gameLoop: 1000 })),
+        60000
+      );
       break;
   }
   setTimeout(() => {
-    state.randomE = state.events[Math.floor(Math.random() * state.events.length)];
-    syncStore();
-  }, state.randomEventTimer);
+    const events = store.getState().config.events || [];
+    if (events.length) {
+      store.dispatch(
+        replaceConfig({
+          ...store.getState().config,
+          randomE: events[Math.floor(Math.random() * events.length)],
+        })
+      );
+    }
+  }, randomEventTimer);
 }
 
 /**
  * @param {import('redux').Store} store
- * @param {object} state - flat GameStateService state
- * @param {Function} syncStoreFromGameState
- * @returns {{ api: object, appContext: object }}
+ * @returns {{ api: object }}
  */
-export function createApi(store, state, syncStoreFromGameState) {
-  // appContext is defined after api but before any call to api methods that use it.
-  // eslint-disable-next-line prefer-const
-  let appContext;
-
+export function createApi(store) {
   const api = {
     getState() {
       return selectFullState(store.getState());
@@ -94,31 +100,27 @@ export function createApi(store, state, syncStoreFromGameState) {
       HeroService.confirmClass();
     },
     loadData() {
-      if (SaveLoadService.loadData(appContext)) {
-        if (state.showHeroTable) state.showHeroTable.enabled = state.heroTable;
-      }
+      SaveLoadService.loadData(null);
     },
     setSortHero(key) {
-      if (!state.sorting) state.sorting = {};
-      state.sorting.heroTable = key;
-      syncStoreFromGameState();
+      const ui = store.getState().ui;
+      store.dispatch(replaceUi({ ...ui, sorting: { ...ui.sorting, heroTable: key } }));
     },
     setFilterName(value) {
-      if (!state.hFilterString) state.hFilterString = {};
-      state.hFilterString.name = value;
-      syncStoreFromGameState();
+      const ui = store.getState().ui;
+      store.dispatch(replaceUi({ ...ui, hFilterString: { ...ui.hFilterString, name: value } }));
     },
     setHeroTableEnabled(enabled) {
-      if (state.showHeroTable) state.showHeroTable.enabled = !!enabled;
-      syncStoreFromGameState();
+      const ui = store.getState().ui;
+      store.dispatch(replaceUi({ ...ui, showHeroTable: { ...ui.showHeroTable, enabled: !!enabled } }));
     },
     setSuccessCount(amount) {
-      if (state.successCount) state.successCount.amount = Number(amount);
-      syncStoreFromGameState();
+      const ui = store.getState().ui;
+      store.dispatch(replaceUi({ ...ui, successCount: { amount: Number(amount) } }));
     },
     setLossCount(amount) {
-      if (state.lossCount) state.lossCount.amount = Number(amount);
-      syncStoreFromGameState();
+      const ui = store.getState().ui;
+      store.dispatch(replaceUi({ ...ui, lossCount: { amount: Number(amount) } }));
     },
     gameUi: GameUiService,
     town: {
@@ -128,7 +130,6 @@ export function createApi(store, state, syncStoreFromGameState) {
           decGold: (v) => EconomyService.decGold(v),
         });
         BuildingService.incrBuilding(st, actions, building);
-        syncStoreFromGameState();
       },
     },
     hero: {
@@ -142,20 +143,7 @@ export function createApi(store, state, syncStoreFromGameState) {
     },
     production: {
       create(itemID) {
-        const s = GameStateService.getState();
-        const createState = {
-          potion: s.potion,
-          potions: s.potions,
-          get resources() {
-            return s.resources;
-          },
-          get panelNumber() {
-            return s.panelNumber;
-          },
-          get tutorialStepIndex() {
-            return s.tutorialStepIndex;
-          },
-        };
+        const flat = getFlatState(store);
         const createActions = {
           decResources: (v) => EconomyService.decResources(v),
           showError: (m) => GameUiService.showError(m),
@@ -164,25 +152,10 @@ export function createApi(store, state, syncStoreFromGameState) {
           startCreatePotion: () => ProductionService.createPotion(true, 0, 0, () => {}),
           startCreatePotions: (id) => ProductionService.createPotions(id, true, 0, 0, () => {}),
         };
-        ProductionService.create(createState, createActions, itemID);
+        ProductionService.create(flat, createActions, itemID);
       },
       purchaseWeapon(weaponID) {
-        const s = GameStateService.getState();
-        const purchaseWeaponState = {
-          weapons: s.weapons,
-          get resources() {
-            return s.resources;
-          },
-          buildings: s.buildings,
-          upgrades: s.upgrades,
-          gameStats: s.gameStats,
-          get panelNumber() {
-            return s.panelNumber;
-          },
-          get tutorialStepIndex() {
-            return s.tutorialStepIndex;
-          },
-        };
+        const flat = getFlatState(store);
         const purchaseWeaponActions = {
           decResources: (v) => EconomyService.decResources(v),
           showError: (m) => GameUiService.showError(m),
@@ -190,7 +163,7 @@ export function createApi(store, state, syncStoreFromGameState) {
           disableWeaponButton: () => {},
           startBuyWeapon: (id) => ProductionService.buyWeapon(id, true, 0, 0, () => {}),
         };
-        ProductionService.purchaseWeapon(purchaseWeaponState, purchaseWeaponActions, weaponID);
+        ProductionService.purchaseWeapon(flat, purchaseWeaponActions, weaponID);
       },
       incrBlueprint(blueprint) {
         const { state: st, actions } = BuildingService.buildStateAndActions({
@@ -202,14 +175,11 @@ export function createApi(store, state, syncStoreFromGameState) {
     },
     options: {
       save(opts) {
-        SaveLoadService.save(appContext, opts || {});
+        SaveLoadService.save(null, opts || {});
       },
       load() {
-        const result = SaveLoadService.load(appContext);
+        const result = SaveLoadService.load(null);
         if (result === 'version_mismatch') api.setDialogState('loading', true);
-        else if (result === 'loaded') {
-          if (state.showHeroTable) state.showHeroTable.enabled = state.heroTable;
-        }
         return result;
       },
       reset() {
@@ -229,12 +199,11 @@ export function createApi(store, state, syncStoreFromGameState) {
       ProductionService.buyUpgrade(id);
     },
     incrRes(multi) {
-      EconomyService.incrRes(multi || state.incr);
+      EconomyService.incrRes(multi || store.getState().economy.incr);
     },
     randomEvent(type) {
-      doRandomEvent(type, state, syncStoreFromGameState);
-      state.randomE = null;
-      syncStoreFromGameState();
+      doRandomEvent(store, type);
+      store.dispatch(replaceConfig({ ...store.getState().config, randomE: null }));
     },
     showVersion() {
       api.setDialogState('version', true);
@@ -247,25 +216,16 @@ export function createApi(store, state, syncStoreFromGameState) {
     },
     /** Called by game loop when the random-event timer fires; updates store so UI shows the event. */
     scheduleNextRandomEvent() {
-      if (state && state.events && state.events.length) {
-        state.randomE = state.events[Math.floor(Math.random() * state.events.length)];
-        syncStoreFromGameState();
+      const cfg = store.getState().config;
+      if (cfg.events && cfg.events.length) {
+        store.dispatch(
+          replaceConfig({
+            ...cfg,
+            randomE: cfg.events[Math.floor(Math.random() * cfg.events.length)],
+          })
+        );
       }
     },
-  };
-
-  /** Context passed to services that need state + UI callbacks (replaces legacy Angular $scope). */
-  appContext = {
-    get state() {
-      return state;
-    },
-    getFlatState: () => state,
-    forceReset: true,
-    notifyError: (msg) => api.notifyError(msg),
-    setDialogState: (type, open) => api.setDialogState(type, open),
-    nextTutorial: () => store.dispatch(advanceTutorial()),
-    skipTut: () => store.dispatch(skipTutorial()),
-    changeTheme: () => store.dispatch(toggleDark()),
   };
 
   api.showError = (msg) => api.notifyError(msg);
@@ -279,5 +239,5 @@ export function createApi(store, state, syncStoreFromGameState) {
   };
   GameUiService.register(api);
 
-  return { api, appContext };
+  return { api };
 }

@@ -1,9 +1,9 @@
 /**
  * Hero and worker creation, profession/class changes, XP, healing, name generation.
- * Uses GameStateService, GameUiService, DungeonService, ProductionService, UtilService, EconomyService (no scope param).
- * When store is bound via bindStore(store), dispatches REPLACE_STATE after mutations so the Redux store stays in sync.
+ * Reads state from the Redux store via getFlatState; dispatches slice actions after mutations.
+ * No GameStateService — Redux is the single source of truth.
  */
-import { createStoreBinding } from './storeSync.js';
+import { getFlatState, dispatchHeroes, dispatchProduction, dispatchJobs, dispatchConfig } from './stateHelpers.js';
 import {
   HERO_BASE_HEALTH,
   HERO_BASE_XP_THRESHOLD,
@@ -28,20 +28,19 @@ const DEFAULT_POTIONS = [
 function HeroServiceFactory(
   GameConfig,
   EconomyService,
-  GameStateService,
+  store,
   GameUiService,
   DungeonService,
   ProductionService,
   UtilService
 ) {
   const HERO_CLASSES = GameConfig.heroClasses || [];
-  const { bindStore, syncStoreIfBound } = createStoreBinding(() => GameStateService.getState());
 
   function defaultEquip() {
-    const s = GameStateService.getState();
+    const s = getFlatState(store);
     return {
-      weapon: JSON.parse(JSON.stringify(s.weapons[0])),
-      potions: JSON.parse(JSON.stringify(DEFAULT_POTIONS)),
+      weapon: structuredClone(s.weapons[0]),
+      potions: structuredClone(DEFAULT_POTIONS),
       gold: 0,
       scrap: 0,
     };
@@ -51,10 +50,9 @@ function HeroServiceFactory(
     if (typeof heroName !== 'string' || heroName.trim() === '') {
       throw new Error('addHero: heroName must be a non-empty string');
     }
-    const s = GameStateService.getState();
-    const hero = s.heroList;
-    hero.push({
-      id: hero.length,
+    const s = getFlatState(store);
+    s.heroList.push({
+      id: s.heroList.length,
       name: heroName,
       currHealth: HERO_BASE_HEALTH,
       health: HERO_BASE_HEALTH,
@@ -71,17 +69,16 @@ function HeroServiceFactory(
       academy: s.heroClass[2],
       party: false,
     });
-    syncStoreIfBound();
+    dispatchHeroes(store, s);
   }
 
   function addWorker(heroName) {
     if (typeof heroName !== 'string' || heroName.trim() === '') {
       throw new Error('addWorker: heroName must be a non-empty string');
     }
-    const s = GameStateService.getState();
-    const hero = s.heroList;
-    hero.push({
-      id: hero.length,
+    const s = getFlatState(store);
+    s.heroList.push({
+      id: s.heroList.length,
       name: heroName,
       currHealth: HERO_BASE_HEALTH,
       health: HERO_BASE_HEALTH,
@@ -98,11 +95,11 @@ function HeroServiceFactory(
       academy: s.heroClass[1],
       party: false,
     });
-    syncStoreIfBound();
+    dispatchHeroes(store, s);
   }
 
   function newHeroName() {
-    const s = GameStateService.getState();
+    const s = getFlatState(store);
     if (!s.heroName || !s.heroName.first || !s.heroName.title) {
       return 'Hero ' + s.heroList.length;
     }
@@ -116,7 +113,7 @@ function HeroServiceFactory(
   }
 
   function heroProfession(selectedJobID, heroID) {
-    const s = GameStateService.getState();
+    const s = getFlatState(store);
     if (selectedJobID == null || heroID == null) return;
     if (selectedJobID < 0 || selectedJobID >= s.jobs.length) return;
     if (heroID < 0 || heroID >= s.heroList.length) return;
@@ -130,21 +127,22 @@ function HeroServiceFactory(
     s.jobs[selectedJobID].current++;
     s.heroList[heroID].progress = 'Idle';
     s.heroList[heroID].job = s.jobs[selectedJobID];
-    syncStoreIfBound();
+    dispatchHeroes(store, s);
+    dispatchJobs(store, s);
   }
 
   function heroClassChange(selectedClassID, heroID) {
-    const s = GameStateService.getState();
+    const s = getFlatState(store);
     if (selectedClassID == null || heroID == null) return;
     if (selectedClassID < 0 || selectedClassID >= s.heroClass.length) return;
     if (heroID < 0 || heroID >= s.heroList.length) return;
     s.tempClass = s.heroClass[selectedClassID];
     s.tempHero = heroID;
-    syncStoreIfBound();
+    dispatchConfig(store, s);
   }
 
   function confirmClass() {
-    const s = GameStateService.getState();
+    const s = getFlatState(store);
     const hero = s.heroList[s.tempHero];
     const cls = s.tempClass;
     if (!hero || !cls) return;
@@ -154,11 +152,13 @@ function HeroServiceFactory(
     }
     s.tempClass = null;
     s.tempHero = null;
-    syncStoreIfBound();
+    dispatchHeroes(store, s);
+    dispatchConfig(store, s);
   }
 
+  /** Mutates hero in-place (called from combat/dungeon while holding a flat state snapshot). */
   function gainExp(hero, amount) {
-    const s = GameStateService.getState();
+    const s = getFlatState(store);
     hero.experience += amount;
     if (hero.experience >= hero.next) {
       hero.level++;
@@ -173,16 +173,16 @@ function HeroServiceFactory(
       ) {
         ProductionService.activateBlueprint(2);
       }
-
     }
   }
 
+  /** Mutates hero in-place (called from combat/dungeon while holding a flat state snapshot). */
   function heal(heroID, amount, flag) {
-    const s = GameStateService.getState();
+    const s = getFlatState(store);
     const hero = s.heroList[heroID];
     if (!hero) return;
     if (flag === 1) {
-      amount = Math.floor((hero.health / 100) * amount); // flag===1: amount is a percentage of max health
+      amount = Math.floor((hero.health / 100) * amount);
     }
     if (hero.currHealth + amount < hero.health) {
       hero.currHealth += amount;
@@ -192,7 +192,7 @@ function HeroServiceFactory(
   }
 
   function rest() {
-    const s = GameStateService.getState();
+    const s = getFlatState(store);
     for (let i = 0; i < s.heroList.length; i++) {
       const hero = s.heroList[i];
       const weapon = hero.equip.weapon;
@@ -205,7 +205,7 @@ function HeroServiceFactory(
                 hero.equip.gold -= s.weapons[j].sellPrice;
                 s.weapons[j].count--;
                 EconomyService.incGold(s.weapons[j].sellPrice);
-                hero.equip.weapon = JSON.parse(JSON.stringify(s.weapons[j]));
+                hero.equip.weapon = structuredClone(s.weapons[j]);
                 j = 0;
               }
             }
@@ -219,7 +219,7 @@ function HeroServiceFactory(
         ) {
           hero.equip.gold -= s.weapons[weapon.id].sellPrice;
           s.weapons[weapon.id].count--;
-          hero.equip.weapon = JSON.parse(JSON.stringify(s.weapons[weapon.id]));
+          hero.equip.weapon = structuredClone(s.weapons[weapon.id]);
         }
         for (let k = 0; k < hero.equip.potions.length; k++) {
           if (
@@ -243,10 +243,14 @@ function HeroServiceFactory(
           hero.equip.gold -= s.potion.sellPrice;
           EconomyService.incGold(s.potion.sellPrice);
           s.potion.count--;
-          heal(i, s.potion.healing, 1);
+          // Heal in-place on the local snapshot
+          const healAmount = Math.floor((hero.health / 100) * s.potion.healing);
+          hero.currHealth = Math.min(hero.health, hero.currHealth + healAmount);
         }
       }
-      heal(i, HERO_REST_HEAL_PERCENT, 1);
+      // Passive rest heal
+      const restHealAmount = Math.floor((hero.health / 100) * HERO_REST_HEAL_PERCENT);
+      hero.currHealth = Math.min(hero.health, hero.currHealth + restHealAmount);
       if (
         hero.currHealth === hero.health &&
         (hero.academy.id === HERO_CLASSES[0].id || hero.academy.id === HERO_CLASSES[2].id)
@@ -257,11 +261,12 @@ function HeroServiceFactory(
         EconomyService.incrRes(Math.ceil(s.heroList[i].level / 4) ^ 2);
       }
     }
-    syncStoreIfBound();
+    dispatchHeroes(store, s);
+    dispatchProduction(store, s);
   }
 
   function work() {
-    const s = GameStateService.getState();
+    const s = getFlatState(store);
     for (let i = 0; i < s.heroList.length; i++) {
       const hero = s.heroList[i];
       switch (hero.job.id) {
@@ -352,11 +357,11 @@ function HeroServiceFactory(
           break;
       }
     }
-    syncStoreIfBound();
+    dispatchHeroes(store, s);
+    dispatchProduction(store, s);
   }
 
   return {
-    bindStore,
     addHero,
     addWorker,
     newHeroName,

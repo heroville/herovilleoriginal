@@ -1,13 +1,14 @@
 /**
- * Unit tests for CombatService with Redux store (bindStore, REPLACE_STATE after startFight/takeTurn).
+ * Unit tests for CombatService with Redux store (store passed to constructor).
  */
 import { describe, it, expect } from 'vitest';
 import { createGameStore } from '../store/index.js';
 import CombatServiceFactory from './combat.service.js';
 
 describe('CombatService with store', () => {
-  it('bindStore + startFight adds battle and store battles update', () => {
+  it('startFight adds battle to store', () => {
     const hero = {
+      id: 1,
       currHealth: 100,
       health: 100,
       level: 1,
@@ -31,6 +32,7 @@ describe('CombatService with store', () => {
     };
     const state = {
       battles: [],
+      heroList: [hero],
       weapons: [{ id: 0 }],
       potions: [{ value: 20 }],
       damageMulti: 1,
@@ -40,7 +42,6 @@ describe('CombatService with store', () => {
       dungeons: [],
       gameStats: { wins: 0, losses: 0 },
     };
-    const GameStateService = { getState: () => state };
     const HeroService = { heal: () => {}, gainExp: () => {} };
     const DungeonService = { travel: () => {} };
     const GameUiService = { showError: () => {} };
@@ -49,21 +50,19 @@ describe('CombatService with store', () => {
 
     const store = createGameStore(state);
     const CombatService = CombatServiceFactory(
-      GameStateService,
+      store,
       HeroService,
       DungeonService,
       GameUiService,
       GameConfig,
       $timeout
     );
-    CombatService.bindStore(store);
 
     const monList = [{ health: 1000, minDamage: 1, maxDamage: 1, value: 1, high: null, low: null }];
     const journey = { hero: [hero], dungeon: { steps: 10, level: 1 }, steps: 0 };
 
     CombatService.startFight(monList, journey, false);
 
-    expect(state.battles.length).toBe(1);
     expect(store.getState().heroes.battles.length).toBe(1);
   });
 });

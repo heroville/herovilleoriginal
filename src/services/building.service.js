@@ -1,38 +1,10 @@
 /**
  * Building and blueprint upgrades.
- * Uses explicit state (data) and actions (callbacks) for testability; no scope.
- * When store is bound via bindStore(store), dispatches REPLACE_STATE after incrBuilding/incrBlueprint
- * so the Redux store is updated from GameStateService.getState().
- *
- * @typedef BuildingState
- * @property {Array} buildings
- * @property {Array} jobs
- * @property {Array} upgrades
- * @property {Array} blueprints
- * @property {Array} weapons
- * @property {Array} potions
- * @property {Array} dungeons
- * @property {number} panelNumber
- * @property {boolean} heroEnabled (get/set)
- * @property {boolean} prodEnabled (get/set)
- * @property {boolean} upgEnabled (get/set)
- * @property {number} maxResources (get/set)
- * @property {number} maxGold (get/set)
- * @property {boolean} bestiary (get/set)
- * @property {boolean} beastEnabled (get/set)
- *
- * @typedef BuildingActions
- * @property {function(number): boolean} decResources
- * @property {function(number): boolean} decGold
- * @property {function(string): void} showError
- * @property {function(): void} nextTutorial
- * @property {function(): void} activateDungeon
- * @property {function(number): void} createMonster
- * @property {function(number): void} activateBlueprint
- * @property {function(): void} [openHeroDialog]
- * @property {function(): void} [openWorkerDialog]
+ * Reads state from the Redux store; dispatches slice actions after mutations.
+ * No GameStateService — Redux is the single source of truth.
  */
-import { createStoreBinding } from './storeSync.js';
+import { getFlatState, dispatchBuildings, dispatchDungeons, dispatchProduction, dispatchJobs, dispatchUi, dispatchConfig } from './stateHelpers.js';
+import { setMaxResources, setMaxGold } from '../store/slices/economySlice.js';
 import {
   BUILDING_TENT,
   BUILDING_STOCKPILE,
@@ -46,15 +18,12 @@ import {
   MAX_DUNGEON_COUNT,
 } from '../constants/gameConstants.js';
 
-
 function BuildingServiceFactory(
-  GameStateService,
+  store,
   GameUiService,
   DungeonService,
   ProductionService
 ) {
-  const { bindStore, syncStoreIfBound } = createStoreBinding(() => GameStateService.getState());
-
   function incrBuilding(state, actions, building) {
     if (!building || building.id == null) return;
     if (!actions.decResources(building.cost)) {
@@ -77,18 +46,17 @@ function BuildingServiceFactory(
     switch (bid) {
       case BUILDING_TENT: {
         if (actions.openHeroDialog) actions.openHeroDialog();
-        state.heroEnabled = true; /* unlock Hero tab when first Tent built */
+        state.heroEnabled = true;
         if (state.buildings[BUILDING_TENT].count === 5) actions.activateBlueprint(3);
         if (state.tutorialStepIndex === 2) actions.nextTutorial();
         break;
       }
       case BUILDING_STOCKPILE: {
-        // Use updated cost (next upgrade cost) so capacity allows affording the next Stockpile upgrade
         state.maxResources = stateBuilding.cost + Math.floor(stateBuilding.cost / 10);
         state.maxGold = Math.floor(stateBuilding.cost / 10);
         if (state.buildings[BUILDING_MARKET].count === 0) {
           state.buildings[BUILDING_MARKET].enabled = true;
-          state.prodEnabled = true; /* unlock Production tab when Stockpile built */
+          state.prodEnabled = true;
           state.jobs[1].enabled = true;
         } else if (state.buildings[BUILDING_TAVERN].count === 0) {
           actions.activateBlueprint(2);
@@ -120,7 +88,7 @@ function BuildingServiceFactory(
       }
       case BUILDING_TAVERN: {
         state.buildings[BUILDING_TAVERN].enabled = false;
-        state.upgEnabled = true; /* unlock Professions tab when Tavern built */
+        state.upgEnabled = true;
         if (state.buildings[BUILDING_WORK_HUT]) state.buildings[BUILDING_WORK_HUT].enabled = true;
         if (state.tutorialStepIndex === 18) actions.nextTutorial();
         break;
@@ -155,7 +123,7 @@ function BuildingServiceFactory(
         break;
       }
     }
-    // Fallback: enable Blacksmith Blueprint when improving Market (by id or name) only if not yet purchased
+    // Fallback: enable Blacksmith Blueprint when improving Market
     if (
       state.blueprints &&
       state.blueprints[0] &&
@@ -174,7 +142,13 @@ function BuildingServiceFactory(
     ) {
       state.buildings[BUILDING_WORK_HUT].enabled = true;
     }
-    syncStoreIfBound();
+    dispatchBuildings(store, state);
+    dispatchUi(store, state);
+    dispatchProduction(store, state);
+    dispatchJobs(store, state);
+    // Dispatch economy fields if they were mutated (e.g. BUILDING_STOCKPILE changes maxResources/maxGold)
+    if (state.maxResources !== undefined) store.dispatch(setMaxResources(state.maxResources));
+    if (state.maxGold !== undefined) store.dispatch(setMaxGold(state.maxGold));
   }
 
   function incrBlueprint(state, actions, blueprint) {
@@ -183,8 +157,8 @@ function BuildingServiceFactory(
       actions.showError('You do not have enough Gold');
       return;
     }
-    blueprint.enabled = false;
-    blueprint.cost = 0;
+    // Do NOT mutate blueprint directly — it may be a frozen Redux state object.
+    // Mutate only stateBlueprint (from fresh flat state).
     var stateBlueprint = state.blueprints && state.blueprints[blueprint.id];
     if (stateBlueprint) {
       stateBlueprint.enabled = false;
@@ -199,16 +173,18 @@ function BuildingServiceFactory(
           break;
         case -2:
           state.bestiary = true;
-          state.beastEnabled = true; /* unlock Bestiary tab */
+          state.beastEnabled = true;
           break;
       }
     }
-    syncStoreIfBound();
+    dispatchBuildings(store, state);
+    dispatchProduction(store, state);
+    dispatchUi(store, state);
   }
 
-  /** Build state and actions for incrBuilding/incrBlueprint. Uses GameStateService, GameUiService, DungeonService, ProductionService (no scope). */
+  /** Build state and actions for incrBuilding/incrBlueprint. */
   function buildStateAndActions(economyActions) {
-    const state = GameStateService.getState();
+    const state = getFlatState(store);
     const actions = {
       decResources: economyActions.decResources,
       decGold: economyActions.decGold,
@@ -224,7 +200,6 @@ function BuildingServiceFactory(
   }
 
   return {
-    bindStore,
     buildStateAndActions,
     incrBuilding,
     incrBlueprint,
