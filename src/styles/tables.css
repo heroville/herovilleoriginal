@@ -1,0 +1,211 @@
+/* tables.css: split from index.css — see index.css for @import order */
+/* Panel – game window style (distinct from generic “card”) */
+.hv-panel {
+  background: var(--hv-panel-bg);
+  border: 2px solid var(--hv-panel-border);
+  border-radius: 8px;
+  box-shadow:
+    0 2px 8px rgba(0, 0, 0, 0.1),
+    inset 0 1px 0 rgba(255, 255, 255, 0.06);
+  overflow: hidden;
+  height: 100%;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+}
+
+.hv-panel__header {
+  padding: 0.5rem 1rem;
+  background: linear-gradient(
+    180deg,
+    color-mix(in srgb, var(--hv-panel-border) 22%, var(--hv-panel-bg)) 0%,
+    var(--hv-panel-bg) 100%
+  );
+  border-bottom: 1px solid var(--hv-panel-border);
+  font-weight: 600;
+  font-size: 0.95rem;
+}
+
+.hv-panel__body {
+  padding: 0.75rem 1rem;
+  flex: 1;
+  min-height: 0;
+}
+.hv-panel__body--no-pad {
+  padding: 0;
+}
+/* Table – base */
+.hv-table {
+  width: 100%;
+  border-collapse: collapse;
+  margin: 0;
+}
+.hv-table th,
+.hv-table td {
+  border: 1px solid var(--hv-border);
+  padding: 0.5rem 0.75rem;
+  text-align: center;
+  vertical-align: middle;
+}
+.hv-table thead th {
+  background: linear-gradient(
+    180deg,
+    color-mix(in srgb, var(--hv-panel-border) 25%, var(--hv-panel-bg)) 0%,
+    var(--hv-panel-bg) 100%
+  );
+  font-weight: 700;
+  font-size: 0.8rem;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  border-top: none;
+}
+.hv-table thead tr:first-child th {
+  border-bottom: 2px solid var(--hv-panel-border);
+}
+.hv-table tbody tr {
+  transition: background-color 0.12s ease;
+}
+.hv-table tbody tr:nth-child(even) {
+  background: color-mix(in srgb, var(--hv-panel-border) 8%, var(--hv-bg));
+}
+.hv-table tbody tr:hover {
+  background: color-mix(in srgb, var(--hv-panel-border) 15%, var(--hv-panel-bg));
+}
+/* Progress bar – custom ( .progress / .progress-bar kept for hero cards ) */
+.hv-progress,
+.progress {
+  height: 1.5rem;
+  background: color-mix(in srgb, var(--hv-panel-border) 35%, var(--hv-bg));
+  border-radius: var(--hv-radius-sm);
+  overflow: hidden;
+  border: 1px solid var(--hv-button-border);
+}
+.hv-progress-bar,
+.progress-bar {
+  height: 100%;
+  transition: width 0.2s ease;
+}
+/* Table wrapper – game panel (uses .hv-table inside) */
+.hv-table-card {
+  background: var(--hv-panel-bg);
+  border: var(--hv-frame) solid var(--hv-panel-border);
+  border-radius: var(--hv-radius);
+  box-shadow:
+    inset 0 0 0 1px var(--hv-button-highlight),
+    var(--hv-shadow);
+  overflow: hidden;
+}
+.hv-table-card .hv-table {
+  margin: 0;
+}
+.hv-table-card .hv-table td {
+  padding: 0.5rem 0.75rem;
+}
+#partyList {
+  list-style-type: none;
+  margin: 0;
+  padding: 0;
+  width: 100%;
+}
+
+#partyList li {
+  padding: 1px;
+  float: left;
+}
+
+#partyTable {
+  border-width: 3px;
+  height: 300px;
+  width: 530px;
+}
+
+#heroTable {
+  border-width: 3px;
+  height: 300px;
+}
+
+#heroTableTitle {
+  font-size: x-large;
+}
+#lootTable {
+  border-collapse: collapse;
+  width: 100%;
+}
+
+#lootTable td {
+  border: 1px solid var(--hv-border);
+  padding: 0.25rem 0.5rem;
+}
+
+#lootTable td:first-child {
+  border-left: 1px solid var(--hv-border);
+}
+/* Random event slider                                                          */
+/* --------------------------------------------------------------------------- */
+.random-event-slider {
+  width: 3em;
+  height: 3em;
+  position: absolute;
+  transition:
+    top 800ms linear,
+    left 800ms linear;
+}
+
+/* --------------------------------------------------------------------------- */
+/* Dark theme: tables & cards (Bootstrap overrides)                             */
+/* --------------------------------------------------------------------------- */
+[data-bs-theme='dark'] .table,
+[data-bs-theme='dark'] .table-bordered,
+[data-bs-theme='dark'] .table-bordered th,
+[data-bs-theme='dark'] .table-bordered td {
+  background-color: var(--hv-bg) !important;
+  color: var(--hv-text) !important;
+  border-color: var(--hv-border) !important;
+}
+
+[data-bs-theme='dark'] .card {
+  background-color: var(--hv-panel-bg) !important;
+  border-color: var(--hv-panel-border) !important;
+  color: var(--hv-text) !important;
+}
+
+[data-bs-theme='dark'] .card-header {
+  background: linear-gradient(
+    180deg,
+    color-mix(in srgb, var(--hv-panel-border) 30%, var(--hv-panel-bg)) 0%,
+    var(--hv-panel-bg) 100%
+  ) !important;
+  border-color: var(--hv-panel-border) !important;
+  color: var(--hv-text) !important;
+}
+
+/* Card headers: normal weight (avoid bold everywhere) */
+.card-header {
+  font-weight: normal;
+}
+
+[data-bs-theme='dark'] .progress {
+  background: color-mix(in srgb, var(--hv-panel-border) 40%, var(--hv-bg));
+  border: 1px solid var(--hv-button-border);
+  border-radius: var(--hv-radius-sm);
+  box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.3);
+}
+
+[data-bs-theme='dark'] .progress-bar {
+  color: var(--hv-text);
+}
+
+[data-bs-theme='dark'] .dropdown-menu {
+  background-color: var(--hv-bg);
+  border-color: var(--hv-border);
+  color: var(--hv-text);
+}
+
+[data-bs-theme='dark'] .dropdown-item {
+  color: var(--hv-text);
+}
+
+[data-bs-theme='dark'] .dropdown-item:hover {
+  background-color: #1a1a1a;
+  color: var(--hv-text);
+}

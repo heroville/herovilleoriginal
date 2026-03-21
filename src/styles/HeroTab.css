@@ -1,0 +1,367 @@
+/* HeroTab.css: split from index.css — see index.css for @import order */
+/* Upgrades tab */
+.hv-upgrades-intro {
+  margin-bottom: 1rem;
+}
+.hv-content-title {
+  margin: 0 0 0.25rem;
+  font-size: 1.25rem;
+}
+.hv-content-desc {
+  margin: 0;
+  color: var(--hv-muted);
+  font-size: 0.9rem;
+}
+.hv-upgrades-section {
+  margin-bottom: 1.5rem;
+}
+.hv-upgrades-section:last-child {
+  margin-bottom: 0;
+}
+.hv-upgrades-section__title {
+  margin: 0 0 0.5rem;
+  font-size: 1rem;
+  font-weight: 600;
+  color: var(--hv-muted);
+}
+.hv-upgrades-list {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+  gap: 0.75rem;
+}
+.hv-upgrades-list li {
+  margin: 0;
+}
+.hv-upgrade-card {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  width: 100%;
+  padding: 0.75rem 1rem;
+  text-align: left;
+  background: var(--hv-panel-bg);
+  border: 2px solid var(--hv-panel-border);
+  border-radius: 8px;
+  color: var(--hv-text);
+  cursor: pointer;
+  transition:
+    background 0.15s,
+    border-color 0.15s;
+}
+.hv-upgrade-card:hover {
+  background: color-mix(in srgb, var(--hv-panel-border) 20%, var(--hv-panel-bg));
+}
+.hv-upgrade-card__name {
+  font-weight: 600;
+  margin-bottom: 0.25rem;
+}
+.hv-upgrade-card__cost {
+  font-size: 0.85rem;
+  color: var(--hv-muted);
+}
+.hv-upgrades-empty {
+  color: var(--hv-muted);
+  font-size: 0.9rem;
+  list-style: none;
+}
+.hv-upgrade-card--purchased {
+  cursor: default;
+  opacity: 0.9;
+}
+.hv-upgrade-card--purchased:hover {
+  background: var(--hv-panel-bg);
+}
+.hv-upgrades-list--purchased .hv-upgrade-card--purchased {
+  border-style: dashed;
+/* Hero list & cards                                                            */
+/* --------------------------------------------------------------------------- */
+#heroList {
+  list-style-type: none;
+  margin: 0;
+  padding: 0;
+  width: 100%;
+}
+
+#heroList li {
+  margin: 3px 3px 3px 0;
+  padding: 1px;
+  float: left;
+  width: 250px;
+  height: 390px;
+  text-align: center;
+  font-size: small;
+}
+
+/* Hero list – card grid layout, left-aligned, new cards extend to the right */
+.hv-hero-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1rem;
+  justify-content: flex-start;
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+.hv-hero-list > li {
+  float: none;
+  width: 280px;
+  min-width: 280px;
+  height: auto;
+  min-height: 320px;
+  margin: 0;
+}
+.hv-hero-card {
+  height: 100%;
+  min-height: 320px;
+  display: flex;
+  flex-direction: column;
+  text-align: left;
+  border: var(--hv-frame) solid var(--hv-panel-border);
+  background: var(--hv-panel-bg);
+  border-radius: var(--hv-radius);
+  box-shadow: var(--hv-shadow);
+}
+.hv-hero-card-header {
+  padding: 0.5rem 0.75rem;
+  border-bottom: 1px solid var(--hv-border);
+  display: flex;
+  flex-direction: column;
+  gap: 0.15rem;
+}
+.hv-hero-name {
+  font-weight: 600;
+  font-size: 0.95rem;
+}
+.hv-hero-class {
+  font-size: 0.8rem;
+  color: var(--hv-muted);
+}
+.hv-hero-bars {
+  padding: 0.5rem 0.75rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+}
+.hv-hero-bar-row {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+.hv-hero-bar-label {
+  font-size: 0.75rem;
+  font-weight: 600;
+  min-width: 1.8em;
+  color: var(--hv-muted);
+}
+.hv-hero-progress {
+  flex: 1;
+  min-width: 0;
+  max-width: 200px;
+}
+.hv-hero-loot-equip {
+  padding: 0.4rem 0.75rem;
+  border-top: 1px solid var(--hv-border);
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+  font-size: 0.8rem;
+}
+.hv-hero-loot,
+.hv-hero-equip {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.35rem;
+}
+.hv-hero-equip {
+  position: relative;
+  cursor: pointer;
+  flex: 1;
+  min-width: 0;
+}
+.hv-hero-loot-label,
+.hv-hero-equip-label {
+  font-weight: 600;
+  color: var(--hv-muted);
+  flex-shrink: 0;
+}
+.hv-hero-equip-main {
+  display: inline-flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 0.25rem;
+}
+.hv-hero-equip-icon {
+  width: 20px;
+  height: 20px;
+  object-fit: contain;
+}
+.hv-hero-equip-name {
+  font-weight: 500;
+}
+.hv-hero-equip-stats {
+  font-size: 0.75rem;
+  color: var(--hv-muted);
+}
+.hv-hero-equip-empty {
+  font-style: italic;
+  color: var(--hv-muted);
+}
+.hv-hero-inline-icon {
+  width: 16px;
+  height: 16px;
+  vertical-align: middle;
+}
+.hv-hero-equip-popover,
+.hv-hero-battle-popover {
+  position: absolute;
+  left: 0;
+  top: 100%;
+  z-index: 1050;
+  margin-top: 4px;
+  min-width: 200px;
+}
+.hv-hero-meta {
+  margin-top: auto;
+  padding: 0.4rem 0.75rem;
+  border-top: 1px solid var(--hv-border);
+  font-size: 0.8rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.2rem;
+}
+.hv-hero-location {
+  color: var(--hv-muted);
+}
+.hv-hero-progress-text {
+  position: relative;
+}
+
+/* Hero card – embedded combat (no popover)                                    */
+.hv-hero-combat {
+  padding: 0.4rem 0.75rem;
+  border-top: 1px solid var(--hv-border);
+  font-size: 0.8rem;
+  background: rgba(0, 0, 0, 0.02);
+}
+[data-bs-theme='dark'] .hv-hero-combat {
+  background: rgba(255, 255, 255, 0.03);
+}
+.hv-hero-combat-title {
+  font-weight: 600;
+  color: var(--hv-muted);
+  margin-bottom: 0.25rem;
+}
+.hv-hero-combat-empty {
+  color: var(--hv-muted);
+  font-style: italic;
+}
+.hv-hero-combat-monster {
+  margin-top: 0.35rem;
+  padding: 0.25rem 0;
+  border-top: 1px solid var(--hv-border);
+}
+.hv-hero-combat-monster:first-of-type {
+  margin-top: 0.25rem;
+  border-top: none;
+  padding-top: 0;
+}
+.hv-hero-combat-monster-name {
+  font-weight: 500;
+  display: block;
+  margin-bottom: 0.15rem;
+}
+.hv-hero-combat-monster-hp {
+  font-size: 0.75rem;
+  color: var(--hv-muted);
+  display: block;
+  margin-top: 0.1rem;
+}
+.hv-hero-combat-monster .progress {
+  height: 0.5rem;
+  max-width: 100%;
+  border-radius: var(--hv-radius-sm);
+}
+.progress-bar-danger {
+  background-color: #dc3545 !important;
+}
+[data-bs-theme='dark'] .progress-bar-danger {
+  background-color: #e63946 !important;
+}
+/* Progress bars – HP vs XP distinct colors                                     */
+/* --------------------------------------------------------------------------- */
+.progress-bar-hp {
+  background-color: #198754 !important; /* green – health */
+}
+
+.progress-bar-hp.low {
+  background-color: #dc3545 !important; /* red when low */
+}
+
+.progress-bar-xp {
+  background: linear-gradient(180deg, #c9a227 0%, #9a7209 100%) !important; /* gold – experience */
+}
+
+/* Hero HP/XP: label centered over bar, always visible (full or empty) */
+.hv-progress-wrap {
+  position: relative;
+  display: inline-block;
+  height: 1.5rem;
+}
+.hv-progress-wrap .progress {
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 0;
+  bottom: 0;
+}
+.hv-progress-label {
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 0;
+  bottom: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  color: var(--hv-text);
+  font-size: 0.8rem;
+  pointer-events: none;
+  text-shadow:
+    0 0 3px var(--hv-bg),
+    0 0 4px var(--hv-bg),
+    0 1px 2px rgba(0, 0, 0, 0.5),
+    0 0 1px var(--hv-bg);
+}
+
+[data-bs-theme='dark'] .progress-bar-hp {
+  background-color: #2ea96a !important;
+}
+
+[data-bs-theme='dark'] .progress-bar-hp.low {
+  background-color: #c82333 !important;
+}
+
+[data-bs-theme='dark'] .progress-bar-xp {
+  background: linear-gradient(180deg, #e0b429 0%, #c9a227 100%) !important;
+}
+/* --------------------------------------------------------------------------- */
+/* Hero popover / card – consistent border (including on hover)                  */
+/* --------------------------------------------------------------------------- */
+.hero-popover,
+.hero-popover.card {
+  border: var(--hv-frame) solid var(--hv-panel-border) !important;
+  background: var(--hv-panel-bg) !important;
+  box-shadow: var(--hv-shadow-md);
+}
+
+.hero-popover:hover,
+.hero-popover.card:hover {
+  border-color: var(--hv-primary) !important;
+  box-shadow:
+    var(--hv-shadow-md),
+    0 0 0 1px var(--hv-primary-glow);
+}

@@ -1,0 +1,198 @@
+/* ProductionTab.css: split from index.css — see index.css for @import order */
+/* --------------------------------------------------------------------------- */
+/* Production / upgrades                                                        */
+/* --------------------------------------------------------------------------- */
+#upgradeList {
+  list-style-type: none;
+  margin: 0;
+  padding: 0;
+  width: 100%;
+}
+
+#upgradeList li {
+  margin: 3px 3px 3px 0;
+  padding: 1px;
+  float: left;
+  text-align: center;
+  font-size: small;
+}
+
+#monsterList {
+  margin: 0;
+  padding: 0;
+}
+
+/* --------------------------------------------------------------------------- */
+/* Options / tips / support                                                     */
+/* --------------------------------------------------------------------------- */
+#support {
+  text-align: right;
+  float: right;
+  pointer-events: initial;
+}
+
+#tips {
+  text-align: left;
+}
+
+#heroFilter {
+  text-align: left;
+}
+
+#sortButton {
+  width: auto;
+}
+
+#dungeonCount {
+  width: 50px;
+}
+
+#optionMenu {
+  width: 75%;
+  margin-left: auto;
+  margin-right: auto;
+  text-align: left;
+}
+
+/* Options/Help – new look: two panels, form layout                          */
+.hv-options-layout {
+  display: grid;
+  gap: 1.5rem;
+  max-width: 900px;
+  margin: 0 auto;
+  text-align: left;
+}
+@media (min-width: 992px) {
+  .hv-options-layout {
+    grid-template-columns: 1fr 1fr;
+  }
+}
+.hv-options-panel {
+  background: var(--hv-panel-bg);
+  border: var(--hv-frame) solid var(--hv-panel-border);
+  border-radius: var(--hv-radius);
+  box-shadow:
+    inset 0 0 0 1px var(--hv-button-highlight),
+    var(--hv-shadow);
+  overflow: hidden;
+}
+.hv-options-panel-header {
+  background: linear-gradient(
+    180deg,
+    color-mix(in srgb, var(--hv-panel-border) 22%, var(--hv-panel-bg)) 0%,
+    var(--hv-panel-bg) 100%
+  );
+  padding: 0.75rem 1rem;
+  border-bottom: 1px solid var(--hv-panel-border);
+  font-weight: 700;
+  font-size: 0.95rem;
+  color: var(--hv-text);
+}
+.hv-options-panel-body {
+  padding: 1rem;
+}
+.hv-options-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  margin-bottom: 1rem;
+}
+.hv-options-form-group {
+  margin-bottom: 0.75rem;
+}
+.hv-options-form-group label {
+  display: block;
+  font-size: 0.85rem;
+  font-weight: 500;
+  margin-bottom: 0.25rem;
+  color: var(--hv-text);
+}
+.hv-options-form-group input[type='checkbox'] {
+  margin-right: 0.5rem;
+  vertical-align: middle;
+}
+.hv-options-form-group select {
+  padding: 0.4rem 0.6rem;
+  border-radius: var(--hv-radius-sm);
+  border: 1px solid var(--hv-border);
+  min-width: 4rem;
+}
+.hv-guide-tips {
+  list-style: none;
+  padding: 0;
+  margin: 0 0 1rem;
+}
+.hv-guide-tips li {
+  padding: 0.35rem 0;
+  padding-left: 1.25rem;
+  position: relative;
+  font-size: 0.9rem;
+  line-height: 1.4;
+}
+.hv-guide-tips li::before {
+  content: '◆';
+  position: absolute;
+  left: 0;
+  color: var(--hv-primary);
+  font-size: 0.6em;
+  top: 0.4em;
+}
+.hv-guide-stats {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  font-size: 0.9rem;
+}
+.hv-guide-stats li {
+  padding: 0.3rem 0;
+  border-bottom: 1px solid var(--hv-border);
+  display: flex;
+  justify-content: space-between;
+  gap: 1rem;
+}
+.hv-guide-stats li:last-child {
+  border-bottom: none;
+}
+.hv-guide-stats .hv-stat-value {
+  font-weight: 600;
+}
+.hv-options-support {
+  margin-top: 0.5rem;
+}
+.hv-support-links {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  flex-wrap: wrap;
+}
+.hv-support-links a {
+  display: inline-block;
+  opacity: 0.9;
+  transition: opacity 0.15s;
+}
+.hv-support-links a:hover {
+  opacity: 1;
+}
+
+#version {
+  text-align: left;
+}
+
+/* --------------------------------------------------------------------------- */
+/* Loot table (hero card inner table)                                           */
+/* --------------------------------------------------------------------------- */
+#lootTable {
+  border-collapse: collapse;
+  width: 100%;
+}
+
+#lootTable td {
+  border: 1px solid var(--hv-border);
+  padding: 0.25rem 0.5rem;
+}
+
+#lootTable td:first-child {
+  border-left: 1px solid var(--hv-border);
+}
+
+/* --------------------------------------------------------------------------- */

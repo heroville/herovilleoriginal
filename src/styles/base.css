@@ -1,0 +1,271 @@
+/* base.css: split from index.css — see index.css for @import order */
+/**
+ * HeroVille – Melvor-style layout: sidebar + viewport. No tabs; distinct game UI.
+ * Dark theme: data-bs-theme="dark" on html.
+ */
+/* --------------------------------------------------------------------------- */
+/* Reset & base                                                                 */
+/* --------------------------------------------------------------------------- */
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+html {
+  overflow-x: hidden;
+}
+
+body {
+  margin: 0;
+  padding: 0;
+  min-height: 100vh;
+  overflow-x: hidden;
+}
+
+ul,
+ol {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+table {
+  border-collapse: collapse;
+  width: 100%;
+}
+
+input,
+select,
+textarea {
+  font-family: var(--hv-font-sans);
+  font-size: 1rem;
+  color: var(--hv-text);
+  background: var(--hv-button-bg);
+  border: 1px solid var(--hv-button-border);
+  border-radius: var(--hv-radius-sm);
+}
+/* Utilities */
+.hv-flex {
+  display: flex;
+}
+.hv-flex-wrap {
+  flex-wrap: wrap;
+}
+.hv-items-center {
+  align-items: center;
+}
+.hv-justify-center {
+  justify-content: center;
+}
+.hv-gap-1 {
+  gap: 0.25rem;
+}
+.hv-gap-2 {
+  gap: 0.5rem;
+}
+.hv-gap-3 {
+  gap: 1rem;
+}
+.hv-mb-1 {
+  margin-bottom: 0.25rem;
+}
+.hv-mb-2 {
+  margin-bottom: 0.5rem;
+}
+.hv-mb-3 {
+  margin-bottom: 1rem;
+}
+.hv-mt-2 {
+  margin-top: 0.5rem;
+}
+.hv-text-center {
+  text-align: center;
+}
+.hv-text-muted {
+  color: var(--hv-muted);
+  font-size: 0.875rem;
+}
+.hv-w-100 {
+  width: 100%;
+}
+.hv-d-none {
+  display: none;
+}
+.hv-table-wrap {
+  overflow-x: auto;
+}
+.hv-tab-pane {
+  display: none;
+}
+.hv-tab-pane.hv-tab-pane--active {
+  display: block;
+}
+
+.hv-footer {
+  flex-shrink: 0;
+  background-color: var(--hv-bg);
+  border-top: 1px solid var(--hv-border);
+  padding: 0.75rem 1rem;
+  margin-top: 0.5rem;
+  text-align: center;
+  font-size: 0.9rem;
+}
+.hv-footer a,
+.hv-footer .hv-footer-link {
+  margin: 0 0.25rem;
+}
+.hv-footer-link {
+  background: none;
+  border: none;
+  padding: 0;
+  font: inherit;
+  color: inherit;
+  cursor: pointer;
+  text-decoration: underline;
+}
+
+/* Variables                                                                    */
+/* --------------------------------------------------------------------------- */
+
+/* --------------------------------------------------------------------------- */
+/* Dark theme only – sidebar blue applied app-wide                             */
+/* --------------------------------------------------------------------------- */
+:root {
+  --hv-font-sans: 'Droid Sans', 'Segoe UI', system-ui, sans-serif;
+  --hv-bg: #0f172a;
+  --hv-text: #e2e8f0;
+  --hv-border: #334155;
+  --hv-muted: #94a3b8;
+  --hv-panel-bg: #1e293b;
+  --hv-panel-border: #334155;
+  --hv-button-bg: #334155;
+  --hv-button-border: #475569;
+  --hv-button-text: #e2e8f0;
+  --hv-button-highlight: rgba(255, 255, 255, 0.06);
+  --hv-button-emboss: rgba(0, 0, 0, 0.3);
+  --hv-primary: #c9a227;
+  --hv-primary-hover: #e0b429;
+  --hv-primary-text: #1a1509;
+  --hv-primary-glow: rgba(201, 162, 39, 0.2);
+  --hv-error: #f87171;
+  --hv-radius: 6px;
+  --hv-radius-sm: 4px;
+  --hv-frame: 2px;
+  --hv-shadow: 0 2px 8px rgba(0, 0, 0, 0.35);
+  --hv-shadow-md: 0 6px 20px rgba(0, 0, 0, 0.45);
+  --hv-sidebar-width: 220px;
+  --hv-sidebar-bg: #0f172a;
+  --hv-sidebar-text: #e2e8f0;
+  --hv-sidebar-muted: #64748b;
+  --hv-sidebar-border: #1e293b;
+  --hv-sidebar-hover: #1e293b;
+  --hv-sidebar-active-bg: #020617;
+  --hv-sidebar-active-text: #f8fafc;
+  --hv-sidebar-accent: #c9a227;
+  --hv-sidebar-accent-text: #1a1509;
+  --hv-sidebar-btn-bg: #1e293b;
+  --hv-topbar-bg: #0f172a;
+  --hv-topbar-border: #1e293b;
+  --hv-viewport-bg: #0f172a;
+}
+
+/* Dark theme overrides – blue/slate to match sidebar (no brown/grey) */
+[data-bs-theme='dark'] {
+  --hv-bg: #0f172a;
+  --hv-text: #e2e8f0;
+  --hv-border: #334155;
+  --hv-muted: #94a3b8;
+  --hv-panel-bg: #1e293b;
+  --hv-panel-border: #334155;
+  --hv-sidebar-bg: #0f172a;
+  --hv-sidebar-text: #e2e8f0;
+  --hv-sidebar-muted: #64748b;
+  --hv-sidebar-border: #1e293b;
+  --hv-sidebar-hover: #1e293b;
+  --hv-sidebar-active-bg: #020617;
+  --hv-sidebar-active-text: #f8fafc;
+  --hv-sidebar-accent: #c9a227;
+  --hv-sidebar-accent-text: #1a1509;
+  --hv-sidebar-btn-bg: #1e293b;
+  --hv-topbar-bg: #0f172a;
+  --hv-topbar-border: #1e293b;
+  --hv-viewport-bg: #0f172a;
+  --hv-button-bg: #1e293b;
+  --hv-button-border: #334155;
+  --hv-button-text: #e2e8f0;
+  --hv-button-highlight: rgba(255, 255, 255, 0.06);
+  --hv-button-emboss: rgba(0, 0, 0, 0.3);
+  --hv-primary: #c9a227;
+  --hv-primary-hover: #e0b429;
+  --hv-primary-text: #1a1509;
+  --hv-primary-glow: rgba(201, 162, 39, 0.2);
+  --hv-error: #f87171;
+  --hv-shadow: 0 2px 8px rgba(0, 0, 0, 0.35);
+  --hv-shadow-md: 0 6px 20px rgba(0, 0, 0, 0.45);
+}
+
+body {
+  font-family: var(--hv-font-sans);
+  text-align: left;
+  background-color: var(--hv-bg);
+  color: var(--hv-text);
+  -webkit-font-smoothing: antialiased;
+}
+
+#error,
+#errorDialog {
+  color: var(--hv-error);
+}
+
+.hv-modal-dialog .text-danger {
+  color: var(--hv-error);
+}
+/* Utility                                                                      */
+/* --------------------------------------------------------------------------- */
+.noTextSelect {
+  -webkit-touch-callout: none;
+  -webkit-user-select: none;
+  -khtml-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
+  user-select: none;
+}
+#wrap {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  width: 100%;
+}
+
+.app-main {
+  flex: 1;
+  min-height: 0;
+}
+
+.footer {
+  flex-shrink: 0;
+  background-color: var(--hv-bg);
+  border-top: 1px solid var(--hv-border);
+  padding: 0.75rem 0;
+  margin-top: 0.5rem;
+}
+/* --------------------------------------------------------------------------- */
+/* Focus outline (accessibility)                                                */
+/* --------------------------------------------------------------------------- */
+button:focus-visible,
+#gameTabs .nav-link:focus-visible,
+a:focus-visible,
+input:focus-visible,
+select:focus-visible,
+textarea:focus-visible,
+[tabindex='0']:focus-visible {
+  outline: 2px solid var(--hv-button-border);
+  outline-offset: 2px;
+}
+
+.hv-modal-dialog :focus-visible {
+  outline: 2px solid var(--hv-button-border);
+  outline-offset: 2px;
+}
