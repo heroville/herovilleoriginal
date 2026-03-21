@@ -18,7 +18,7 @@ function useFocusTrap(containerRef, isActive) {
     const el = containerRef.current;
     const focusable = el.querySelectorAll(FOCUSABLE);
     const first = focusable[0];
-    const last = focusable[focusable.length - 1];
+    const _last = focusable[focusable.length - 1];
     if (first && typeof first.focus === 'function') first.focus();
     const handleKey = (e) => {
       if (e.key !== 'Tab') return;

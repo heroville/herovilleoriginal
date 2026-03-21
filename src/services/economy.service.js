@@ -3,15 +3,7 @@
  * When store is bound via bindStore(), updates go through Redux dispatch and are also written to boundState
  * so other services (BuildingService, etc.) that read GameStateService.getState() stay in sync.
  */
-import {
-  setResources,
-  setGold,
-  setMaxResources,
-  setMaxGold,
-  setIncr,
-  setDamageMulti,
-  setGoldMulti,
-} from '../store/slices/economySlice.js';
+import { setResources, setGold } from '../store/slices/economySlice.js';
 import { incrementClicks } from '../store/slices/gameStatsSlice.js';
 
 function ensureState(state) {

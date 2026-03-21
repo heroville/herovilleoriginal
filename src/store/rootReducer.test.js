@@ -3,7 +3,7 @@
  */
 import { describe, it, expect } from 'vitest';
 import rootReducer from './rootReducer.js';
-import { REPLACE_STATE, stateToSlices } from './sliceState.js';
+import { REPLACE_STATE } from './sliceState.js';
 
 describe('rootReducer', () => {
   it('returns combined initial state when no preload', () => {

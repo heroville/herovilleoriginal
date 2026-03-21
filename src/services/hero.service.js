@@ -160,14 +160,7 @@ function HeroServiceFactory(
       ) {
         ProductionService.activateBlueprint(2);
       }
-      if (
-        s.buildings[7] &&
-        hero.level >= 10 &&
-        s.buildings[7].count === 0 &&
-        !s.buildings[7].enabled
-      ) {
-        // ProductionService.activateBlueprint(5);
-      }
+
     }
   }
 

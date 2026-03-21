@@ -32,7 +32,6 @@ export default function ResourcesBar() {
   const maxResources = state.maxResources ?? 0;
   const gold = state.gold ?? 0;
   const maxGold = state.maxGold ?? 0;
-  const incr = state.incr ?? 1;
   const gameLoop = state.gameLoop ?? 1000;
   const damageMulti = state.damageMulti ?? 1;
   const goldMulti = state.goldMulti ?? 1;

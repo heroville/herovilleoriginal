@@ -2,7 +2,6 @@
  * Bestiary tab: Monsters and Bosses tables. E2E expects "Monsters", "Bosses".
  */
 import { useSelector } from 'react-redux';
-import { useGame } from '../contexts/GameContext.jsx';
 import { selectFullState } from '../store/index.js';
 
 function orderBy(list, key, reverse = false) {
@@ -17,7 +16,6 @@ function orderBy(list, key, reverse = false) {
 }
 
 export default function BestiaryTab() {
-  const game = useGame();
   const state = useSelector(selectFullState);
 
   const sorting = state.sorting || {};

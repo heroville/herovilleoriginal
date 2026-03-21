@@ -68,8 +68,6 @@ export default function HeroTab() {
     setReverse(same ? !reverse : false);
     game.setSortHero?.(key);
   };
-  const setSortWork = () => setReverse((r) => !r);
-
   return (
     <section data-testid="hero-tab" className="hv-content hv-content--heroes">
       <div className="hv-hero-layout">

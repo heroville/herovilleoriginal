@@ -2,7 +2,7 @@
  * Unit tests for BuildingService with Redux store (bindStore, REPLACE_STATE after incrBuilding/incrBlueprint).
  */
 import { describe, it, expect } from 'vitest';
-import { createGameStore, selectFullState } from '../store/index.js';
+import { createGameStore } from '../store/index.js';
 import BuildingServiceFactory from './building.service.js';
 
 describe('BuildingService with store', () => {

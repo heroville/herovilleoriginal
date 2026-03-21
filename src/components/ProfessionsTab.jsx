@@ -2,11 +2,9 @@
  * Professions tab: Jobs table. E2E expects "Jobs", "Name", "Description".
  */
 import { useSelector } from 'react-redux';
-import { useGame } from '../contexts/GameContext.jsx';
 import { selectFullState } from '../store/index.js';
 
 export default function ProfessionsTab() {
-  const game = useGame();
   const state = useSelector(selectFullState);
 
   const jobs = (state.jobs || []).filter((j) => j.enabled === true);

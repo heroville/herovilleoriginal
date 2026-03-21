@@ -4,7 +4,7 @@
  * Game log is used after tutorial for showError-style messages.
  */
 import { createSlice } from '@reduxjs/toolkit';
-import { TUTORIAL_TOTAL_STEPS, TUTORIAL_LAST_STEP_INDEX } from '../../constants/tutorialSteps.js';
+import { TUTORIAL_LAST_STEP_INDEX } from '../../constants/tutorialSteps.js';
 
 const initialState = {
   tutorialStepIndex: 0,

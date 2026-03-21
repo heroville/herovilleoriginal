@@ -23,13 +23,13 @@ export default function startGameLoopRunner(api, store) {
   const saveIntervalMs = 30000;
 
   /** Thunk: run work + rest (HeroService dispatches REPLACE_STATE). */
-  const runGameTick = () => (dispatch, getState) => {
+  const runGameTick = () => () => {
     if (api.work) api.work();
     if (api.rest) api.rest();
   };
 
   /** Thunk: read state and trigger options.save. */
-  const runSave = () => (dispatch, getState) => {
+  const runSave = () => () => {
     const s = api.getState();
     const heroTable = !!(s && s.showHeroTable && s.showHeroTable.enabled);
     if (api.options && api.options.save) api.options.save({ heroTable });
