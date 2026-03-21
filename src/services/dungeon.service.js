@@ -3,6 +3,15 @@
  * When store is bound via bindStore(store), dispatches REPLACE_STATE after activateDungeon, travel (progress), and monsterFight.
  */
 import { REPLACE_STATE } from '../store/sliceState.js';
+import {
+  MONSTERS_PER_BATCH,
+  MONSTER_HEALTH_MULTIPLIER,
+  MONSTER_LOOT_MULTIPLIER,
+  BOSS_LEVEL_OFFSET,
+  DUNGEON_STEPS_MULTIPLIER,
+  MAX_MONSTERS_PER_ENCOUNTER,
+  MULTI_HERO_SCALE_FACTOR,
+} from '../constants/gameConstants.js';
 
 function DungeonServiceFactory(GameStateService, $timeout, $injector) {
   var _dispatch = null;
@@ -45,13 +54,15 @@ function DungeonServiceFactory(GameStateService, $timeout, $injector) {
         }
       }
     }
-    for (let i = 0; i < 3; i++) {
+    for (let i = 0; i < MONSTERS_PER_BATCH; i++) {
       if (monsterList.length === 0) break;
       const random = Math.floor(Math.random() * monsterList.length);
       const randomMax = Math.ceil(Math.random() * (level * level + 1));
       const randomMin = Math.ceil(Math.random() * randomMax);
       const averagedmg = Math.ceil((randomMax + randomMin) / 2);
-      const mobHealth = Math.floor(((5 * level) / averagedmg) * (level * level));
+      const mobHealth = Math.floor(
+        ((MONSTER_HEALTH_MULTIPLIER * level) / averagedmg) * (level * level)
+      );
       s.monsters[s.monsters.length] = {
         id: s.monsters.length,
         name: monsterList[random].name,
@@ -59,7 +70,7 @@ function DungeonServiceFactory(GameStateService, $timeout, $injector) {
         minDamage: randomMin,
         maxDamage: randomMax,
         health: mobHealth,
-        low: 'Junk;j;' + level * 3,
+        low: 'Junk;j;' + level * MONSTER_LOOT_MULTIPLIER,
         high: 'Gold;g;' + level,
       };
       monsterList.splice(random, 1);
@@ -69,7 +80,7 @@ function DungeonServiceFactory(GameStateService, $timeout, $injector) {
   function createBoss(level) {
     const s = GameStateService.getState();
     if (!s.monsterList || !s.monsterList.monsters) return;
-    level += 2;
+    level += BOSS_LEVEL_OFFSET;
     const monsterList = s.monsterList.monsters;
     for (let i = 0; i < s.bosses.length; i++) {
       for (let j = 0; j < monsterList.length; j++) {
@@ -83,7 +94,9 @@ function DungeonServiceFactory(GameStateService, $timeout, $injector) {
     const randomMax = Math.ceil(Math.random() * (level * level + 1));
     const randomMin = Math.ceil(Math.random() * randomMax);
     const averagedmg = Math.ceil((randomMax + randomMin) / 2);
-    const mobHealth = Math.floor(((5 * level) / averagedmg) * (level * level));
+    const mobHealth = Math.floor(
+      ((MONSTER_HEALTH_MULTIPLIER * level) / averagedmg) * (level * level)
+    );
     s.bosses[s.bosses.length] = {
       id: s.bosses.length,
       name: monsterList[random].name,
@@ -91,7 +104,7 @@ function DungeonServiceFactory(GameStateService, $timeout, $injector) {
       minDamage: randomMin,
       maxDamage: randomMax,
       health: mobHealth,
-      low: 'Junk;j;' + level * 3,
+      low: 'Junk;j;' + level * MONSTER_LOOT_MULTIPLIER,
       high: 'Gold;g;' + level,
     };
     monsterList.splice(random, 1);
@@ -103,8 +116,8 @@ function DungeonServiceFactory(GameStateService, $timeout, $injector) {
       id: s.dungeons.length,
       name: dungeonName(),
       level: s.dungeons.length + 1,
-      steps: 15 * (s.dungeons.length + 1),
-      encounterRate: 15 + Math.floor(Math.random() * 6),
+      steps: DUNGEON_STEPS_MULTIPLIER * (s.dungeons.length + 1),
+      encounterRate: DUNGEON_STEPS_MULTIPLIER + Math.floor(Math.random() * 6),
       encounterLevel: s.dungeons.length + 2,
       bossID: s.dungeons.length,
       enabled: true,
@@ -163,11 +176,18 @@ function DungeonServiceFactory(GameStateService, $timeout, $injector) {
     let currLevel = 0;
     const copyMonsters = s.monsters.slice();
     for (let i = 0; i < copyMonsters.length; i++) {
-      if (copyMonsters[i].value >= Math.floor(eLevel / 4) && copyMonsters[i].value <= eLevel) {
+      if (
+        copyMonsters[i].value >= Math.floor(eLevel / MAX_MONSTERS_PER_ENCOUNTER) &&
+        copyMonsters[i].value <= eLevel
+      ) {
         validMonsters.push(copyMonsters[i]);
       }
     }
-    while (monsterCount < 4 && currLevel < eLevel && eLevel - currLevel >= Math.floor(eLevel / 4)) {
+    while (
+      monsterCount < MAX_MONSTERS_PER_ENCOUNTER &&
+      currLevel < eLevel &&
+      eLevel - currLevel >= Math.floor(eLevel / MAX_MONSTERS_PER_ENCOUNTER)
+    ) {
       const reducedMonster = [];
       for (let i = 0; i < validMonsters.length; i++) {
         if (validMonsters[i].value <= eLevel - currLevel) {
@@ -175,7 +195,7 @@ function DungeonServiceFactory(GameStateService, $timeout, $injector) {
         }
       }
       const currentMonster = Math.floor(Math.random() * reducedMonster.length);
-      const multi = journey.hero.length > 1 ? 10 : 1;
+      const multi = journey.hero.length > 1 ? MULTI_HERO_SCALE_FACTOR : 1;
       encounterMonsters.push({
         id: encounterMonsters.length,
         name: reducedMonster[currentMonster].name,
@@ -197,7 +217,7 @@ function DungeonServiceFactory(GameStateService, $timeout, $injector) {
   function bossFight(journey) {
     const s = GameStateService.getState();
     const bossID = journey.dungeon.bossID;
-    const multi = journey.hero.length > 1 ? 10 : 1;
+    const multi = journey.hero.length > 1 ? MULTI_HERO_SCALE_FACTOR : 1;
     const bossBattle = [
       {
         name: s.bosses[bossID].name,

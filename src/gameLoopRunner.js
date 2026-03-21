@@ -4,6 +4,13 @@
  * mutate state and dispatch REPLACE_STATE internally.
  * E2E: state.gameLoop may be set to 10 by Playwright before load.
  */
+import {
+  DEFAULT_GAME_LOOP_MS,
+  MAX_GAME_LOOP_MS,
+  SAVE_INTERVAL_MS,
+  RANDOM_EVENT_BASE_DELAY_MS,
+} from './constants/gameConstants.js';
+
 export default function startGameLoopRunner(api, store) {
   if (!api || !api.getState) return;
   if (!store) {
@@ -19,8 +26,8 @@ export default function startGameLoopRunner(api, store) {
     (typeof window !== 'undefined' && window.__HEROVILLE_E2E_FAST_TICK__) ||
     (typeof import.meta !== 'undefined' && import.meta.env && import.meta.env.MODE === 'test');
   const minGameLoopMs = isFastTickAllowed ? 2 : 10;
-  const gameLoopMs = Math.max(minGameLoopMs, Math.min(5000, state.gameLoop || 1000));
-  const saveIntervalMs = 30000;
+  const gameLoopMs = Math.max(minGameLoopMs, Math.min(MAX_GAME_LOOP_MS, state.gameLoop || DEFAULT_GAME_LOOP_MS));
+  const saveIntervalMs = SAVE_INTERVAL_MS;
 
   /** Thunk: run work + rest (HeroService dispatches REPLACE_STATE). */
   const runGameTick = () => () => {
@@ -39,7 +46,8 @@ export default function startGameLoopRunner(api, store) {
   setInterval(() => store.dispatch(runSave()), saveIntervalMs);
 
   const initialRandomEventDelay =
-    state.randomEventTimer || 600000 + Math.floor(Math.random() * 600000);
+    state.randomEventTimer ||
+    RANDOM_EVENT_BASE_DELAY_MS + Math.floor(Math.random() * RANDOM_EVENT_BASE_DELAY_MS);
   setTimeout(() => {
     if (api.scheduleNextRandomEvent) api.scheduleNextRandomEvent();
   }, initialRandomEventDelay);

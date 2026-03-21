@@ -4,6 +4,18 @@
  * When store is bound via bindStore(store), dispatches REPLACE_STATE after mutations so the Redux store stays in sync.
  */
 import { REPLACE_STATE } from '../store/sliceState.js';
+import {
+  HERO_BASE_HEALTH,
+  HERO_BASE_XP_THRESHOLD,
+  HERO_HEALTH_PER_LEVEL,
+  HERO_XP_PER_LEVEL,
+  HERO_REST_HEAL_PERCENT,
+  WEAPON_DURABILITY_LOW_THRESHOLD,
+  BUILDING_BLACKSMITH,
+  BUILDING_TAVERN,
+  WORKER_PROD_SPEED_PER_LEVEL,
+  WORKER_XP_PER_CRAFT,
+} from '../constants/gameConstants.js';
 
 const DEFAULT_POTIONS = [
   { id: 0, name: 'Regeneration', count: 0, active: false },
@@ -52,11 +64,11 @@ function HeroServiceFactory(
     hero[hero.length] = {
       id: hero.length,
       name: heroName,
-      currHealth: 100,
-      health: 100,
+      currHealth: HERO_BASE_HEALTH,
+      health: HERO_BASE_HEALTH,
       level: 1,
       experience: 0,
-      next: 50,
+      next: HERO_BASE_XP_THRESHOLD,
       equip: defaultEquip(),
       location: 'Home',
       progress: 'Idle',
@@ -76,11 +88,11 @@ function HeroServiceFactory(
     hero[hero.length] = {
       id: hero.length,
       name: heroName,
-      currHealth: 100,
-      health: 100,
+      currHealth: HERO_BASE_HEALTH,
+      health: HERO_BASE_HEALTH,
       level: 1,
       experience: 0,
-      next: 50,
+      next: HERO_BASE_XP_THRESHOLD,
       equip: defaultEquip(),
       location: 'Home',
       progress: 'Idle',
@@ -149,14 +161,14 @@ function HeroServiceFactory(
     hero.experience += amount;
     if (hero.experience >= hero.next) {
       hero.level++;
-      hero.next += hero.level * 25;
-      hero.health += 50;
+      hero.next += hero.level * HERO_XP_PER_LEVEL;
+      hero.health += HERO_HEALTH_PER_LEVEL;
       hero.experience = 0;
       if (
-        s.buildings[4] &&
+        s.buildings[BUILDING_TAVERN] &&
         hero.level >= 3 &&
-        s.buildings[4].count === 0 &&
-        !s.buildings[4].enabled
+        s.buildings[BUILDING_TAVERN].count === 0 &&
+        !s.buildings[BUILDING_TAVERN].enabled
       ) {
         ProductionService.activateBlueprint(2);
       }
@@ -169,7 +181,7 @@ function HeroServiceFactory(
     const hero = s.heroList[heroID];
     if (!hero) return;
     if (flag === 1) {
-      amount = Math.floor((hero.health / 100) * amount);
+      amount = Math.floor((hero.health / 100) * amount); // flag===1: amount is a percentage of max health
     }
     if (hero.currHealth + amount < hero.health) {
       hero.currHealth += amount;
@@ -185,8 +197,8 @@ function HeroServiceFactory(
       const weapon = hero.equip.weapon;
       if (hero.location !== 'Home') continue;
       if (hero.equip.gold > 0) {
-        if (s.buildings[3].count > hero.equip.weapon.id) {
-          for (let j = s.buildings[3].count; j > hero.equip.weapon.id; j--) {
+        if (s.buildings[BUILDING_BLACKSMITH].count > hero.equip.weapon.id) {
+          for (let j = s.buildings[BUILDING_BLACKSMITH].count; j > hero.equip.weapon.id; j--) {
             if (UtilService.meetRequirements(hero, s.weapons[j])) {
               if (hero.equip.gold >= s.weapons[j].sellPrice && s.weapons[j].count > 0) {
                 hero.equip.gold -= s.weapons[j].sellPrice;
@@ -199,7 +211,7 @@ function HeroServiceFactory(
           }
         }
         if (
-          (weapon.durability <= s.weapons[weapon.id].durability * 0.2 ||
+          (weapon.durability <= s.weapons[weapon.id].durability * WEAPON_DURABILITY_LOW_THRESHOLD ||
             weapon.minDamage < s.weapons[weapon.id].minDamage) &&
           hero.equip.gold >= weapon.sellPrice &&
           s.weapons[weapon.id].count > 0
@@ -233,7 +245,7 @@ function HeroServiceFactory(
           heal(i, s.potion.healing, 1);
         }
       }
-      heal(i, 2, 1);
+      heal(i, HERO_REST_HEAL_PERCENT, 1);
       if (
         hero.currHealth === hero.health &&
         (hero.academy.id === HERO_CLASSES[0].id || hero.academy.id === HERO_CLASSES[2].id)
@@ -261,14 +273,14 @@ function HeroServiceFactory(
               if (hero.academy.id !== HERO_CLASSES[1].id) {
                 ProductionService.createPotion(
                   false,
-                  Math.floor(hero.level * 0.05 * s.potion.prodTime),
+                  Math.floor(hero.level * WORKER_PROD_SPEED_PER_LEVEL * s.potion.prodTime),
                   i
                 );
               } else {
-                gainExp(hero, Math.ceil(s.potion.prodTime / 2));
+                gainExp(hero, Math.ceil(s.potion.prodTime / WORKER_XP_PER_CRAFT));
                 ProductionService.createPotion(
                   false,
-                  Math.floor(hero.level * 0.05 * s.potion.prodTime),
+                  Math.floor(hero.level * WORKER_PROD_SPEED_PER_LEVEL * s.potion.prodTime),
                   i
                 );
               }
@@ -286,15 +298,15 @@ function HeroServiceFactory(
                   ProductionService.createPotions(
                     j,
                     false,
-                    Math.floor(hero.level * 0.05 * s.potions[j].prodTime),
+                    Math.floor(hero.level * WORKER_PROD_SPEED_PER_LEVEL * s.potions[j].prodTime),
                     i
                   );
                 } else {
-                  gainExp(hero, Math.ceil(s.potions[j].prodTime / 2));
+                  gainExp(hero, Math.ceil(s.potions[j].prodTime / WORKER_XP_PER_CRAFT));
                   ProductionService.createPotions(
                     j,
                     false,
-                    Math.floor(hero.level * 0.05 * s.potions[j].prodTime),
+                    Math.floor(hero.level * WORKER_PROD_SPEED_PER_LEVEL * s.potions[j].prodTime),
                     i
                   );
                 }
@@ -317,16 +329,16 @@ function HeroServiceFactory(
                   ProductionService.buyWeapon(
                     j,
                     false,
-                    Math.floor(hero.level * 0.05 * s.weapons[j].prodTime),
+                    Math.floor(hero.level * WORKER_PROD_SPEED_PER_LEVEL * s.weapons[j].prodTime),
                     i
                   );
                 } else {
-                  gainExp(hero, Math.ceil(s.weapons[j].prodTime / 2));
+                  gainExp(hero, Math.ceil(s.weapons[j].prodTime / WORKER_XP_PER_CRAFT));
                   s.gameStats.weaponsAuto++;
                   ProductionService.buyWeapon(
                     j,
                     false,
-                    Math.floor(hero.level * 0.05 * s.weapons[j].prodTime),
+                    Math.floor(hero.level * WORKER_PROD_SPEED_PER_LEVEL * s.weapons[j].prodTime),
                     i
                   );
                 }

@@ -3,6 +3,19 @@
  * When store is bound via bindStore(store), dispatches REPLACE_STATE after takeTurn mutations (battles, heroes, gameStats).
  */
 import { REPLACE_STATE } from '../store/sliceState.js';
+import {
+  HERO_BASE_HEALTH,
+  HERO_BASE_XP_THRESHOLD,
+  POWER_POTION_DAMAGE_MULTIPLIER,
+  TREASURE_HUNTER_LOOT_BONUS,
+  MONSTER_XP_MULTIPLIER,
+  POTION_REGEN,
+  POTION_POWER,
+  POTION_HEALTH,
+  POTION_GOOD_HEALTH,
+  POTION_GREAT_HEALTH,
+  BUILDING_TENT,
+} from '../constants/gameConstants.js';
 
 function CombatServiceFactory(
   GameStateService,
@@ -28,11 +41,11 @@ function CombatServiceFactory(
 
   function activatePotions(hero) {
     for (let i = 0; i < hero.length; i++) {
-      if (hero[i].equip.potions[0].count > 0) {
-        hero[i].equip.potions[0].active = true;
+      if (hero[i].equip.potions[POTION_REGEN].count > 0) {
+        hero[i].equip.potions[POTION_REGEN].active = true;
       }
-      if (hero[i].equip.potions[1].count > 0) {
-        hero[i].equip.potions[1].active = true;
+      if (hero[i].equip.potions[POTION_POWER].count > 0) {
+        hero[i].equip.potions[POTION_POWER].active = true;
       }
     }
   }
@@ -61,8 +74,8 @@ function CombatServiceFactory(
       const max = hero.equip.weapon.maxDamage;
       const damage = Math.floor(Math.random() * (max - min + 1)) + min;
       let heroDamageMulti = 1;
-      if (hero.equip.potions[1].active === true) {
-        heroDamageMulti = 1.5;
+      if (hero.equip.potions[POTION_POWER].active === true) {
+        heroDamageMulti = POWER_POTION_DAMAGE_MULTIPLIER;
       }
       return Math.ceil(damage * s.damageMulti * heroDamageMulti);
     }
@@ -89,8 +102,8 @@ function CombatServiceFactory(
     let damage = 0;
     for (let i = 0; i < heroL.length; i++) {
       if (heroL[i].currHealth > 0) {
-        if (heroL[i].equip.potions[0].active) {
-          HeroService.heal(i, s.potions[0].value, 1);
+        if (heroL[i].equip.potions[POTION_REGEN].active) {
+          HeroService.heal(i, s.potions[POTION_REGEN].value, 1);
         }
         damage += heroDamage(heroL[i]);
       }
@@ -137,26 +150,26 @@ function CombatServiceFactory(
         hero[k].currHealth -= heroDamageAmount;
         const potions = s.potions;
         if (
-          hero[k].equip.potions[4] &&
-          hero[k].equip.potions[4].count > 0 &&
-          hero[k].health - hero[k].currHealth > potions[4].value
+          hero[k].equip.potions[POTION_GREAT_HEALTH] &&
+          hero[k].equip.potions[POTION_GREAT_HEALTH].count > 0 &&
+          hero[k].health - hero[k].currHealth > potions[POTION_GREAT_HEALTH].value
         ) {
-          hero[k].equip.potions[4].count--;
-          HeroService.heal(k, potions[4].value);
+          hero[k].equip.potions[POTION_GREAT_HEALTH].count--;
+          HeroService.heal(k, potions[POTION_GREAT_HEALTH].value);
         } else if (
-          hero[k].equip.potions[3] &&
-          hero[k].equip.potions[3].count > 0 &&
-          hero[k].health - hero[k].currHealth > potions[3].value
+          hero[k].equip.potions[POTION_GOOD_HEALTH] &&
+          hero[k].equip.potions[POTION_GOOD_HEALTH].count > 0 &&
+          hero[k].health - hero[k].currHealth > potions[POTION_GOOD_HEALTH].value
         ) {
-          hero[k].equip.potions[3].count--;
-          HeroService.heal(k, potions[3].value);
+          hero[k].equip.potions[POTION_GOOD_HEALTH].count--;
+          HeroService.heal(k, potions[POTION_GOOD_HEALTH].value);
         } else if (
-          hero[k].equip.potions[2] &&
-          hero[k].equip.potions[2].count > 0 &&
-          hero[k].health - hero[k].currHealth > potions[2].value
+          hero[k].equip.potions[POTION_HEALTH] &&
+          hero[k].equip.potions[POTION_HEALTH].count > 0 &&
+          hero[k].health - hero[k].currHealth > potions[POTION_HEALTH].value
         ) {
-          hero[k].equip.potions[2].count--;
-          HeroService.heal(k, potions[2].value);
+          hero[k].equip.potions[POTION_HEALTH].count--;
+          HeroService.heal(k, potions[POTION_HEALTH].value);
         }
       }
     }
@@ -169,7 +182,7 @@ function CombatServiceFactory(
     const itemType = itemsplit[1];
     let itemValue = itemsplit[2];
     if (HERO_CLASSES[2] && hero.academy && hero.academy.id === HERO_CLASSES[2].id) {
-      itemValue += Math.ceil(itemValue * 0.15);
+      itemValue += Math.ceil(itemValue * TREASURE_HUNTER_LOOT_BONUS);
     }
     switch (itemType) {
       case 'j':
@@ -196,7 +209,7 @@ function CombatServiceFactory(
       for (let j = 0; j < monstersList.length; j++) {
         for (let i = 0; i < hero.length; i++) {
           if (hero[i].level <= journey.dungeon.level * 2) {
-            battle.experience += monstersList[j].value * 5;
+            battle.experience += monstersList[j].value * MONSTER_XP_MULTIPLIER;
           }
           const lootChance = Math.random() * 100;
           if (lootChance < 10 && monstersList[j].high != null) {
@@ -242,13 +255,13 @@ function CombatServiceFactory(
         hero[i].progress = 'Resting';
         hero[i].equip.weapon = JSON.parse(JSON.stringify(s.weapons[0]));
         clearPotions(hero[i]);
-        if (s.buildings[0].tier === 1) {
+        if (s.buildings[BUILDING_TENT].tier === 1) {
           hero[i].experience = 0;
           hero[i].equip.scrap = 0;
           hero[i].equip.gold = 0;
           hero[i].level = 1;
-          hero[i].next = 50;
-          hero[i].health = 100;
+          hero[i].next = HERO_BASE_XP_THRESHOLD;
+          hero[i].health = HERO_BASE_HEALTH;
           hero[i].dungeon = 0;
           GameUiService.showError(
             'A hero has lost a fight, he has also lost all his progress and must start again.'

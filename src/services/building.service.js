@@ -33,6 +33,18 @@
  * @property {function(): void} [openWorkerDialog]
  */
 import { REPLACE_STATE } from '../store/sliceState.js';
+import {
+  BUILDING_TENT,
+  BUILDING_STOCKPILE,
+  BUILDING_MARKET,
+  BUILDING_BLACKSMITH,
+  BUILDING_TAVERN,
+  BUILDING_ALCHEMIST,
+  BUILDING_DUNGEONS,
+  BUILDING_ACADEMY,
+  BUILDING_WORK_HUT,
+  MAX_DUNGEON_COUNT,
+} from '../constants/gameConstants.js';
 
 
 function BuildingServiceFactory(
@@ -67,88 +79,88 @@ function BuildingServiceFactory(
     stateBuilding.cost = Math.ceil(
       building.cost + Math.pow(stateBuilding.count + 1, building.multiplier)
     );
-    if (bid === 0 && state.buildings[1].enabled === false) {
-      state.buildings[1].enabled = true;
-      state.buildings[6].enabled = true;
+    if (bid === BUILDING_TENT && state.buildings[BUILDING_STOCKPILE].enabled === false) {
+      state.buildings[BUILDING_STOCKPILE].enabled = true;
+      state.buildings[BUILDING_DUNGEONS].enabled = true;
       actions.activateDungeon();
       actions.createMonster(1);
     }
     switch (bid) {
-      case 0: {
+      case BUILDING_TENT: {
         if (actions.openHeroDialog) actions.openHeroDialog();
         state.heroEnabled = true; /* unlock Hero tab when first Tent built */
-        if (state.buildings[0].count === 5) actions.activateBlueprint(3);
+        if (state.buildings[BUILDING_TENT].count === 5) actions.activateBlueprint(3);
         if (state.tutorialStepIndex === 2) actions.nextTutorial();
         break;
       }
-      case 1: {
+      case BUILDING_STOCKPILE: {
         // Use updated cost (next upgrade cost) so capacity allows affording the next Stockpile upgrade
         state.maxResources = stateBuilding.cost + Math.floor(stateBuilding.cost / 10);
         state.maxGold = Math.floor(stateBuilding.cost / 10);
-        if (state.buildings[2].count === 0) {
-          state.buildings[2].enabled = true;
+        if (state.buildings[BUILDING_MARKET].count === 0) {
+          state.buildings[BUILDING_MARKET].enabled = true;
           state.prodEnabled = true; /* unlock Production tab when Stockpile built */
           state.jobs[1].enabled = true;
-        } else if (state.buildings[4].count === 0) {
+        } else if (state.buildings[BUILDING_TAVERN].count === 0) {
           actions.activateBlueprint(2);
         }
         if (state.tutorialStepIndex === 5) actions.nextTutorial();
         break;
       }
-      case 2: {
+      case BUILDING_MARKET: {
         const bp0 = state.blueprints && state.blueprints[0];
         const notYetPurchased = bp0 && bp0.cost > 0;
-        if (notYetPurchased && !state.buildings[3].enabled) {
+        if (notYetPurchased && !state.buildings[BUILDING_BLACKSMITH].enabled) {
           state.blueprints[0].enabled = true;
-          state.buildings[2].enabled = false;
+          state.buildings[BUILDING_MARKET].enabled = false;
           if (state.tutorialStepIndex === 12) actions.nextTutorial();
         }
         break;
       }
-      case 3: {
-        if (state.buildings[3].count + 1 < state.weapons.length) {
-          state.weapons[state.buildings[3].count].enabled = true;
+      case BUILDING_BLACKSMITH: {
+        if (state.buildings[BUILDING_BLACKSMITH].count + 1 < state.weapons.length) {
+          state.weapons[state.buildings[BUILDING_BLACKSMITH].count].enabled = true;
           if (state.tutorialStepIndex === 14) actions.nextTutorial();
         } else {
-          state.weapons[state.buildings[3].count].enabled = true;
-          state.buildings[3].enabled = false;
+          state.weapons[state.buildings[BUILDING_BLACKSMITH].count].enabled = true;
+          state.buildings[BUILDING_BLACKSMITH].enabled = false;
         }
-        if (state.buildings[3].count % 3 === 0) state.jobs[2].limit++;
+        if (state.buildings[BUILDING_BLACKSMITH].count % 3 === 0) state.jobs[2].limit++;
         state.jobs[2].enabled = true;
         break;
       }
-      case 4: {
-        state.buildings[4].enabled = false;
+      case BUILDING_TAVERN: {
+        state.buildings[BUILDING_TAVERN].enabled = false;
         state.upgEnabled = true; /* unlock Professions tab when Tavern built */
-        if (state.buildings[9]) state.buildings[9].enabled = true;
+        if (state.buildings[BUILDING_WORK_HUT]) state.buildings[BUILDING_WORK_HUT].enabled = true;
         if (state.tutorialStepIndex === 18) actions.nextTutorial();
         break;
       }
-      case 5: {
-        if (state.buildings[5].count + 1 < state.potions.length) {
-          state.potions[state.buildings[5].count - 1].enabled = true;
+      case BUILDING_ALCHEMIST: {
+        if (state.buildings[BUILDING_ALCHEMIST].count + 1 < state.potions.length) {
+          state.potions[state.buildings[BUILDING_ALCHEMIST].count - 1].enabled = true;
         } else {
-          state.potions[state.buildings[5].count].enabled = true;
-          state.buildings[5].enabled = false;
+          state.potions[state.buildings[BUILDING_ALCHEMIST].count].enabled = true;
+          state.buildings[BUILDING_ALCHEMIST].enabled = false;
         }
-        if (state.buildings[5].count % 3 === 0) state.jobs[1].limit++;
+        if (state.buildings[BUILDING_ALCHEMIST].count % 3 === 0) state.jobs[1].limit++;
         break;
       }
-      case 6: {
-        if (state.dungeons.length < 14) {
+      case BUILDING_DUNGEONS: {
+        if (state.dungeons.length < MAX_DUNGEON_COUNT) {
           actions.activateDungeon();
           if (state.tutorialStepIndex === 10) actions.nextTutorial();
         } else {
           actions.activateDungeon();
           actions.activateBlueprint(4);
-          state.buildings[6].enabled = false;
+          state.buildings[BUILDING_DUNGEONS].enabled = false;
         }
         break;
       }
-      case 7:
-        state.buildings[7].enabled = false;
+      case BUILDING_ACADEMY:
+        state.buildings[BUILDING_ACADEMY].enabled = false;
       // falls through
-      case 9: {
+      case BUILDING_WORK_HUT: {
         if (state.tutorialStepIndex === 21) actions.nextTutorial();
         if (actions.openWorkerDialog) actions.openWorkerDialog();
         break;
@@ -158,20 +170,20 @@ function BuildingServiceFactory(
     if (
       state.blueprints &&
       state.blueprints[0] &&
-      (bid === 2 || (building.name && building.name.toLowerCase() === 'market'))
+      (bid === BUILDING_MARKET || (building.name && building.name.toLowerCase() === 'market'))
     ) {
       const bp = state.blueprints[0];
       const notYetPurchased = bp.cost > 0;
-      if (notYetPurchased && !state.buildings[3].enabled) {
+      if (notYetPurchased && !state.buildings[BUILDING_BLACKSMITH].enabled) {
         state.blueprints[0].enabled = true;
-        state.buildings[2].enabled = false;
+        state.buildings[BUILDING_MARKET].enabled = false;
       }
     }
     if (
-      state.buildings[9] &&
-      (bid === 4 || (building.name && building.name.toLowerCase() === 'tavern'))
+      state.buildings[BUILDING_WORK_HUT] &&
+      (bid === BUILDING_TAVERN || (building.name && building.name.toLowerCase() === 'tavern'))
     ) {
-      state.buildings[9].enabled = true;
+      state.buildings[BUILDING_WORK_HUT].enabled = true;
     }
     syncStoreIfBound();
   }

@@ -5,8 +5,7 @@
  */
 import { REPLACE_STATE } from '../store/sliceState.js';
 import { formatSeconds } from './util.service.js';
-
-const PROGRESS_SYNC_THROTTLE_MS = 500;
+import { PROGRESS_SYNC_THROTTLE_MS } from '../constants/gameConstants.js';
 
 function ProductionServiceFactory(EconomyService, GameUiService) {
   var _dispatch = null;
