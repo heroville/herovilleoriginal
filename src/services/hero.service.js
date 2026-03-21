@@ -59,6 +59,9 @@ function HeroServiceFactory(
   }
 
   function addHero(heroName) {
+    if (typeof heroName !== 'string' || heroName.trim() === '') {
+      throw new Error('addHero: heroName must be a non-empty string');
+    }
     const s = GameStateService.getState();
     const hero = s.heroList;
     hero.push({
@@ -83,6 +86,9 @@ function HeroServiceFactory(
   }
 
   function addWorker(heroName) {
+    if (typeof heroName !== 'string' || heroName.trim() === '') {
+      throw new Error('addWorker: heroName must be a non-empty string');
+    }
     const s = GameStateService.getState();
     const hero = s.heroList;
     hero.push({
@@ -122,6 +128,9 @@ function HeroServiceFactory(
 
   function heroProfession(selectedJobID, heroID) {
     const s = GameStateService.getState();
+    if (selectedJobID == null || heroID == null) return;
+    if (selectedJobID < 0 || selectedJobID >= s.jobs.length) return;
+    if (heroID < 0 || heroID >= s.heroList.length) return;
     const count = s.heroList.filter((h) => h.job.id === selectedJobID).length;
     if (count >= (s.jobs[selectedJobID] && s.jobs[selectedJobID].limit)) {
       GameUiService.showError(
@@ -137,6 +146,9 @@ function HeroServiceFactory(
 
   function heroClassChange(selectedClassID, heroID) {
     const s = GameStateService.getState();
+    if (selectedClassID == null || heroID == null) return;
+    if (selectedClassID < 0 || selectedClassID >= s.heroClass.length) return;
+    if (heroID < 0 || heroID >= s.heroList.length) return;
     s.tempClass = s.heroClass[selectedClassID];
     s.tempHero = heroID;
     syncStoreIfBound();

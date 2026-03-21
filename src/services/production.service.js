@@ -119,6 +119,8 @@ function ProductionServiceFactory(EconomyService, GameUiService) {
 
   function buyUpgrade(upgradeID) {
     const s = EconomyService.getState();
+    if (upgradeID == null || upgradeID < 0 || upgradeID >= s.upgrades.length) return;
+    if (!s.upgrades[upgradeID]) return;
     if (s.upgrades[upgradeID].price <= s.gold) {
       EconomyService.decGold(s.upgrades[upgradeID].price);
       s.upgrades[upgradeID].enabled = false;
@@ -210,6 +212,7 @@ function ProductionServiceFactory(EconomyService, GameUiService) {
    * @param {{ decResources: function(number): boolean, showError: function(string), nextTutorial: function(), disableWeaponButton: function(number), startBuyWeapon: function(number) }} actions
    */
   function purchaseWeapon(state, actions, weaponID) {
+    if (weaponID == null || weaponID < 0 || !state.weapons || weaponID >= state.weapons.length) return;
     const w = state.weapons[weaponID];
     if (w.count + w.working >= w.maxCount) return;
     if (state.resources < w.cost) {

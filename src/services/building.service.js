@@ -68,6 +68,7 @@ function BuildingServiceFactory(
   }
 
   function incrBuilding(state, actions, building) {
+    if (!building || building.id == null) return;
     if (!actions.decResources(building.cost)) {
       actions.showError('You do not have enough Resources');
       return;
@@ -189,6 +190,7 @@ function BuildingServiceFactory(
   }
 
   function incrBlueprint(state, actions, blueprint) {
+    if (!blueprint) return;
     if (!actions.decGold(blueprint.cost)) {
       actions.showError('You do not have enough Gold');
       return;
