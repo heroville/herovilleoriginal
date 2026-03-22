@@ -121,7 +121,7 @@ export interface StatusEffect {
   type: StatusEffectType;
   /** Turns remaining before the effect expires. */
   duration: number;
-  /** Poison/burn: flat damage per turn. armorBreak: % damage multiplier increase (0–1). stun: unused. */
+  /** Poison/burn: percent of max HP dealt as damage per turn (0–100). armorBreak: % damage multiplier increase (0–1). stun: unused. */
   magnitude: number;
   /** ID of the hero or monster that applied the effect, for tracking purposes. */
   sourceId?: number;

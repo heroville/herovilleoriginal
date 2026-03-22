@@ -18,7 +18,6 @@ import {
   POTION_GOOD_HEALTH,
   POTION_GREAT_HEALTH,
   BUILDING_TENT,
-  STATUS_POISON_TICK_PERCENT,
   STATUS_STUN_SKIP_CHANCE,
   STATUS_ARMOR_BREAK_MULTIPLIER,
   HERO_AUTO_HEAL_THRESHOLD,
@@ -155,22 +154,44 @@ function CombatServiceFactory(
 
   /**
    * Applies poison/burn damage and decrements all effect durations by 1.
-   * Effects that reach 0 duration are removed.
+   * Effects are applied based on the current duration (before decrement), so a
+   * duration:1 effect fires once and is then removed.
+   * Supports both heroes (currHealth + health as max HP) and monsters that only
+   * expose health (and optional maxHealth) by:
+   *  - scaling damage off maxHealth ?? health ?? currHealth
+   *  - subtracting from currHealth when present, otherwise from health
    * Returns the total tick damage applied (for callers that need to track HP changes).
    */
-  function processStatusTick(entity: { currHealth?: number; health?: number; statusEffects?: StatusEffect[] }): number {
+  function processStatusTick(entity: {
+    currHealth?: number;
+    health?: number;
+    maxHealth?: number;
+    statusEffects?: StatusEffect[];
+  }): number {
     if (!entity.statusEffects || entity.statusEffects.length === 0) return 0;
     let tickDamage = 0;
-    entity.statusEffects = entity.statusEffects
-      .map((e) => ({ ...e, duration: e.duration - 1 }))
-      .filter((e) => e.duration >= 0);
+
+    // 1) Apply tick effects based on the current duration (duration > 0).
     for (const e of entity.statusEffects) {
-      if ((e.type === 'poison' || e.type === 'burn') && entity.health !== undefined && entity.currHealth !== undefined) {
-        const dmg = Math.ceil((entity.health * e.magnitude) / 100);
+      if (e.duration > 0 && (e.type === 'poison' || e.type === 'burn')) {
+        const baseHealth = entity.maxHealth ?? entity.health ?? entity.currHealth ?? 0;
+        if (baseHealth <= 0) continue;
+        const dmg = Math.ceil((baseHealth * e.magnitude) / 100);
+        if (dmg <= 0) continue;
         tickDamage += dmg;
-        entity.currHealth = Math.max(0, entity.currHealth - dmg);
+        if (entity.currHealth !== undefined) {
+          entity.currHealth = Math.max(0, entity.currHealth - dmg);
+        } else if (entity.health !== undefined) {
+          entity.health = Math.max(0, entity.health - dmg);
+        }
       }
     }
+
+    // 2) Decrement durations and remove any effects that have expired (duration <= 0).
+    entity.statusEffects = entity.statusEffects
+      .map((e) => ({ ...e, duration: e.duration - 1 }))
+      .filter((e) => e.duration > 0);
+
     return tickDamage;
   }
 
@@ -225,7 +246,7 @@ function CombatServiceFactory(
       }
     }
 
-    // Distribute cumulative hero damage sequentially through enemies.
+    // Focus-fire: cumulative hero damage hits the first living enemy.
     // armorBreakMultiplier is applied per-enemy target so a broken-armored enemy
     // takes proportionally more damage from the hero's share.
     const tempDead: Monster[] = [];
