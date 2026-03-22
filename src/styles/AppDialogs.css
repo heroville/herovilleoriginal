@@ -1,0 +1,85 @@
+/* AppDialogs.css: split from index.css — see index.css for @import order */
+/* --------------------------------------------------------------------------- */
+/* Modals – theme variables (dark mode), consistent font                       */
+/* --------------------------------------------------------------------------- */
+/* --------------------------------------------------------------------------- */
+/* Modals – new popup look                                                     */
+/* --------------------------------------------------------------------------- */
+.hv-modal-backdrop {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(28, 22, 14, 0.7);
+  z-index: 1000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 1rem;
+}
+.hv-modal-dialog {
+  background: var(--hv-panel-bg);
+  color: var(--hv-text);
+  border: var(--hv-frame) solid var(--hv-panel-border);
+  border-radius: var(--hv-radius);
+  min-width: 340px;
+  max-width: 90%;
+  box-shadow:
+    inset 0 0 0 1px var(--hv-button-highlight),
+    var(--hv-shadow-md);
+  font-family: var(--hv-font-sans);
+  overflow: hidden;
+}
+.hv-modal-dialog .hv-modal-header {
+  background: linear-gradient(
+    180deg,
+    color-mix(in srgb, var(--hv-panel-border) 25%, var(--hv-panel-bg)) 0%,
+    var(--hv-panel-bg) 100%
+  );
+  padding: 1rem 1.25rem;
+  border-bottom: 1px solid var(--hv-panel-border);
+  margin: 0;
+  font-weight: 700;
+}
+.hv-modal-dialog .hv-modal-header h3 {
+  margin: 0;
+  font-size: 1.1rem;
+  font-weight: 600;
+  text-align: left;
+}
+.hv-modal-dialog .hv-modal-body {
+  padding: 1.25rem 1.25rem 1rem;
+}
+.hv-modal-dialog p {
+  margin: 0 0 0.75rem;
+  font-size: 0.95rem;
+  line-height: 1.45;
+}
+.hv-modal-dialog .hv-version-notes {
+  margin: 0 0 1rem;
+  padding-left: 1.25rem;
+  font-size: 0.95rem;
+  line-height: 1.5;
+}
+.hv-modal-dialog .hv-version-notes li {
+  margin-bottom: 0.35rem;
+}
+.hv-modal-dialog input[type='text'] {
+  padding: 0.55rem 0.75rem;
+  font-size: 1rem;
+  border-radius: var(--hv-radius-sm);
+  border: 1px solid var(--hv-border);
+  width: 100%;
+  margin-bottom: 0.5rem;
+}
+.hv-modal-dialog input,
+.hv-modal-dialog button {
+  font-family: var(--hv-font-sans);
+}
+.hv-modal-dialog .hv-modal-actions {
+  display: flex;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+  margin-top: 1rem;
+}

@@ -1,12 +1,12 @@
 // @ts-check
-const { defineConfig, devices } = require('@playwright/test');
+import { defineConfig, devices } from '@playwright/test';
 
 /**
  * Minimal Playwright config for Heroville smoke tests.
  * Runs against built app: `npm run test:e2e` (builds then runs tests; preview started automatically).
  * @see https://playwright.dev/docs/test-configuration
  */
-module.exports = defineConfig({
+export default defineConfig({
   testDir: './e2e',
   fullyParallel: true,
   forbidOnly: !!process.env.CI,

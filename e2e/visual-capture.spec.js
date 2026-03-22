@@ -1,7 +1,7 @@
 // @ts-check
-const { test, expect } = require('@playwright/test');
-const path = require('path');
-const fs = require('fs');
+import { test, expect } from '@playwright/test';
+import path from 'path';
+import fs from 'fs';
 
 /**
  * Visual capture: drive the game through key states and save screenshots.
@@ -38,6 +38,8 @@ test.describe.serial('Visual capture', () => {
     sharedContext = await browser.newContext({
       viewport: VIEWPORT,
     });
+    // Block external requests (fonts, analytics) that would hang in sandboxed CI environments.
+    await sharedContext.route(/googleapis|google-analytics|googletagmanager/, (route) => route.abort());
     await sharedContext.addInitScript(() => {
       window['__HEROVILLE_E2E_FAST_TICK__'] = 10;
     });

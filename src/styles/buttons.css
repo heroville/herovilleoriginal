@@ -1,0 +1,270 @@
+/* buttons.css: split from index.css — see index.css for @import order */
+/* --------------------------------------------------------------------------- */
+/* Buttons – game style: wood/leather + gold primary                            */
+/* --------------------------------------------------------------------------- */
+button {
+  padding: 0.5rem 1rem;
+  background: linear-gradient(
+    180deg,
+    var(--hv-button-bg) 0%,
+    color-mix(in srgb, var(--hv-button-bg) 85%, black) 100%
+  );
+  border: 2px solid var(--hv-button-border);
+  color: var(--hv-button-text);
+  text-decoration: none;
+  width: 175px;
+  border-radius: var(--hv-radius-sm);
+  font-weight: 600;
+  font-size: 0.9rem;
+  cursor: pointer;
+  box-shadow:
+    inset 0 1px 0 var(--hv-button-highlight),
+    0 2px 0 var(--hv-button-emboss),
+    var(--hv-shadow);
+  transition:
+    filter 0.15s ease,
+    transform 0.1s ease,
+    box-shadow 0.15s ease;
+}
+
+button:hover {
+  filter: brightness(1.08);
+  box-shadow:
+    inset 0 1px 0 var(--hv-button-highlight),
+    0 2px 0 var(--hv-button-emboss),
+    0 4px 10px rgba(0, 0, 0, 0.2);
+}
+button:active {
+  transform: translateY(1px);
+  box-shadow:
+    inset 0 1px 2px var(--hv-button-emboss),
+    0 0 0 2px var(--hv-button-border);
+}
+
+/* Primary: gold / reward (Gather, Improve, Accept, Create) */
+.hv-btn-primary {
+  background: linear-gradient(
+    180deg,
+    var(--hv-primary) 0%,
+    var(--hv-primary-hover) 100%
+  ) !important;
+  border-color: #8b6914 !important;
+  color: var(--hv-primary-text) !important;
+  width: auto;
+  min-width: 7rem;
+  text-shadow: 0 1px 0 rgba(255, 255, 255, 0.4);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.35),
+    0 2px 0 rgba(0, 0, 0, 0.2),
+    0 0 12px var(--hv-primary-glow) !important;
+}
+.hv-btn-primary:hover {
+  filter: brightness(1.12);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.4),
+    0 2px 0 rgba(0, 0, 0, 0.2),
+    0 0 16px var(--hv-primary-glow) !important;
+}
+.hv-btn-primary:active {
+  box-shadow:
+    inset 0 2px 4px rgba(0, 0, 0, 0.25),
+    0 0 0 2px #8b6914 !important;
+}
+/* Production / action buttons when disabled (e.g. countdown or at cap) */
+.hv-btn-primary:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+  filter: none;
+  box-shadow: none;
+}
+.hv-btn-primary:disabled:hover {
+  filter: none;
+  box-shadow: none;
+}
+
+/* Secondary: wood panel (Save, Load, Reset, Theme) */
+.hv-btn-secondary {
+  width: auto;
+  min-width: 6rem;
+  background: linear-gradient(
+    180deg,
+    var(--hv-button-bg) 0%,
+    color-mix(in srgb, var(--hv-button-bg) 88%, black) 100%
+  ) !important;
+  border: 2px solid var(--hv-button-border) !important;
+  color: var(--hv-button-text) !important;
+}
+.hv-btn-secondary:hover {
+  filter: brightness(1.1);
+}
+
+.hv-btn-auto {
+  width: auto;
+  min-width: 5rem;
+}
+
+[data-bs-theme='dark'] button:not(.hv-btn-primary):not(.hv-btn-secondary):not(#gatherButton),
+[data-bs-theme='dark'] select,
+[data-bs-theme='dark'] input,
+[data-bs-theme='dark'] textarea {
+  background: var(--hv-button-bg) !important;
+  border: 2px solid var(--hv-button-border) !important;
+  color: var(--hv-button-text);
+  box-shadow: inset 0 1px 0 var(--hv-button-highlight);
+}
+
+/* --------------------------------------------------------------------------- */
+/* Gather button (ID kept for e2e)                                              */
+/* --------------------------------------------------------------------------- */
+#gatherButton {
+  padding: 0.5rem 1rem 0.5rem 2.75rem;
+  background: linear-gradient(180deg, var(--hv-primary) 0%, var(--hv-primary-hover) 100%)
+    url(/images/I_Chest02.png) no-repeat scroll 10px center !important;
+  border: 2px solid #8b6914 !important;
+  color: var(--hv-primary-text) !important;
+  text-decoration: none;
+  min-width: 110px;
+  box-sizing: border-box;
+  border-radius: var(--hv-radius-sm);
+  font-weight: 600;
+  text-shadow: 0 1px 0 rgba(255, 255, 255, 0.4);
+  -webkit-touch-callout: none;
+  user-select: none;
+  margin-left: auto;
+  margin-right: auto;
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.35),
+    0 2px 0 rgba(0, 0, 0, 0.2),
+    0 0 12px var(--hv-primary-glow);
+  transition:
+    filter 0.15s ease,
+    transform 0.1s ease,
+    box-shadow 0.15s ease;
+}
+#gatherButton:hover {
+  filter: brightness(1.12);
+  background-image: url(/images/I_Chest02.png) !important;
+  background-position: 10px center !important;
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.4),
+    0 2px 0 rgba(0, 0, 0, 0.2),
+    0 0 16px var(--hv-primary-glow);
+  padding: 0.5rem 1rem 0.5rem 2.75rem;
+  cursor: pointer;
+}
+#gatherButton:active {
+  transform: translateY(1px);
+  box-shadow:
+    inset 0 2px 4px rgba(0, 0, 0, 0.25),
+    0 0 0 2px #8b6914;
+}
+[data-bs-theme='dark'] #gatherButton {
+  border-color: #9a7209 !important;
+}
+
+/* Tutorial / info button (ID kept for e2e)                                     */
+/* --------------------------------------------------------------------------- */
+#infobutton {
+  padding: 0.4rem 0.75rem;
+  background: linear-gradient(
+    180deg,
+    var(--hv-button-bg) 0%,
+    color-mix(in srgb, var(--hv-button-bg) 88%, black) 100%
+  );
+  border: 2px solid var(--hv-button-border);
+  color: var(--hv-button-text);
+  text-decoration: none;
+  width: auto;
+  min-width: 90px;
+  border-radius: var(--hv-radius-sm);
+  font-weight: 600;
+  box-shadow:
+    inset 0 1px 0 var(--hv-button-highlight),
+    0 1px 2px var(--hv-button-emboss);
+  -webkit-touch-callout: none;
+  user-select: none;
+  margin-left: auto;
+  margin-right: auto;
+  cursor: pointer;
+}
+#infobutton:hover {
+  filter: brightness(1.08);
+}
+.hv-tutorial-next {
+  position: static;
+  display: inline-block;
+}
+#upgradeList .hv-upgrade-btn {
+  width: auto;
+  max-width: 100%;
+  min-width: 8rem;
+}
+.hv-sort-btn {
+  padding: 0.4rem 0.75rem;
+  background: linear-gradient(
+    180deg,
+    var(--hv-button-bg) 0%,
+    color-mix(in srgb, var(--hv-button-bg) 88%, black) 100%
+  ) !important;
+  border: 2px solid var(--hv-button-border) !important;
+  color: var(--hv-button-text) !important;
+  font-family: var(--hv-font-sans);
+  font-size: 0.875rem;
+  font-weight: 600;
+  cursor: pointer;
+  width: auto;
+  min-width: 6rem;
+  border-radius: var(--hv-radius-sm);
+  box-shadow:
+    inset 0 1px 0 var(--hv-button-highlight),
+    0 1px 2px var(--hv-button-emboss);
+}
+.hv-sort-btn:hover {
+  filter: brightness(1.08);
+}
+
+.hv-sort-caret {
+  font-size: 0.65rem;
+  margin-left: 0.25rem;
+  vertical-align: middle;
+}
+
+/* Dropdown: directly under button, styled panel */
+.hero-sort-dropdown {
+  position: absolute;
+  left: 0;
+  top: 100%;
+  margin: 2px 0 0;
+  padding: 0;
+  list-style: none;
+  min-width: 10rem;
+  background: var(--hv-panel-bg);
+  border: var(--hv-frame) solid var(--hv-panel-border);
+  border-radius: var(--hv-radius-sm);
+  box-shadow: var(--hv-shadow-md);
+  z-index: 1060;
+}
+
+.hero-sort-item {
+  display: block;
+  width: 100%;
+  padding: 0.4rem 0.75rem;
+  text-align: left;
+  border: none;
+  background: none;
+  color: var(--hv-text);
+  font-family: var(--hv-font-sans);
+  font-size: 0.875rem;
+  cursor: pointer;
+  transition: background 0.1s ease;
+}
+
+.hero-sort-item:hover {
+  background: color-mix(in srgb, var(--hv-panel-border) 18%, var(--hv-panel-bg));
+}
+
+#heroFilter input[type='text'] {
+  max-width: 12rem;
+  padding: 0.25rem 0.5rem;
+  font-size: 0.875rem;
+}
