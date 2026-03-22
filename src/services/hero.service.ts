@@ -296,7 +296,7 @@ function HeroServiceFactory(
           // async ProductionService dispatch; without this guard, a hero with multiple
           // available slots would queue several crafts in the same game tick.
           let craftStarted = false;
-          if (!craftStarted && s.potion.count + s.potion.working < s.potion.maxCount && hero.progress === 'Idle') {
+          if (s.potion.count + s.potion.working < s.potion.maxCount && hero.progress === 'Idle') {
             if (EconomyService.decResources(s.potion.cost)) {
               craftStarted = true;
               s.potion.working++;
