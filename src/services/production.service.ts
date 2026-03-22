@@ -29,11 +29,10 @@ function ProductionServiceFactory(
 ) {
   let _lastProgressSync = 0;
 
-  function syncProgressIfNeeded(): void {
+  function syncProgressIfNeeded(s: FlatGameState): void {
     const now = Date.now();
     if (now - _lastProgressSync >= PROGRESS_SYNC_THROTTLE_MS) {
       _lastProgressSync = now;
-      const s = getFlatState(store);
       dispatchProduction(store, s);
       dispatchHeroes(store, s);
     }
@@ -47,10 +46,10 @@ function ProductionServiceFactory(
     if (s.potion.prodTime > start) {
       if (button) {
         s.potion.progress = formatSeconds(s.potion.prodTime - start);
-        syncProgressIfNeeded();
+        syncProgressIfNeeded(s);
       } else if (heroID >= 0) {
         s.heroList[heroID].progress = formatSeconds(s.potion.prodTime - start);
-        syncProgressIfNeeded();
+        syncProgressIfNeeded(s);
       }
       const gameLoop = store.getState().config.gameLoop;
       setTimeout(function () {
@@ -80,10 +79,10 @@ function ProductionServiceFactory(
     if (acc.prodTime > start) {
       if (button) {
         acc.progress = formatSeconds(acc.prodTime - start);
-        syncProgressIfNeeded();
+        syncProgressIfNeeded(s);
       } else if (heroID >= 0) {
         s.heroList[heroID].progress = formatSeconds(acc.prodTime - start);
-        syncProgressIfNeeded();
+        syncProgressIfNeeded(s);
       }
       const gameLoop = store.getState().config.gameLoop;
       setTimeout(function () {
@@ -114,10 +113,10 @@ function ProductionServiceFactory(
     if (weapon.prodTime > start) {
       if (button) {
         weapon.progress = formatSeconds(weapon.prodTime - start);
-        syncProgressIfNeeded();
+        syncProgressIfNeeded(s);
       } else if (heroID >= 0) {
         s.heroList[heroID].progress = formatSeconds(weapon.prodTime - start);
-        syncProgressIfNeeded();
+        syncProgressIfNeeded(s);
       }
       const gameLoop = store.getState().config.gameLoop;
       setTimeout(function () {
