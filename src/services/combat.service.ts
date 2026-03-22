@@ -18,9 +18,13 @@ import {
   POTION_GOOD_HEALTH,
   POTION_GREAT_HEALTH,
   BUILDING_TENT,
+  STATUS_POISON_TICK_PERCENT,
+  STATUS_STUN_SKIP_CHANCE,
+  STATUS_ARMOR_BREAK_MULTIPLIER,
+  HERO_AUTO_HEAL_THRESHOLD,
 } from '../constants/gameConstants.ts';
 import type { AppStore } from '../store/index.ts';
-import type { Hero, Monster, GameConfig } from '../types/index.ts';
+import type { Hero, Monster, GameConfig, StatusEffect } from '../types/index.ts';
 
 // suppress unused-import warnings on re-exported action creators
 void replaceHeroes;
@@ -83,7 +87,7 @@ function CombatServiceFactory(
   }
 
   function clearPotions(hero: Hero): void {
-    for (let i = 1; i < hero.equip.potions.length; i++) {
+    for (let i = 0; i < hero.equip.potions.length; i++) {
       if (hero.equip.potions[i].active) {
         hero.equip.potions[i].count--;
       }
@@ -136,11 +140,82 @@ function CombatServiceFactory(
     return Math.floor(Math.random() * (max - min + 1)) + min;
   }
 
+  // ─── Status Effect Helpers ─────────────────────────────────────────────
+
+  /**
+   * Returns true if the entity has an active stun effect (duration > 0).
+   * Uses STATUS_STUN_SKIP_CHANCE so future designs can make stun probabilistic.
+   */
+  function isStunned(entity: { statusEffects?: StatusEffect[] }): boolean {
+    if (!entity.statusEffects) return false;
+    return entity.statusEffects.some(
+      (e) => e.type === 'stun' && e.duration > 0 && Math.random() < STATUS_STUN_SKIP_CHANCE
+    );
+  }
+
+  /**
+   * Applies poison/burn damage and decrements all effect durations by 1.
+   * Effects that reach 0 duration are removed.
+   * Returns the total tick damage applied (for callers that need to track HP changes).
+   */
+  function processStatusTick(entity: { currHealth?: number; health?: number; statusEffects?: StatusEffect[] }): number {
+    if (!entity.statusEffects || entity.statusEffects.length === 0) return 0;
+    let tickDamage = 0;
+    entity.statusEffects = entity.statusEffects
+      .map((e) => ({ ...e, duration: e.duration - 1 }))
+      .filter((e) => e.duration >= 0);
+    for (const e of entity.statusEffects) {
+      if ((e.type === 'poison' || e.type === 'burn') && entity.health !== undefined && entity.currHealth !== undefined) {
+        const dmg = Math.ceil((entity.health * e.magnitude) / 100);
+        tickDamage += dmg;
+        entity.currHealth = Math.max(0, entity.currHealth - dmg);
+      }
+    }
+    return tickDamage;
+  }
+
+  /**
+   * Returns the total damage multiplier from armorBreak effects active on the target.
+   * If no armor break is present returns 1 (no change). Stacks additively across sources.
+   */
+  function armorBreakMultiplier(target: { statusEffects?: StatusEffect[] }): number {
+    if (!target.statusEffects) return 1;
+    const totalBreak = target.statusEffects
+      .filter((e) => e.type === 'armorBreak' && e.duration > 0)
+      .reduce((sum, e) => sum + e.magnitude, 0);
+    return 1 + totalBreak * STATUS_ARMOR_BREAK_MULTIPLIER;
+  }
+
+  /**
+   * Determines whether a hero should consume a health potion this turn.
+   *
+   * Triggers when the hero's current HP has fallen below HERO_AUTO_HEAL_THRESHOLD
+   * of their max HP (default 50%), the hero actually has that potion, and the
+   * global potion stock has an entry for it.
+   *
+   * Centralising this condition makes it easy to:
+   *  - tune the threshold (change HERO_AUTO_HEAL_THRESHOLD in gameConstants)
+   *  - unit-test potion behaviour in isolation
+   *  - extend with per-hero override thresholds in the future
+   */
+  function shouldUsePotion(hero: Hero, potionSlot: number, potionDefs: Array<{ value?: number }>): boolean {
+    if (!hero.equip.potions[potionSlot] || hero.equip.potions[potionSlot].count <= 0) return false;
+    if (!potionDefs[potionSlot]) return false;
+    return hero.currHealth < hero.health * HERO_AUTO_HEAL_THRESHOLD;
+  }
+
+  // ─── End Status Effect Helpers ─────────────────────────────────────────
+
   function heroTurn(heroL: Hero[], enemyL: Monster[]): Monster[] {
     const potions = store.getState().production.potions as Array<{ value?: number }>;
     let damage = 0;
+
+    // Process per-hero status ticks (poison/burn) and accumulate damage from living, non-stunned heroes.
     for (let i = 0; i < heroL.length; i++) {
       if (heroL[i].currHealth > 0) {
+        processStatusTick(heroL[i]);
+        if (heroL[i].currHealth <= 0) continue; // died from status tick
+        if (isStunned(heroL[i])) continue;       // stunned: skip this hero's attack
         if (heroL[i].equip.potions[POTION_REGEN].active) {
           const regenVal = potions[POTION_REGEN] ? (potions[POTION_REGEN].value ?? 0) : 0;
           const healPct = Math.floor((heroL[i].health / 100) * regenVal);
@@ -149,17 +224,26 @@ function CombatServiceFactory(
         damage += heroDamage(heroL[i]);
       }
     }
+
+    // Distribute cumulative hero damage sequentially through enemies.
+    // armorBreakMultiplier is applied per-enemy target so a broken-armored enemy
+    // takes proportionally more damage from the hero's share.
     const tempDead: Monster[] = [];
     for (let i = 0; i < enemyL.length; i++) {
       if (enemyL[i].health === 0) {
         // already dead
-      } else if (enemyL[i].health < damage) {
-        enemyL[i].health = 0;
-        tempDead.push(enemyL[i]);
-        damage = 0;
       } else {
-        enemyL[i].health -= damage;
-        damage = 0;
+        // Process monster status ticks (poison etc.) at the start of its "receive damage" step.
+        processStatusTick(enemyL[i]);
+        const effectiveDamage = Math.ceil(damage * armorBreakMultiplier(enemyL[i]));
+        if (enemyL[i].health <= effectiveDamage) {
+          enemyL[i].health = 0;
+          tempDead.push(enemyL[i]);
+          damage = 0;
+        } else {
+          enemyL[i].health -= effectiveDamage;
+          damage = 0;
+        }
       }
     }
     return tempDead;
@@ -169,7 +253,8 @@ function CombatServiceFactory(
     const potions = store.getState().production.potions as Array<{ value?: number }>;
     let turnDamage = 0;
     for (let i = 0; i < monsterList.length; i++) {
-      if (monsterList[i].health > 0) {
+      // Stunned monsters skip their attack for this turn.
+      if (monsterList[i].health > 0 && !isStunned(monsterList[i])) {
         turnDamage += enemyDamage(monsterList[i]);
       }
     }
@@ -189,28 +274,15 @@ function CombatServiceFactory(
           heroDamageAmount++;
         }
         hero[k].currHealth -= heroDamageAmount;
-        if (
-          hero[k].equip.potions[POTION_GREAT_HEALTH] &&
-          hero[k].equip.potions[POTION_GREAT_HEALTH].count > 0 &&
-          potions[POTION_GREAT_HEALTH] &&
-          hero[k].health - hero[k].currHealth > (potions[POTION_GREAT_HEALTH].value ?? 0)
-        ) {
+        // Try best available health potion first (great → good → basic).
+        // shouldUsePotion triggers when HP drops below HERO_AUTO_HEAL_THRESHOLD.
+        if (shouldUsePotion(hero[k], POTION_GREAT_HEALTH, potions)) {
           hero[k].equip.potions[POTION_GREAT_HEALTH].count--;
           hero[k].currHealth = Math.min(hero[k].health, hero[k].currHealth + (potions[POTION_GREAT_HEALTH].value ?? 0));
-        } else if (
-          hero[k].equip.potions[POTION_GOOD_HEALTH] &&
-          hero[k].equip.potions[POTION_GOOD_HEALTH].count > 0 &&
-          potions[POTION_GOOD_HEALTH] &&
-          hero[k].health - hero[k].currHealth > (potions[POTION_GOOD_HEALTH].value ?? 0)
-        ) {
+        } else if (shouldUsePotion(hero[k], POTION_GOOD_HEALTH, potions)) {
           hero[k].equip.potions[POTION_GOOD_HEALTH].count--;
           hero[k].currHealth = Math.min(hero[k].health, hero[k].currHealth + (potions[POTION_GOOD_HEALTH].value ?? 0));
-        } else if (
-          hero[k].equip.potions[POTION_HEALTH] &&
-          hero[k].equip.potions[POTION_HEALTH].count > 0 &&
-          potions[POTION_HEALTH] &&
-          hero[k].health - hero[k].currHealth > (potions[POTION_HEALTH].value ?? 0)
-        ) {
+        } else if (shouldUsePotion(hero[k], POTION_HEALTH, potions)) {
           hero[k].equip.potions[POTION_HEALTH].count--;
           hero[k].currHealth = Math.min(hero[k].health, hero[k].currHealth + (potions[POTION_HEALTH].value ?? 0));
         }
@@ -254,10 +326,13 @@ function CombatServiceFactory(
           if (hero[i].level <= journey.dungeon.level * 2) {
             battle.experience += monstersList[j].value * MONSTER_XP_MULTIPLIER;
           }
-          const lootChance = Math.random() * 100;
-          if (lootChance < 10 && monstersList[j].high != null) {
-            addLoot(monstersList[j].high, hero[i]);
-          }
+        }
+        // Loot is assigned once per monster and given to one hero (round-robin).
+        // This prevents party size from multiplying gold/scrap rewards.
+        const lootChance = Math.random() * 100;
+        if (lootChance < 10 && monstersList[j].high != null) {
+          const lootRecipient = hero[j % hero.length];
+          addLoot(monstersList[j].high, lootRecipient);
         }
       }
       if (battle.boss) {

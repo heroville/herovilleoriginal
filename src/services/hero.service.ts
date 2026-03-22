@@ -10,6 +10,7 @@ import {
   HERO_HEALTH_PER_LEVEL,
   HERO_XP_PER_LEVEL,
   HERO_REST_HEAL_PERCENT,
+  HERO_AUTO_HEAL_THRESHOLD,
   WEAPON_DURABILITY_LOW_THRESHOLD,
   BUILDING_BLACKSMITH,
   BUILDING_TAVERN,
@@ -235,7 +236,9 @@ function HeroServiceFactory(
           s.weapons[weapon.id].count--;
           hero.equip.weapon = structuredClone(s.weapons[weapon.id]);
         }
-        for (let k = 0; k < hero.equip.potions.length; k++) {
+        // Buy potions — iterate highest-tier first so gold is spent on the most valuable
+        // potions when the hero can't afford to fill every slot.
+        for (let k = hero.equip.potions.length - 1; k >= 0; k--) {
           const potionK = s.potions[k] as FlatGameState['potions'][number] & { maxHero?: number };
           if (
             potionK &&
@@ -249,8 +252,9 @@ function HeroServiceFactory(
             hero.equip.potions[k].count++;
           }
         }
+        // Use a basic healing potion at rest when HP is below HERO_AUTO_HEAL_THRESHOLD.
         if (
-          hero.health - hero.currHealth >= (s.potion.healing ?? 0) &&
+          hero.currHealth < hero.health * HERO_AUTO_HEAL_THRESHOLD &&
           s.potion.count > 0 &&
           s.gold + s.potion.sellPrice <= s.maxGold &&
           hero.equip.gold >= s.potion.sellPrice
@@ -272,7 +276,7 @@ function HeroServiceFactory(
         DungeonService.attemptDungeon(hero.dungeon, [hero]);
         hero.location = s.dungeons[hero.dungeon].name;
       } else if (hero.progress === 'Idle') {
-        EconomyService.incrRes(Math.ceil(s.heroList[i].level / 4) ^ 2);
+        EconomyService.incrRes(Math.ceil(s.heroList[i].level / 4) ** 2);
       }
     }
     dispatchHeroes(store, s);
@@ -287,8 +291,14 @@ function HeroServiceFactory(
         case 0:
           break;
         case 1: {
-          if (s.potion.count + s.potion.working < s.potion.maxCount && hero.progress === 'Idle') {
+          // craftStarted prevents a hero from starting more than one craft per tick.
+          // hero.progress is read from the flat snapshot so it doesn't reflect the
+          // async ProductionService dispatch; without this guard, a hero with multiple
+          // available slots would queue several crafts in the same game tick.
+          let craftStarted = false;
+          if (!craftStarted && s.potion.count + s.potion.working < s.potion.maxCount && hero.progress === 'Idle') {
             if (EconomyService.decResources(s.potion.cost)) {
+              craftStarted = true;
               s.potion.working++;
               if (hero.academy.id !== HERO_CLASSES[1].id) {
                 ProductionService.createPotion(
@@ -308,11 +318,13 @@ function HeroServiceFactory(
           }
           for (let j = 0; j < s.potions.length; j++) {
             if (
+              !craftStarted &&
               s.potions[j].enabled &&
               s.potions[j].count + s.potions[j].working < s.potions[j].maxCount &&
               hero.progress === 'Idle'
             ) {
               if (EconomyService.decResources(s.potions[j].cost)) {
+                craftStarted = true;
                 s.potions[j].working++;
                 if (hero.academy.id !== HERO_CLASSES[1].id) {
                   ProductionService.createPotions(
@@ -336,13 +348,16 @@ function HeroServiceFactory(
           break;
         }
         case 2: {
+          let craftStarted = false;
           for (let j = 0; j < s.weapons.length; j++) {
             if (
+              !craftStarted &&
               s.weapons[j].enabled &&
               s.weapons[j].count + s.weapons[j].working < s.weapons[j].maxCount &&
               hero.progress === 'Idle'
             ) {
               if (EconomyService.decResources(s.weapons[j].cost)) {
+                craftStarted = true;
                 s.weapons[j].working++;
                 const wProdTime = (s.weapons[j] as { prodTime?: number }).prodTime ?? 0;
                 if (hero.academy.id !== HERO_CLASSES[1].id) {
