@@ -4,7 +4,7 @@
 Do not change game rules, formulas, economy, combat, or progression unless explicitly asked. You may suggest improvements or balance changes; wait for confirmation before implementing.
 
 ## Architecture
-Redux is the single source of truth. Services read state via `store.getState()` and dispatch fine-grained actions — no separate mutable state objects. The game loop in `gameLoopRunner.js` runs tick and save as Redux thunks at a configurable interval.
+Redux is the single source of truth. Services read state via `store.getState()` and dispatch fine-grained actions — no separate mutable state objects. The game loop in `src/gameLoopRunner.ts` runs tick and save as Redux thunks at a configurable interval.
 
 Service-level timers (dungeon travel, production crafting) use `setTimeout` internally and must dispatch Redux actions when they resolve.
 
