@@ -148,6 +148,13 @@ function DungeonServiceFactory(store: AppStore, $timeout: (fn: () => void, ms: n
           journey.hero[i].progress =
             Math.round((journey.steps / journey.dungeon.steps) * 100) + '%' + ' Complete';
         }
+        // Sync progress to Redux so the UI reflects the current step
+        const sTravel = getFlatState(store);
+        for (const h of journey.hero) {
+          const idx = sTravel.heroList.findIndex((hl) => hl.id === h.id);
+          if (idx !== -1) sTravel.heroList[idx] = h;
+        }
+        dispatchHeroes(store, sTravel);
         const gameLoop = store.getState().config.gameLoop;
         $timeout(function () {
           travel(journey);

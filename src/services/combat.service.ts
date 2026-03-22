@@ -340,11 +340,16 @@ function CombatServiceFactory(
         // Clone so Immer does not freeze the live journey.hero objects
         return inBattle ? structuredClone(inBattle) : hl;
       });
+      // Replace this battle in the array with a clone of the live object so
+      // copyMonsters (enemy HP) reflects the mutations made by heroTurn()
+      const updatedBattles = currentHeroes.battles.map((b) =>
+        b.id === battle.id ? structuredClone(battle) : b
+      );
       store.dispatch(
         replaceHeroes({
           ...currentHeroes,
           heroList: updatedHeroList,
-          battles: [...currentHeroes.battles],
+          battles: updatedBattles,
         })
       );
       const gameLoop = store.getState().config.gameLoop;
