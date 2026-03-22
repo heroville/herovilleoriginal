@@ -163,6 +163,26 @@ function DungeonServiceFactory(store: AppStore, $timeout: (fn: () => void, ms: n
     }
   }
 
+  /**
+   * Returns the enemy stat multiplier for the given party size.
+   *
+   * Old behaviour: flat MULTI_HERO_SCALE_FACTOR (10) for any party > 1, regardless of size.
+   * New behaviour: scales linearly — each additional hero beyond the first adds
+   *   (MULTI_HERO_SCALE_FACTOR - 1) to the multiplier.
+   *
+   *   partySize=1 → 1×  (solo, no scaling)
+   *   partySize=2 → 10× (same as before for 2-hero parties)
+   *   partySize=3 → 19×
+   *   partySize=4 → 28×
+   *
+   * Adjust MULTI_HERO_SCALE_FACTOR in gameConstants to tune how steeply enemy
+   * strength grows with party size.
+   */
+  function partyScaleFactor(partySize: number): number {
+    if (partySize <= 1) return 1;
+    return 1 + (partySize - 1) * (MULTI_HERO_SCALE_FACTOR - 1);
+  }
+
   function monsterFight(journey: Journey): void {
     const s = getFlatState(store);
     const eLevel = journey.dungeon.encounterLevel;
@@ -191,7 +211,7 @@ function DungeonServiceFactory(store: AppStore, $timeout: (fn: () => void, ms: n
         }
       }
       const currentMonster = Math.floor(Math.random() * reducedMonster.length);
-      const multi = journey.hero.length > 1 ? MULTI_HERO_SCALE_FACTOR : 1;
+      const multi = partyScaleFactor(journey.hero.length);
       encounterMonsters.push({
         id: encounterMonsters.length,
         name: reducedMonster[currentMonster].name,
@@ -212,7 +232,7 @@ function DungeonServiceFactory(store: AppStore, $timeout: (fn: () => void, ms: n
   function bossFight(journey: Journey): void {
     const s = getFlatState(store);
     const bossID = journey.dungeon.bossID;
-    const multi = journey.hero.length > 1 ? MULTI_HERO_SCALE_FACTOR : 1;
+    const multi = partyScaleFactor(journey.hero.length);
     const bossBattle: Monster[] = [
       {
         id: 0,

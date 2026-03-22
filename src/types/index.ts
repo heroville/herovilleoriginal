@@ -83,6 +83,8 @@ export interface Hero {
   academy: HeroClass;
   party: boolean;
   autoAdventure?: boolean;
+  /** Active status effects on this hero (optional; absent = no effects). */
+  statusEffects?: StatusEffect[];
 }
 
 // ─── Building ─────────────────────────────────────────────────────────────
@@ -111,6 +113,20 @@ export interface Blueprint {
   working?: number;
 }
 
+// ─── Status Effects ───────────────────────────────────────────────────────
+
+export type StatusEffectType = 'stun' | 'poison' | 'armorBreak' | 'burn';
+
+export interface StatusEffect {
+  type: StatusEffectType;
+  /** Turns remaining before the effect expires. */
+  duration: number;
+  /** Poison/burn: percent of max HP dealt as damage per turn (0–100). armorBreak: % damage multiplier increase (0–1). stun: unused. */
+  magnitude: number;
+  /** ID of the hero or monster that applied the effect, for tracking purposes. */
+  sourceId?: number;
+}
+
 // ─── Dungeon / Monster ────────────────────────────────────────────────────
 
 export interface Monster {
@@ -126,6 +142,8 @@ export interface Monster {
   xp?: number;
   low?: string;
   high?: string;
+  /** Active status effects on this monster (optional; absent = no effects). */
+  statusEffects?: StatusEffect[];
 }
 
 export interface Dungeon {

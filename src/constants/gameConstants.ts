@@ -55,6 +55,14 @@ export const MAX_GAME_LOOP_MS = 5000;
 export const SAVE_INTERVAL_MS = 30_000;
 export const RANDOM_EVENT_BASE_DELAY_MS = 600_000; // 10 minutes base + up to 10 min variance
 
+// Hero automation
+export const HERO_AUTO_HEAL_THRESHOLD = 0.5; // use a health potion when currHealth drops below this fraction of max HP
+
+// Status effects
+export const STATUS_POISON_TICK_PERCENT = 5;     // % of max HP dealt as damage per poison tick
+export const STATUS_STUN_SKIP_CHANCE = 1.0;       // 1.0 = 100%: stun always skips the entity's turn
+export const STATUS_ARMOR_BREAK_MULTIPLIER = 0.5; // +50% damage taken while armor is broken
+
 // Dungeon generation
 export const MONSTERS_PER_BATCH = 3;
 export const MONSTER_HEALTH_MULTIPLIER = 5;
