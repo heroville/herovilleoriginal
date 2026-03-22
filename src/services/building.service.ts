@@ -97,8 +97,8 @@ function BuildingServiceFactory(
         break;
       }
       case BUILDING_STOCKPILE: {
-        state.maxResources = stateBuilding.cost + Math.floor(stateBuilding.cost / 10);
-        state.maxGold = Math.floor(stateBuilding.cost / 10);
+        state.maxResources = stateBuilding.cost + Math.floor(stateBuilding.cost / 5);
+        state.maxGold = Math.floor(stateBuilding.cost / 5);
         if (state.buildings[BUILDING_MARKET].count === 0) {
           state.buildings[BUILDING_MARKET].enabled = true;
           state.prodEnabled = true;

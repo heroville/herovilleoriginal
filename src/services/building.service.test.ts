@@ -110,9 +110,9 @@ describe('BuildingService with store', () => {
 
     BuildingService.incrBuilding(st, actions, building);
 
-    // After first Stockpile upgrade: next cost = 25 + 2^5 = 57 → maxResources = 57 + 5 = 62, maxGold = 5
-    expect(store.getState().economy.maxResources).toBe(62);
-    expect(store.getState().economy.maxGold).toBe(5);
+    // After first Stockpile upgrade: next cost = 25 + 2^5 = 57 → maxResources = 57 + 11 = 68, maxGold = 11
+    expect(store.getState().economy.maxResources).toBe(68);
+    expect(store.getState().economy.maxGold).toBe(11);
   });
 
   it('incrBlueprint updates blueprints in store', () => {

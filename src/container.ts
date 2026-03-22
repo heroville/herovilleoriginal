@@ -79,7 +79,8 @@ container.CombatService = CombatServiceFactory(
   container.DungeonService,
   container.GameUiService,
   container.GameConfig,
-  $timeout
+  $timeout,
+  container.EconomyService
 );
 container.BuildingService = BuildingServiceFactory(
   store,

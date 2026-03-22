@@ -31,7 +31,7 @@ export const POTION_GREAT_HEALTH = 4;
 // Hero starting stats
 export const HERO_BASE_HEALTH = 100;
 export const HERO_BASE_XP_THRESHOLD = 50; // XP required for level 2
-export const HERO_HEALTH_PER_LEVEL = 50;
+export const HERO_HEALTH_PER_LEVEL = 75;
 export const HERO_XP_PER_LEVEL = 25; // added to next-XP threshold each level
 
 // Combat multipliers
@@ -65,9 +65,12 @@ export const STATUS_ARMOR_BREAK_MULTIPLIER = 0.5; // +50% damage taken while arm
 
 // Dungeon generation
 export const MONSTERS_PER_BATCH = 3;
-export const MONSTER_HEALTH_MULTIPLIER = 5;
+export const MONSTER_HEALTH_MULTIPLIER = 3;
 export const MONSTER_LOOT_MULTIPLIER = 3;
 export const MAX_MONSTERS_PER_ENCOUNTER = 4;
 export const DUNGEON_STEPS_MULTIPLIER = 15;
 export const MAX_DUNGEON_COUNT = 14; // disable dungeon building above this count
 export const BOSS_LEVEL_OFFSET = 2; // boss level = dungeon level + BOSS_LEVEL_OFFSET
+
+// Economy
+export const WEAPON_UPKEEP_RATE = 0.5; // upkeep = ceil(sellPrice × 0.5) per dungeon run

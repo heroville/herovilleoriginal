@@ -21,9 +21,10 @@ import {
   STATUS_STUN_SKIP_CHANCE,
   STATUS_ARMOR_BREAK_MULTIPLIER,
   HERO_AUTO_HEAL_THRESHOLD,
+  WEAPON_UPKEEP_RATE,
 } from '../constants/gameConstants.ts';
 import type { AppStore } from '../store/index.ts';
-import type { Hero, Monster, GameConfig, StatusEffect } from '../types/index.ts';
+import type { Hero, Monster, GameConfig, StatusEffect, EconomyServiceType } from '../types/index.ts';
 
 // suppress unused-import warnings on re-exported action creators
 void replaceHeroes;
@@ -70,7 +71,8 @@ function CombatServiceFactory(
   DungeonService: DungeonServiceLike,
   GameUiService: GameUiServiceLike,
   GameConfig: GameConfig,
-  $timeout: (fn: () => void, ms: number) => void
+  $timeout: (fn: () => void, ms: number) => void,
+  EconomyService: EconomyServiceType
 ) {
   const HERO_CLASSES = GameConfig.heroClasses || [];
 
@@ -98,20 +100,9 @@ function CombatServiceFactory(
     const production = store.getState().production;
     if (hero.equip.weapon.id !== production.weapons[0].id) {
       const weapon = hero.equip.weapon as Hero['equip']['weapon'] & {
-        broken?: boolean;
-        durability?: number;
         minDamage?: number;
         maxDamage?: number;
       };
-      if (weapon.broken === false) {
-        if ((weapon.durability ?? 0) <= 0) {
-          weapon.minDamage = Math.ceil((weapon.minDamage ?? 0) / 2);
-          weapon.maxDamage = Math.ceil((weapon.maxDamage ?? 0) / 2);
-          weapon.broken = true;
-        } else {
-          weapon.durability = (weapon.durability ?? 1) - 1;
-        }
-      }
       const min = weapon.minDamage ?? 0;
       const max = weapon.maxDamage ?? 0;
       const damage = Math.floor(Math.random() * (max - min + 1)) + min;
@@ -369,6 +360,13 @@ function CombatServiceFactory(
           hero[i].location = 'Home';
           hero[i].progress = 'Resting';
           addLoot(journey.dungeon.reward, hero[i]);
+          // Weapon upkeep: deduct a fraction of sellPrice from hero gold after each dungeon
+          const upkeep = Math.ceil((hero[i].equip.weapon.sellPrice ?? 0) * WEAPON_UPKEEP_RATE);
+          if (upkeep > 0) {
+            const paid = Math.min(upkeep, hero[i].equip.gold);
+            hero[i].equip.gold -= paid;
+            EconomyService.incGold(paid);
+          }
         }
       } else {
         for (let k = 0; k < hero.length; k++) {
