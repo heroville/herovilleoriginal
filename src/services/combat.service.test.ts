@@ -57,13 +57,15 @@ describe('CombatService with store', () => {
     const $timeout = () => {}; // don't recurse takeTurn so battle stays in state
 
     const store = createGameStore(state);
+    const EconomyService = { incResources: () => 0, decResources: () => true, incGold: () => 0, decGold: () => true, incrRes: () => {} };
     const CombatService = CombatServiceFactory(
       store,
       HeroService,
       DungeonService,
       GameUiService,
       GameConfig,
-      $timeout
+      $timeout,
+      EconomyService
     );
 
     const monList = [{ id: 0, name: 'Goblin', health: 1000, minDamage: 1, maxDamage: 1, value: 1, high: undefined, low: undefined }] as Monster[];

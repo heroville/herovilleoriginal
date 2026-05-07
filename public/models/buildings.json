@@ -6,7 +6,7 @@
     "enabled": true,
     "tier": 1,
     "cost": 5,
-    "multiplier": 4,
+    "multiplier": 3.2,
     "description": "This building allows heroes to join the town."
   },
   {
@@ -15,8 +15,8 @@
     "count": 0,
     "enabled": false,
     "tier": 1,
-    "cost": 25,
-    "multiplier": 5,
+    "cost": 20,
+    "multiplier": 2.8,
     "description": "Adds the Ability to create potions to sell to heroes for gold as well as extending the gold and resource capacities."
   },
   {
@@ -25,8 +25,8 @@
     "count": 0,
     "enabled": false,
     "tier": 1,
-    "cost": 40,
-    "multiplier": 10,
+    "cost": 35,
+    "multiplier": 3.0,
     "description": "Allows you to purchase blueprints which unlock new buildings."
   },
   {
@@ -35,8 +35,8 @@
     "count": 0,
     "enabled": false,
     "tier": 1,
-    "cost": 100,
-    "multiplier": 5,
+    "cost": 80,
+    "multiplier": 3.0,
     "description": "Allows you to construct weapons which can be sold to the hero for gold."
   },
   {
@@ -45,8 +45,8 @@
     "count": 0,
     "enabled": false,
     "tier": 1,
-    "cost": 150,
-    "multiplier": 5,
+    "cost": 120,
+    "multiplier": 3.0,
     "description": "Allows you to purchase Upgrades giving small bonuses to many different things."
   },
   {
@@ -55,8 +55,8 @@
     "count": 0,
     "enabled": false,
     "tier": 1,
-    "cost": 1000,
-    "multiplier": 5,
+    "cost": 500,
+    "multiplier": 3.2,
     "description": "Allows you to construct better potions that provide benefits to the hero."
   },
   {
@@ -66,7 +66,7 @@
     "enabled": false,
     "tier": 1,
     "cost": 25,
-    "multiplier": 5,
+    "multiplier": 3.0,
     "description": "Discovers a new Dungeon for your heroes"
   },
   {
@@ -75,7 +75,7 @@
     "count": 0,
     "enabled": false,
     "tier": 1,
-    "cost": 10000,
+    "cost": 5000,
     "multiplier": 1,
     "description": "Allows heroes to gain a class"
   },
@@ -85,8 +85,8 @@
     "count": 0,
     "enabled": false,
     "tier": 1,
-    "cost": 35000,
-    "multiplier": 5,
+    "cost": 15000,
+    "multiplier": 3.5,
     "description": "Allows parties to adventure into elite dungeons."
   },
   {
@@ -95,8 +95,8 @@
     "count": 0,
     "enabled": false,
     "tier": 1,
-    "cost": 100,
-    "multiplier": 4,
+    "cost": 60,
+    "multiplier": 2.5,
     "description": "Allows you to train workers and gatherers."
   }
 ]

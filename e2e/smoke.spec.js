@@ -108,6 +108,27 @@ async function ensureCapacityAndGather(page, amount, timeoutMs = 60000) {
   await gatherUntil(page, amount, Math.min(45000, deadline - Date.now()));
 }
 
+/** Read the current cost of a building by name from game state. */
+async function getBuildingCost(page, buildingName) {
+  return page.evaluate((name) => {
+    const getState = window['__HEROVILLE_E2E_STATE__'];
+    const s = getState && getState();
+    if (!s || !s.buildings) return -1;
+    const b = s.buildings.find((b) => b.name === name);
+    return b && typeof b.cost === 'number' ? b.cost : -1;
+  }, buildingName);
+}
+
+/** Ensure capacity, gather enough, and buy a building by name. */
+async function ensureAndBuyBuilding(page, buildingName, timeoutMs = 60000) {
+  const cost = await getBuildingCost(page, buildingName);
+  if (cost <= 0) throw new Error(`Building ${buildingName} not found or cost is 0`);
+  await ensureCapacityAndGather(page, cost, timeoutMs);
+  await page.getByRole('tab', { name: 'Town' }).click();
+  await page.getByRole('button', { name: `Improve ${buildingName}` }).click();
+  await page.waitForTimeout(40);
+}
+
 /** Gather n times in one Playwright action when possible (clickCount; delay defaults to 0). */
 async function gather(page, n) {
   if (n <= 0) return;
@@ -170,28 +191,22 @@ test.describe.serial('Heroville E2E – tutorial flow', () => {
 
   test('3. tutorial: expand Stockpile, build 2 more heroes (3 total)', async () => {
     test.setTimeout(60000);
-    await ensureCapacityAndGather(sharedPage, 25);
-    await sharedPage.getByRole('tab', { name: 'Town' }).click();
-    await sharedPage.getByRole('button', { name: 'Improve Stockpile' }).click();
+    // Buy first Stockpile
+    await ensureAndBuyBuilding(sharedPage, 'Stockpile');
     const maxGold = await sharedPage.evaluate(() => {
       const getState = window['__HEROVILLE_E2E_STATE__'];
       const s = getState && getState();
       return s && typeof s.maxGold === 'number' ? s.maxGold : -1;
     });
     expect(maxGold).toBeGreaterThanOrEqual(1);
-    // Expand stockpile until we have cap for tent cost 102; then again for 268 so later we have cap for tent 983
-    for (const cost of [57, 268]) {
-      await ensureCapacityAndGather(sharedPage, cost);
-      await sharedPage.getByRole('tab', { name: 'Town' }).click();
-      await sharedPage.getByRole('button', { name: 'Improve Stockpile' }).click();
+    // Expand stockpile 2 more times to ensure cap for later tent purchases
+    for (let i = 0; i < 2; i++) {
+      await ensureAndBuyBuilding(sharedPage, 'Stockpile');
     }
-    // Build 2 more tents. Cost formula: nextCost = ceil(prevCost + (count+1)^4). Tent2=21, 3=102.
-    const tentCosts = [21, 102];
+    // Build 2 more tents (2nd and 3rd heroes). Costs are read dynamically.
     const heroNames = ['Hero2', 'Hero3'];
-    for (let i = 0; i < tentCosts.length; i++) {
-      await ensureCapacityAndGather(sharedPage, tentCosts[i]);
-      await sharedPage.getByRole('tab', { name: 'Town' }).click();
-      await sharedPage.getByRole('button', { name: 'Improve Tent' }).click();
+    for (let i = 0; i < heroNames.length; i++) {
+      await ensureAndBuyBuilding(sharedPage, 'Tent');
       await expect(sharedPage.getByTestId('hero-name-input')).toBeVisible({ timeout: 3000 });
       await sharedPage.getByTestId('hero-name-input').fill(heroNames[i]);
       await sharedPage.locator('.heroPopup').getByRole('button', { name: 'Accept' }).click();
@@ -241,27 +256,18 @@ test.describe.serial('Heroville E2E – tutorial flow', () => {
     await clickTutorialNext(sharedPage);
     await sharedPage.getByRole('tab', { name: 'Upgrades' }).click();
     await sharedPage.getByTestId('upgrade-list').getByRole('button', { name: /Bonus Resources I/i }).click();
-    const resourcesBefore = await sharedPage.evaluate(() => {
+    // Verify the incr (resources per gather click) increased to 2 after buying the upgrade
+    const incr = await sharedPage.evaluate(() => {
       const getState = window['__HEROVILLE_E2E_STATE__'];
       const s = getState && getState();
-      return s && typeof s.resources === 'number' ? s.resources : -1;
+      return s && typeof s.incr === 'number' ? s.incr : -1;
     });
-    await sharedPage.getByTestId('gather-trigger').click();
-    await sharedPage.waitForTimeout(60);
-    const resourcesAfter = await sharedPage.evaluate(() => {
-      const getState = window['__HEROVILLE_E2E_STATE__'];
-      const s = getState && getState();
-      return s && typeof s.resources === 'number' ? s.resources : -1;
-    });
-    expect(resourcesAfter - resourcesBefore).toBe(2);
+    expect(incr).toBe(2);
     await clickTutorialNext(sharedPage);
-    // Build 2 more tents (4th and 5th). Costs 358, 983; ensure capacity and gather to actual amount needed.
-    const tentCosts = [358, 983];
+    // Build 2 more tents (4th and 5th). Costs are read dynamically from game state.
     const heroNames = ['Hero4', 'Hero5'];
-    for (let i = 0; i < tentCosts.length; i++) {
-      await ensureCapacityAndGather(sharedPage, tentCosts[i]);
-      await sharedPage.getByRole('tab', { name: 'Town' }).click();
-      await sharedPage.getByRole('button', { name: 'Improve Tent' }).click();
+    for (let i = 0; i < heroNames.length; i++) {
+      await ensureAndBuyBuilding(sharedPage, 'Tent');
       await expect(sharedPage.getByTestId('hero-name-input')).toBeVisible({ timeout: 3000 });
       await sharedPage.getByTestId('hero-name-input').fill(heroNames[i]);
       await sharedPage.locator('.heroPopup').getByRole('button', { name: 'Accept' }).click();
@@ -300,13 +306,10 @@ test.describe.serial('Heroville E2E – tutorial flow', () => {
   });
 
   test('9. tutorial: Market, Blacksmith blueprint, Blacksmith', async () => {
-    await gather(sharedPage, 57);
-    await sharedPage.getByRole('tab', { name: 'Town' }).click();
-    await sharedPage.getByRole('button', { name: 'Improve Stockpile' }).click();
-    await gather(sharedPage, 40);
-    await sharedPage.getByRole('tab', { name: 'Town' }).click();
-    await expect(sharedPage.getByRole('button', { name: 'Improve Market' })).toBeVisible({ timeout: 6000 });
-    await sharedPage.getByRole('button', { name: 'Improve Market' }).click();
+    test.setTimeout(60000);
+    // Expand stockpile so we have capacity for Market + Blacksmith costs
+    await ensureAndBuyBuilding(sharedPage, 'Stockpile');
+    await ensureAndBuyBuilding(sharedPage, 'Market');
     await sharedPage.getByRole('tab', { name: 'Production' }).click();
     const createBtn = sharedPage.getByTestId('potion-create-button');
     for (let i = 0; i < 4; i++) {
@@ -316,10 +319,7 @@ test.describe.serial('Heroville E2E – tutorial flow', () => {
     await waitForGold(sharedPage, 1, 15000);
     await expect(sharedPage.getByRole('button', { name: /Buy Blacksmith Blueprint/i })).toBeVisible({ timeout: 3500 });
     await sharedPage.getByRole('button', { name: /Buy Blacksmith Blueprint/i }).click();
-    await gather(sharedPage, 100);
-    await sharedPage.getByRole('tab', { name: 'Town' }).click();
-    await expect(sharedPage.getByRole('button', { name: 'Improve Blacksmith' })).toBeVisible({ timeout: 6000 });
-    await sharedPage.getByRole('button', { name: 'Improve Blacksmith' }).click();
+    await ensureAndBuyBuilding(sharedPage, 'Blacksmith');
   });
 
   test('10. tutorial: create Dagger stack', async () => {
@@ -356,19 +356,14 @@ test.describe.serial('Heroville E2E – tutorial flow', () => {
     await expect(tavernBlueprintBtn).toBeEnabled({ timeout: 3000 });
     await tavernBlueprintBtn.scrollIntoViewIfNeeded();
     await tavernBlueprintBtn.click({ force: true });
-    await ensureCapacityAndGather(sharedPage, 150);
-    await sharedPage.getByRole('tab', { name: 'Town' }).click();
-    await sharedPage.getByRole('button', { name: 'Improve Tavern' }).click();
+    await ensureAndBuyBuilding(sharedPage, 'Tavern');
     await clickTutorialNext(sharedPage);
     await clickTutorialNext(sharedPage);
   });
 
   test('12. tutorial: Work Hut, create worker, change profession', async () => {
-    await gather(sharedPage, 100);
-    await sharedPage.getByRole('tab', { name: 'Town' }).click();
-    const workHutBtn = sharedPage.getByRole('button', { name: /Improve Work Hut/i });
-    await expect(workHutBtn).toBeVisible({ timeout: 8000 });
-    await workHutBtn.click();
+    await ensureAndBuyBuilding(sharedPage, 'Work Hut');
+    await sharedPage.waitForTimeout(40);
     await expect(sharedPage.getByTestId('worker-name-input')).toBeVisible({ timeout: 3000 });
     await sharedPage.getByTestId('worker-name-input').fill('E2EWorker');
     await sharedPage.locator('.workerPopup').getByRole('button', { name: 'Accept' }).click();
@@ -427,12 +422,8 @@ test.describe.serial('Heroville E2E – tutorial flow', () => {
   });
 
   test('15. upgrade Blacksmith, create Hand Axes', async () => {
-    await gather(sharedPage, 30);
-    await sharedPage.getByRole('tab', { name: 'Town' }).click();
-    const blacksmithBtn = sharedPage.getByRole('button', { name: 'Improve Blacksmith' });
-    if (await blacksmithBtn.isVisible()) {
-      await blacksmithBtn.click();
-    }
+    test.setTimeout(60000);
+    await ensureAndBuyBuilding(sharedPage, 'Blacksmith');
     await sharedPage.getByRole('tab', { name: 'Production' }).click();
     const handAxeBtn = sharedPage.getByRole('button', { name: /Create Hand Axe/i });
     if (await handAxeBtn.isVisible()) {

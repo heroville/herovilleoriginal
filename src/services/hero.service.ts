@@ -11,7 +11,6 @@ import {
   HERO_XP_PER_LEVEL,
   HERO_REST_HEAL_PERCENT,
   HERO_AUTO_HEAL_THRESHOLD,
-  WEAPON_DURABILITY_LOW_THRESHOLD,
   BUILDING_BLACKSMITH,
   BUILDING_TAVERN,
   WORKER_PROD_SPEED_PER_LEVEL,
@@ -210,8 +209,9 @@ function HeroServiceFactory(
     const s = getFlatState(store);
     for (let i = 0; i < s.heroList.length; i++) {
       const hero = s.heroList[i];
-      const weapon = hero.equip.weapon;
       if (hero.location !== 'Home') continue;
+      // All heroes at home generate resources each tick
+      EconomyService.incrRes(Math.ceil(hero.level / 2));
       if (hero.equip.gold > 0) {
         if (s.buildings[BUILDING_BLACKSMITH].count > hero.equip.weapon.id) {
           for (let j = s.buildings[BUILDING_BLACKSMITH].count; j > hero.equip.weapon.id; j--) {
@@ -225,16 +225,6 @@ function HeroServiceFactory(
               }
             }
           }
-        }
-        if (
-          (weapon.durability <= (s.weapons[weapon.id]?.durability ?? 0) * WEAPON_DURABILITY_LOW_THRESHOLD ||
-            (weapon as unknown as { minDamage: number }).minDamage < (s.weapons[weapon.id] as unknown as { minDamage: number })?.minDamage) &&
-          hero.equip.gold >= (weapon.sellPrice ?? 0) &&
-          s.weapons[weapon.id].count > 0
-        ) {
-          hero.equip.gold -= weapon.sellPrice ?? 0;
-          s.weapons[weapon.id].count--;
-          hero.equip.weapon = structuredClone(s.weapons[weapon.id]);
         }
         // Buy potions — iterate highest-tier first so gold is spent on the most valuable
         // potions when the hero can't afford to fill every slot.
@@ -262,8 +252,7 @@ function HeroServiceFactory(
           hero.equip.gold -= s.potion.sellPrice;
           EconomyService.incGold(s.potion.sellPrice);
           s.potion.count--;
-          const healAmount = Math.floor((hero.health / 100) * (s.potion.healing ?? 0));
-          hero.currHealth = Math.min(hero.health, hero.currHealth + healAmount);
+          hero.currHealth = Math.min(hero.health, hero.currHealth + (s.potion.healing ?? 0));
         }
       }
       // Passive rest heal
@@ -275,8 +264,6 @@ function HeroServiceFactory(
       ) {
         DungeonService.attemptDungeon(hero.dungeon, [hero]);
         hero.location = s.dungeons[hero.dungeon].name;
-      } else if (hero.progress === 'Idle') {
-        EconomyService.incrRes(Math.ceil(s.heroList[i].level / 4) ** 2);
       }
     }
     dispatchHeroes(store, s);

@@ -53,7 +53,7 @@ function DungeonServiceFactory(store: AppStore, $timeout: (fn: () => void, ms: n
     for (let i = 0; i < MONSTERS_PER_BATCH; i++) {
       if (available.length === 0) break;
       const idx = Math.floor(Math.random() * available.length);
-      const randomMax = Math.ceil(Math.random() * (level * level + 1));
+      const randomMax = Math.ceil(Math.random() * (level * Math.ceil(level * 0.75) + 1));
       const randomMin = Math.ceil(Math.random() * randomMax);
       const averagedmg = Math.ceil((randomMax + randomMin) / 2);
       const mobHealth = Math.floor(
@@ -67,7 +67,7 @@ function DungeonServiceFactory(store: AppStore, $timeout: (fn: () => void, ms: n
         maxDamage: randomMax,
         health: mobHealth,
         low: 'Junk;j;' + level * MONSTER_LOOT_MULTIPLIER,
-        high: 'Gold;g;' + level,
+        high: 'Gold;g;' + Math.ceil(level * 0.6),
       });
       available.splice(idx, 1);
     }
@@ -82,7 +82,7 @@ function DungeonServiceFactory(store: AppStore, $timeout: (fn: () => void, ms: n
     const available = s.monsterList.monsters.filter((m) => !usedNames.has(m.name));
     if (available.length === 0) return;
     const idx = Math.floor(Math.random() * available.length);
-    const randomMax = Math.ceil(Math.random() * (level * level + 1));
+    const randomMax = Math.ceil(Math.random() * (level * Math.ceil(level * 0.75) + 1));
     const randomMin = Math.ceil(Math.random() * randomMax);
     const averagedmg = Math.ceil((randomMax + randomMin) / 2);
     const mobHealth = Math.floor(
@@ -96,7 +96,7 @@ function DungeonServiceFactory(store: AppStore, $timeout: (fn: () => void, ms: n
       maxDamage: randomMax,
       health: mobHealth,
       low: 'Junk;j;' + level * MONSTER_LOOT_MULTIPLIER,
-      high: 'Gold;g;' + level,
+      high: 'Gold;g;' + Math.ceil(level * 0.6),
     });
     dispatchDungeons(store, s);
   }
@@ -112,7 +112,7 @@ function DungeonServiceFactory(store: AppStore, $timeout: (fn: () => void, ms: n
       encounterLevel: s.dungeons.length + 2,
       bossID: s.dungeons.length,
       enabled: true,
-      reward: 'Gold;g;' + (s.dungeons.length + 1),
+      reward: 'Gold;g;' + Math.ceil((s.dungeons.length + 1) * 0.5),
     });
     dispatchDungeons(store, s);
     createMonster(s.dungeons.length);
